@@ -1,0 +1,14 @@
+# Optional, Jetson/hardware-only dependencies for bridge.pose_source.Bno08xPoseSource
+# (BNO085/BNO086 9-DoF IMU over I2C).
+#
+# Not part of the base requirements.txt because Adafruit-Blinka detects the
+# host board at install time and expects real I2C hardware to be present --
+# it is not expected to install cleanly on a generic desktop/CI machine.
+# Install this file only on the actual Jetson Orin target, after confirming
+# I2C is enabled (e.g. `i2cdetect -y <bus>` shows the BNO08x at its address).
+#
+# pose.source: "bno08x" in config/bridge.yaml requires this file to be
+# installed; pose.source: "mock" (the default) does not.
+
+Adafruit-Blinka>=8.0
+adafruit-circuitpython-bno08x>=1.2

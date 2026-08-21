@@ -1,0 +1,82 @@
+camera:
+  intrinsics:                 # pinhole model; replace with a real calibration before hardware use
+    fx: 500.0
+    fy: 500.0
+    cx: 320.0
+    cy: 240.0
+
+laser:
+  # Laser origin relative to the camera's optical center, in camera frame
+  # (X right, Y down, Z forward), boresight assumed parallel to camera Z.
+  # PLACEHOLDER -- measure/calibrate before connecting real hardware; see
+  # bridge/laser_alignment.py for how this is used.
+  mount_offset_m: {x: 0.0, y: 0.0, z: 0.0}
+  sensor: mock                # mock | serial (serial = Benewake TF02-Pro, see bridge/range_sensor.py)
+  mock:
+    fixed_distance_m: 250.0   # constant range returned by MockRangeSensor
+  serial:
+    # Benewake TF02-Pro over UART. PLACEHOLDER port -- fill in once wired up
+    # (e.g. "/dev/ttyUSB0" on Jetson, "COM3" on Windows dev). Switch
+    # laser.sensor to "serial" above once this is confirmed against real
+    # hardware.
+    port: null
+    baud_rate: 115200           # TF02-Pro default; sensor supports 9600-921600
+    min_signal_strength: 100    # PLACEHOLDER -- tune against real TF02-Pro AMP output
+    read_timeout_s: 0.3         # cached sample older than this is reported invalid
+
+pose:
+  source: mock                 # mock | bno08x (bno08x = BNO085/BNO086 IMU, see bridge/pose_source.py)
+  mock:
+    # 4x4 World<-Platform extrinsic returned by MockPoseSource. "identity"
+    # means the scope platform sits at the world origin, boresight aligned
+    # with world +X (level, straight-ahead).
+    extrinsic: identity
+  bno08x:
+    # BNO085/BNO086 9-DoF IMU, rigidly mounted to the scope. Switch
+    # pose.source to "bno08x" above once wired up on Jetson Orin's I2C bus.
+    i2c_bus: 1
+    i2c_address: 0x4A
+    # game_rotation_vector (no magnetometer) chosen over rotation_vector
+    # because the IMU sits on a metal firearm body -- see
+    # bridge/pose_source.py:Bno08xPoseSource docstring. Revisit if
+    # magnetometer calibration against the real mounted hardware turns out
+    # clean and absolute heading is needed.
+    report_type: game_rotation_vector   # game_rotation_vector | rotation_vector
+    # Fine mounting-angle calibration, applied on top of the fixed
+    # IMU-axis-to-platform-axis remap in Bno08xPoseSource. PLACEHOLDER --
+    # measure once the IMU is physically mounted (same pattern as
+    # aiming_engine's scope.mount_rotation_rad).
+    mount_rotation_rad: {roll: 0.0, pitch: 0.0, yaw: 0.0}
+    # Scope treated as stationary at the world origin: valid for a
+    # handheld/shoulder-mounted scope where the operator's own translation
+    # during one engagement (a few seconds) is negligible next to how much
+    # the aim direction itself moves. Revisit if the operator walks a
+    # meaningful distance while tracking a target.
+    fixed_position_m: {x: 0.0, y: 0.0, z: 0.0}
+    read_timeout_s: 0.2         # cached sample older than this is reported invalid
+
+tracker:
+  # bridge.optical_flow_tracker.OpticalFlowTracker (YOLO init/periodic +
+  # Lucas-Kanade optical-flow follower). This is the project's confirmed
+  # tracker, validated against test/visible.mp4 -- see known_issues.md.
+  # PLACEHOLDER model_path -- point this at the trained weights on the
+  # target machine (e.g. detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt).
+  model_path: detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt
+  device: "0"                  # GPU index as a string, or "cpu"
+  conf_thres: 0.25
+  # The algorithm's GA-tuned constants (ROI_MARGIN, CENTER_SHIFT_THRES,
+  # PERIODIC_DETECT_INTERVAL, etc.) are NOT configurable here -- they're
+  # validated, hardcoded constants in bridge/optical_flow_tracker.py.
+
+# detector: currently unused -- see bridge/config.py:DetectorConfig docstring.
+# Kept loaded (not deleted) in case a standalone Detector backend is needed
+# again; onnx.weights_path points at a file removed from this checkout.
+detector:
+  backend: onnx                # onnx (desktop/dev) | trt (Jetson only, requires tensorrt+pycuda)
+  onnx:
+    weights_path: bridge/weights/base_416.onnx
+    imgsz: [416, 416]
+    conf_thres: 0.25
+    iou_thres: 0.45
+  trt:
+    engine_path: null

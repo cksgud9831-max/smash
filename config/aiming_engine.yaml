@@ -1,0 +1,68 @@
+projectile:
+  muzzle_velocity: 850.0        # m/s -- simulated projectile used only to compute the aim solution shown on the HUD
+  forces: [gravity]             # pluggable list; add "drag" once mass_kg/diameter_m below are set to real values (see forces.py:DragForce)
+  gravity: 9.81                 # m/s^2
+  integrator_step: 0.01         # s, RK4 fixed step (gravity-only is exact at any step; with drag enabled,
+                                 # cross-checked against an independent adaptive integrator (scipy solve_ivp/RK45)
+                                 # in tests/test_forces.py::test_production_integrator_step_converged_for_drag --
+                                 # converged to <5mm at 800 m/s over t up to 1.0s. Re-check if muzzle_velocity or
+                                 # integrator_step change materially.
+  # Below: only read when "drag" is added to `forces` above. PLACEHOLDER --
+  # mass_kg/diameter_m must be set to the real projectile's values before
+  # enabling drag; the G1/G7 Cd(Mach) curves in forces.py are themselves
+  # unverified approximations (see that file's module comment) needing
+  # validation against a real source before trusting the numbers, not just
+  # the on/off toggle here.
+  drag_model: G1                # G1 (flat-base) | G7 (boat-tail) -- see forces.py:DRAG_TABLES
+  mass_kg: 0.0                  # PLACEHOLDER -- must be > 0 to enable drag
+  diameter_m: 0.0                # PLACEHOLDER -- must be > 0 to enable drag
+  air_density_kg_m3: 1.225      # ICAO standard sea-level; override for altitude/temperature
+  speed_of_sound_mps: 340.3     # standard sea-level, 15C
+
+scope:
+  mount_offset_m: {x: 0.0, y: 0.0, z: -0.05}      # scope origin relative to camera frame
+  mount_rotation_rad: {roll: 0.0, pitch: 0.0, yaw: 0.0}
+
+solver:
+  max_iterations: 5             # capped for real-time 45fps; analytic gravity shortcut means
+                                # warm-started solves converge in 1-2 iterations typically
+  tolerance_m: 1.0e-3           # residual norm convergence threshold
+  jacobian_epsilon: 1.0e-4      # finite-difference step
+  warm_start: true
+
+target_state:
+  estimator: constant_velocity  # Options: constant_velocity | constant_acceleration
+  # ConstantVelocityEstimator fits linear OLS over history_length samples.
+  # ConstantAccelerationKalmanEstimator (CA KF) fits a 9-state 3D Kalman filter tracking 3D acceleration.
+  history_length: 20
+  min_dt: 1.0e-3
+  process_noise_std: 1.0        # Process noise std for ConstantAccelerationKalmanEstimator
+  measurement_noise_std: 0.1    # Measurement noise std for ConstantAccelerationKalmanEstimator
+
+hit_probability:
+  weights:
+    tracking_confidence: 0.3
+    follower_stability: 0.2
+    aim_error: 0.3
+    distance: 0.1
+    velocity: 0.1
+  distance_scale_m: 500.0       # soft normalization scale for distance factor
+  velocity_scale_mps: 30.0      # soft normalization scale for target-speed factor
+  aim_error_scale_mrad: 5.0     # soft normalization scale for aim-error factor
+
+aim_readiness:
+  hit_probability_threshold: 0.75
+  max_aim_error_mrad: 5.0
+  min_valid_range_m: 5.0
+  max_valid_range_m: 800.0
+
+aim_state_machine:
+  # Gates off bridge.TrackerFrame.tracking_confidence, which is itself scaled by
+  # bridge.yaml's tracker.uncertainty_threshold (crisis_mode gate) -- the two must be re-tuned
+  # together whenever camera resolution/target scale changes, or this threshold becomes
+  # unreachable and the state machine gets stuck in SEARCH with no error raised. See
+  # known_issues.md section 1.4.
+  tracking_confidence_threshold: 0.6
+  min_stable_frames_for_track: 3
+  min_stable_frames_for_aim: 5
+  track_lost_timeout_s: 0.3

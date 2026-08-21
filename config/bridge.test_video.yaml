@@ -1,0 +1,50 @@
+camera:
+  intrinsics:                 # pinhole model; NOT a real calibration -- proportionally
+    # scaled from the desktop-dev placeholder in bridge.yaml (fx=fy=500 @ 640x480) to
+    # this recorded test video's actual resolution (1920x1080) so LaserAligner's pixel
+    # ray direction is at least aspect-correct, not calibrated against real optics.
+    fx: 1500.0
+    fy: 1500.0
+    cx: 960.0
+    cy: 540.0
+
+laser:
+  mount_offset_m: {x: 0.0, y: 0.0, z: 0.0}
+  sensor: mock                # test/visible.mp4 has no real laser data -- Mock stand-in
+  mock:
+    fixed_distance_m: 100.0   # arbitrary fixed range for pipeline smoke-testing only
+  serial:
+    port: null
+    baud_rate: 115200
+    min_signal_strength: 100
+    read_timeout_s: 0.3
+
+pose:
+  source: mock                # test/visible.mp4 has no real IMU data -- Mock stand-in
+  mock:
+    extrinsic: identity        # roll=pitch=yaw=0, platform at world origin
+  bno08x:
+    i2c_bus: 1
+    i2c_address: 0x4A
+    report_type: game_rotation_vector
+    mount_rotation_rad: {roll: 0.0, pitch: 0.0, yaw: 0.0}
+    fixed_position_m: {x: 0.0, y: 0.0, z: 0.0}
+    read_timeout_s: 0.2
+
+tracker:
+  # Same OpticalFlowTracker as bridge.yaml, pointed at the local repo-relative
+  # weights path this checkout actually has (see known_issues.md for the
+  # test/visible.mp4 validation run: mean IoU 0.760, 0 recovery events).
+  model_path: detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt
+  device: "0"
+  conf_thres: 0.25
+
+detector:
+  backend: onnx
+  onnx:
+    weights_path: bridge/weights/base_416.onnx
+    imgsz: [416, 416]
+    conf_thres: 0.25
+    iou_thres: 0.45
+  trt:
+    engine_path: null

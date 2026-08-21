@@ -1,0 +1,11 @@
+numpy>=1.24
+pyyaml>=6.0
+scipy>=1.10
+opencv-python>=4.8
+onnxruntime>=1.16
+pyserial>=3.5   # bridge.range_sensor.Tf02ProRangeSensor (Benewake TF02-Pro over UART)
+
+# Jetson/hardware-only extras (see requirements-bridge-hardware.txt):
+# bridge.pose_source.Bno08xPoseSource needs Adafruit Blinka + adafruit-circuitpython-bno08x,
+# which require actual I2C hardware / board detection to install cleanly and are therefore
+# NOT part of this base requirements file.

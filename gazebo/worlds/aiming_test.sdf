@@ -1,0 +1,115 @@
+<?xml version="1.0" ?>
+<!--
+  Level 2 integration test world: a "platform" (shooter/scope mount, with
+  an attached IMU sensor) and a "target" (virtual drone), both driven
+  externally via the /world/aiming_test/set_pose service from the Python
+  bridge script (step 2) rather than by physics/forces -- gravity is
+  disabled on both bodies so they hold position between commands instead
+  of free-falling. This keeps the *commanded* trajectory as exact ground
+  truth (matching the same TrueTrajectory/TruePlatform math already
+  validated in the headless Monte Carlo simulator) while still exercising
+  a real simulated IMU sensor and Gazebo's own pose-publishing pipeline,
+  not just closed-form Python.
+
+  No camera/rendering sensor here by design -- per the agreed plan, video
+  frames from test/visible.mp4 (via bridge.OpticalFlowTracker) supply the
+  2D tracking side; Gazebo supplies platform attitude (IMU) and range
+  (computed from the two models' published ground-truth poses) only.
+-->
+<sdf version="1.6">
+  <world name="aiming_test">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"></plugin>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"></plugin>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"></plugin>
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"></plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"></plugin>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Shooter / scope mount. World-frame convention matches
+         aiming_engine: platform sits near the origin, boresight along +X
+         when level. -->
+    <model name="platform">
+      <static>false</static>
+      <pose>0 0 1 0 0 0</pose>
+      <link name="base_link">
+        <gravity>false</gravity>
+        <inertial>
+          <mass>1.0</mass>
+          <inertia>
+            <ixx>0.01</ixx><iyy>0.01</iyy><izz>0.01</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="visual">
+          <geometry><box><size>0.3 0.15 0.15</size></box></geometry>
+          <material>
+            <ambient>0.2 0.5 0.9 1</ambient>
+            <diffuse>0.2 0.5 0.9 1</diffuse>
+          </material>
+        </visual>
+        <sensor name="imu_sensor" type="imu">
+          <always_on>1</always_on>
+          <update_rate>50</update_rate>
+          <topic>platform/imu</topic>
+        </sensor>
+      </link>
+      <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+        <publish_link_pose>true</publish_link_pose>
+        <publish_model_pose>true</publish_model_pose>
+        <use_pose_vector_msg>false</use_pose_vector_msg>
+        <static_publisher>true</static_publisher>
+        <static_update_frequency>50</static_update_frequency>
+      </plugin>
+    </model>
+
+    <!-- Virtual target (e.g. the drone). Initial pose ~75m downrange,
+         matching the 50-100m envelope already validated in the Monte
+         Carlo run. Ground-truth pose is read back via PosePublisher. -->
+    <model name="target">
+      <static>false</static>
+      <pose>75 0 3 0 0 0</pose>
+      <link name="body">
+        <gravity>false</gravity>
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.001</ixx><iyy>0.001</iyy><izz>0.001</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+        <visual name="visual">
+          <geometry><sphere><radius>0.3</radius></sphere></geometry>
+          <material>
+            <ambient>0.9 0.3 0.2 1</ambient>
+            <diffuse>0.9 0.3 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+      <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+        <publish_link_pose>true</publish_link_pose>
+        <publish_model_pose>true</publish_model_pose>
+        <use_pose_vector_msg>false</use_pose_vector_msg>
+        <static_publisher>true</static_publisher>
+        <static_update_frequency>50</static_update_frequency>
+      </plugin>
+    </model>
+
+  </world>
+</sdf>
