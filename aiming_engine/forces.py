@@ -101,6 +101,28 @@ G7_DRAG_TABLE: list[tuple[float, float]] = [
 DRAG_TABLES: dict[str, list[tuple[float, float]]] = {"G1": G1_DRAG_TABLE, "G7": G7_DRAG_TABLE}
 
 
+import numba
+
+
+@numba.jit(nopython=True, cache=True)
+def _numba_drag_acceleration(
+    velocity: np.ndarray,
+    mach_points: np.ndarray,
+    cd_points: np.ndarray,
+    speed_of_sound: float,
+    air_density: float,
+    area_over_mass: float,
+) -> np.ndarray:
+    speed = float(np.linalg.norm(velocity))
+    if speed < 1e-9:
+        return np.zeros(3)
+
+    mach = speed / speed_of_sound
+    cd = float(np.interp(mach, mach_points, cd_points))
+    drag_accel_mag = 0.5 * air_density * cd * area_over_mass * speed
+    return -drag_accel_mag * velocity
+
+
 class DragForce(ForceModel):
     """Quadratic air drag, opposing velocity, scaled by a Mach-indexed
     drag-coefficient curve. See the module comment above for the formula,
@@ -141,14 +163,15 @@ class DragForce(ForceModel):
         return float(np.interp(mach, self._mach_points, self._cd_points))
 
     def acceleration(self, position: np.ndarray, velocity: np.ndarray, t: float) -> np.ndarray:
-        speed = float(np.linalg.norm(velocity))
-        if speed < 1e-9:
-            return np.zeros(3)
+        return _numba_drag_acceleration(
+            velocity,
+            self._mach_points,
+            self._cd_points,
+            self._speed_of_sound,
+            self._air_density,
+            self._area_over_mass,
+        )
 
-        mach = speed / self._speed_of_sound
-        cd = self._drag_coefficient(mach)
-        drag_accel_mag = 0.5 * self._air_density * cd * self._area_over_mass * speed
-        return -drag_accel_mag * velocity
 
 
 FORCE_REGISTRY = {
