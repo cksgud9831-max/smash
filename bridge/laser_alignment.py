@@ -27,12 +27,16 @@ uncorrected.
 
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 
 
 class LaserAligner:
     def __init__(self, laser_offset_cam_m: np.ndarray):
         self._offset = np.asarray(laser_offset_cam_m, dtype=np.float64)
+        self._cached_intrinsics: Optional[np.ndarray] = None
+        self._cached_inv_k: Optional[np.ndarray] = None
 
     def correct(
         self,
@@ -41,8 +45,14 @@ class LaserAligner:
         intrinsics: np.ndarray,
     ) -> float:
         u, v = pixel
+
+        # Fast path / Cached inverse matrix to avoid np.linalg.inv every frame
+        if self._cached_intrinsics is None or not np.array_equal(self._cached_intrinsics, intrinsics):
+            self._cached_intrinsics = intrinsics.copy()
+            self._cached_inv_k = np.linalg.inv(intrinsics)
+
         ray_h = np.array([u, v, 1.0], dtype=np.float64)
-        direction_cam = np.linalg.inv(intrinsics) @ ray_h
+        direction_cam = self._cached_inv_k @ ray_h
         direction_cam = direction_cam / np.linalg.norm(direction_cam)
 
         target_point = self._offset + raw_range_m * np.array([0.0, 0.0, 1.0])
@@ -54,3 +64,4 @@ class LaserAligner:
                 f"({corrected_range}) for pixel={pixel}, raw_range_m={raw_range_m}"
             )
         return corrected_range
+

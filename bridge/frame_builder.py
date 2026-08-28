@@ -47,6 +47,13 @@ class TrackerFrameBuilder:
         self._laser_aligner = LaserAligner(np.array(config.laser.mount_offset_m, dtype=np.float64))
         self._intrinsics = config.camera.intrinsics_matrix()
 
+        # Zero-order hold caches for sensor dropout robustness (~100ms tolerance)
+        self._last_valid_range: Optional[float] = None
+        self._last_valid_range_ts: float = -1.0
+        self._last_valid_extrinsic: Optional[np.ndarray] = None
+        self._last_valid_pose_ts: float = -1.0
+        self._sensor_hold_timeout_s: float = 0.1  # hold valid sample for up to 3 frames @ 30fps
+
     def build(self, frame_bgr: np.ndarray, timestamp: float) -> Optional[TrackerFrame]:
         """Returns None (no output this frame) if there's nothing to track,
         or no valid range sample, or no valid pose sample -- callers should
@@ -65,17 +72,35 @@ class TrackerFrameBuilder:
         tracking_confidence = compute_tracking_confidence(result.score, result.is_recovery_event)
         follower_state = compute_follower_state(result.is_recovery_event)
 
+        # 1. Range sample retrieval with Zero-Order Hold (dropout tolerance)
         range_sample = self._range_sensor.read(timestamp)
-        if range_sample is None or not range_sample.valid:
+        effective_range_m: Optional[float] = None
+        if range_sample is not None and range_sample.valid:
+            self._last_valid_range = range_sample.distance_m
+            self._last_valid_range_ts = timestamp
+            effective_range_m = range_sample.distance_m
+        elif self._last_valid_range is not None and (timestamp - self._last_valid_range_ts) <= self._sensor_hold_timeout_s:
+            effective_range_m = self._last_valid_range
+
+        if effective_range_m is None:
             return None
 
         try:
-            laser_range_m = self._laser_aligner.correct(center_px, range_sample.distance_m, self._intrinsics)
+            laser_range_m = self._laser_aligner.correct(center_px, effective_range_m, self._intrinsics)
         except ValueError:
             return None
 
+        # 2. Pose sample retrieval with Zero-Order Hold (dropout tolerance)
         pose_sample = self._pose_source.read(timestamp)
-        if not pose_sample.valid:
+        effective_extrinsic: Optional[np.ndarray] = None
+        if pose_sample is not None and pose_sample.valid:
+            self._last_valid_extrinsic = pose_sample.extrinsic
+            self._last_valid_pose_ts = timestamp
+            effective_extrinsic = pose_sample.extrinsic
+        elif self._last_valid_extrinsic is not None and (timestamp - self._last_valid_pose_ts) <= self._sensor_hold_timeout_s:
+            effective_extrinsic = self._last_valid_extrinsic
+
+        if effective_extrinsic is None:
             return None
 
         return TrackerFrame(
@@ -91,6 +116,7 @@ class TrackerFrameBuilder:
             tracking_confidence=tracking_confidence,
             follower_state=follower_state,
             camera_intrinsics=self._intrinsics,
-            camera_extrinsics=pose_sample.extrinsic,
+            camera_extrinsics=effective_extrinsic,
             laser_range_m=laser_range_m,
         )
+

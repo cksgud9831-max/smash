@@ -6,7 +6,24 @@
 
 ## 📋 변경 이력 (Changelog)
 
+### [v1.2.0] 2026-08-28 — 브릿지(Bridge) 계층 최적화 및 센서 드롭아웃 견고성 강화
+
+#### 🚀 브릿지 성능 및 안정성 개선
+
+- **레이저 시차 역행렬 캐싱 (Matrix Inversion Caching)** (`bridge/laser_alignment.py`)
+  - 카메라 내부 파라미터(`intrinsics`)가 고정인 점에 착안, 매 프레임 반복되던 `np.linalg.inv()` 연산을 캐싱하여 시차 보정 연산 부하 제거
+- **센서 결측치 영차 홀드 보간 (Zero-Order Hold / Dropout Resilience)** (`bridge/frame_builder.py`)
+  - UART LiDAR(TF02-Pro) 및 I2C IMU(BNO08x)의 일시적 패킷 손실(Drop) 발생 시, 최근 유효 샘플을 최대 100ms(약 3프레임) 동안 유지하여 `TrackerFrame` 생성 파이프라인 연속성 보장
+  - 센서 통신 노이즈로 인한 조준 레티클의 순간 깜빡임(Flickering) 및 파이프라인 중단 방지
+
+#### ✅ 검증
+
+- 브릿지 및 조준 엔진 전체 단위 테스트 **114개 전체 통과**
+
+---
+
 ### [v1.1.0] 2026-08-28 — 조준 알고리즘 최적화 완료
+
 
 #### 🚀 성능 개선
 
