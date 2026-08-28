@@ -15,6 +15,9 @@
 - **센서 결측치 영차 홀드 보간 (Zero-Order Hold / Dropout Resilience)** (`bridge/frame_builder.py`)
   - UART LiDAR(TF02-Pro) 및 I2C IMU(BNO08x)의 일시적 패킷 손실(Drop) 발생 시, 최근 유효 샘플을 최대 100ms(약 3프레임) 동안 유지하여 `TrackerFrame` 생성 파이프라인 연속성 보장
   - 센서 통신 노이즈로 인한 조준 레티클의 순간 깜빡임(Flickering) 및 파이프라인 중단 방지
+- **LiDAR UART 수신 버퍼 고속 리싱크 (Fast Buffer Resynchronization)** (`bridge/range_sensor.py`)
+  - 시리얼 통신 노이즈 발생 시 1바이트씩 순차 삭제하던 $O(N)$ 비효율을 `buffer.find(header)` 기반 배치 슬라이싱으로 전환하여 버퍼 시프트 부하 제거
+
 
 #### ✅ 검증
 
