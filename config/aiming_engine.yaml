@@ -54,7 +54,8 @@ aim_readiness:
   hit_probability_threshold: 0.75
   max_aim_error_mrad: 5.0
   min_valid_range_m: 5.0
-  max_valid_range_m: 40.0
+  max_valid_range_m: 100.0
+
 
 
 aim_state_machine:
