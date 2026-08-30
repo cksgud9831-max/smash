@@ -1,0 +1,29 @@
+21:CONF_THRES = 0.25
+22:IMGSZ = (384, 640)
+34:INITIAL_SEARCH_INTERVAL = 5
+38:SEARCH_CONFIRM_HITS = 2
+62:PERIODIC_DETECT_INTERVAL = 20  # GA-efficient candidate: periodic YOLO correction interval
+74:YOLO_HIGH_CONF_THRES = 0.75    # Modified: high-confidence YOLO can recover a drifted follower
+75:YOLO_CENTER_JUMP_CONF_THRES = 0.70  # Modified: center jumps need a confident YOLO candidate
+98:    "PERIODIC_DETECT_INTERVAL": PERIODIC_DETECT_INTERVAL,
+111:    "PERIODIC_DETECT_INTERVAL": (15, 120),
+118:INT_PARAMS = {"MIN_FLOW_FEATURES", "LOW_FEATURE_LIMIT", "CENTER_SHIFT_THRES", "PERIODIC_DETECT_INTERVAL", "MAX_CENTER_DIST"}
+128:        "PERIODIC_DETECT_INTERVAL": 20,
+238:def yolo_detect(frame, model, roi_bbox=None, prev_bbox=None, conf=CONF_THRES):
+251:            results = model.predict(source=crop, conf=conf, imgsz=IMGSZ, device=DEVICE, verbose=False)
+277:    results = model.predict(source=frame, conf=conf, imgsz=IMGSZ, device=DEVICE, verbose=False)
+443:    if redetect_reason == "center_jump" and yolo_score >= YOLO_HIGH_CONF_THRES:
+475:    global CENTER_SHIFT_THRES, AREA_CHANGE_THRES, PERIODIC_DETECT_INTERVAL
+485:        "PERIODIC_DETECT_INTERVAL": PERIODIC_DETECT_INTERVAL,
+497:    PERIODIC_DETECT_INTERVAL = normalized["PERIODIC_DETECT_INTERVAL"]
+508:    global CENTER_SHIFT_THRES, AREA_CHANGE_THRES, PERIODIC_DETECT_INTERVAL
+516:    PERIODIC_DETECT_INTERVAL = old_params["PERIODIC_DETECT_INTERVAL"]
+915:            # frame 0 및 이후 INITIAL_SEARCH_INTERVAL마다
+919:                or search_frame_index % INITIAL_SEARCH_INTERVAL == 0
+932:                    if search_confirm_hits >= SEARCH_CONFIRM_HITS:
+968:                    "initial_search_interval": INITIAL_SEARCH_INTERVAL,
+1000:                    "initial_search_interval": INITIAL_SEARCH_INTERVAL,
+1266:            elif (frame_index - initial_acquisition_frame) % PERIODIC_DETECT_INTERVAL == 0:
+1522:            "initial_search_interval": INITIAL_SEARCH_INTERVAL,
+1524:            "search_confirm_required_hits": int(SEARCH_CONFIRM_HITS),
+1868:        elif frame_count % PERIODIC_DETECT_INTERVAL == 0:
