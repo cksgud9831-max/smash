@@ -28,6 +28,8 @@ class IntegrationSmokeSummary:
     transitions: tuple[str, ...]
     average_update_latency_ms: float | None
     maximum_update_latency_ms: float | None
+    stale_suspect_count: int
+    stale_confirmed_count: int
 
 
 class _CountingTracker:
@@ -182,6 +184,55 @@ def run_smoke(
                     "gate_passed": combined.gate_passed,
                     "transition_reason": combined.transition_reason,
                     "tracker_update_latency_ms": latency,
+                    "used_yolo": reliability.metrics.used_yolo,
+                    "is_recovery_event": reliability.metrics.is_recovery_event,
+                    "yolo_score": reliability.metrics.yolo_score,
+                    "frames_since_last_yolo": reliability.metrics.frames_since_last_yolo,
+                    "yolo_score_age_sec": reliability.metrics.yolo_score_age_sec,
+                    "center_displacement_norm": reliability.metrics.center_displacement_norm,
+                    "bbox_area_change_ratio": reliability.metrics.bbox_area_change_ratio,
+                    "bbox_aspect_change_ratio": reliability.metrics.bbox_aspect_change_ratio,
+                    "visibility_ratio": reliability.metrics.visibility_ratio,
+                    "observation_score": reliability.evidence.observation.score,
+                    "consistency_score": reliability.evidence.consistency.score,
+                    "freshness_score": reliability.evidence.freshness.score,
+                    "runtime_score": reliability.evidence.runtime.score,
+                    "evidence_fusion_score": reliability.evidence.fusion_score,
+                    "evidence_reasons": "|".join(reliability.evidence.reasons),
+                    "temporal_deviation_ratio": reliability.stale.temporal_deviation_ratio,
+                    "trusted_quality_baseline": reliability.stale.trusted_quality_baseline,
+                    "quality_flatness": reliability.stale.quality_flatness,
+                    "quality_range": reliability.stale.quality_range,
+                    "quality_std": reliability.stale.quality_std,
+                    "bbox_center_span_norm": reliability.stale.bbox_center_span_norm,
+                    "bbox_area_span_ratio": reliability.stale.bbox_area_span_ratio,
+                    "bbox_aspect_span_ratio": reliability.stale.bbox_aspect_span_ratio,
+                    "fresh_yolo_confirmation": reliability.stale.fresh_yolo_confirmation,
+                    "no_fresh_confirmation": reliability.stale.no_fresh_confirmation,
+                    "stale_suspect": reliability.stale.suspect,
+                    "stale_confirmed": reliability.stale.confirmed,
+                    "target_evidence_state": reliability.stale.evidence_state.value,
+                    "stale_score": reliability.stale.score,
+                    "stale_reasons": "|".join(reliability.stale.reasons),
+                    "stale_suspect_frames": reliability.stale.suspect_frames,
+                    "stale_confirmed_frames": reliability.stale.stale_frames,
+                    "stale_suspect_duration_sec": reliability.stale.suspect_duration_sec,
+                    "stale_confirmed_duration_sec": reliability.stale.stale_duration_sec,
+                    "consecutive_missing_frames": reliability.metrics.consecutive_missing_frames,
+                    "effective_tracking_present": reliability.stale.effective_tracking_present,
+                    "gate_reasons": "|".join(reliability.gate.reasons),
+                    "fresh_observation_candidate": reliability.temporal.fresh_observation_candidate,
+                    "fresh_reacquisition_candidate": reliability.temporal.fresh_reacquisition_candidate,
+                    "observation_sufficient": reliability.evidence.observation.sufficient,
+                    "consistency_sufficient": reliability.evidence.consistency.sufficient,
+                    "freshness_sufficient": reliability.evidence.freshness.sufficient,
+                    "observation_reasons": "|".join(reliability.evidence.observation.reasons),
+                    "consistency_reasons": "|".join(reliability.evidence.consistency.reasons),
+                    "freshness_reasons": "|".join(reliability.evidence.freshness.reasons),
+                    "runtime_healthy": not reliability.evidence.runtime.latency_anomaly,
+                    "reacquisition_block_reasons": "|".join(
+                        reliability.temporal.reacquisition_block_reasons
+                    ),
                 }
             )
             previous_state = current_state
@@ -205,6 +256,26 @@ def run_smoke(
                 "frame_index", "timestamp", "tracker_frame_present", "result_present",
                 "reliability_state", "overall_quality_score", "gate_passed",
                 "transition_reason", "tracker_update_latency_ms",
+                "used_yolo", "is_recovery_event", "yolo_score",
+                "frames_since_last_yolo", "yolo_score_age_sec",
+                "center_displacement_norm", "bbox_area_change_ratio",
+                "bbox_aspect_change_ratio", "visibility_ratio",
+                "observation_score", "consistency_score", "freshness_score",
+                "runtime_score", "evidence_fusion_score", "evidence_reasons",
+                "temporal_deviation_ratio", "trusted_quality_baseline",
+                "quality_flatness", "quality_range", "quality_std", "bbox_center_span_norm",
+                "bbox_area_span_ratio", "bbox_aspect_span_ratio",
+                "fresh_yolo_confirmation", "no_fresh_confirmation",
+                "stale_suspect", "stale_confirmed", "target_evidence_state", "stale_score",
+                "stale_reasons", "stale_suspect_frames",
+                "stale_confirmed_frames", "stale_suspect_duration_sec",
+                "stale_confirmed_duration_sec", "consecutive_missing_frames",
+                "effective_tracking_present", "gate_reasons",
+                "fresh_observation_candidate", "fresh_reacquisition_candidate",
+                "observation_sufficient", "consistency_sufficient",
+                "freshness_sufficient", "observation_reasons",
+                "consistency_reasons", "freshness_reasons", "runtime_healthy",
+                "reacquisition_block_reasons",
             ])
             writer.writeheader()
             writer.writerows(rows)
@@ -217,6 +288,8 @@ def run_smoke(
         transitions=tuple(transitions),
         average_update_latency_ms=(sum(latencies) / len(latencies)) if latencies else None,
         maximum_update_latency_ms=max(latencies) if latencies else None,
+        stale_suspect_count=sum(bool(row["stale_suspect"]) for row in rows),
+        stale_confirmed_count=sum(bool(row["stale_confirmed"]) for row in rows),
     )
 
 
@@ -244,6 +317,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"  transitions={list(summary.transitions)}")
     print(f"  average_update_latency_ms={_format_optional(summary.average_update_latency_ms)}")
     print(f"  maximum_update_latency_ms={_format_optional(summary.maximum_update_latency_ms)}")
+    print(f"  stale_suspect_count={summary.stale_suspect_count}")
+    print(f"  stale_confirmed_count={summary.stale_confirmed_count}")
     return 0
 
 

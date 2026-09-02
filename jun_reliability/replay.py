@@ -310,6 +310,7 @@ def _flatten_result(index: int, result: ReliabilityFrameResult, json_compatible:
     bbox = item.bbox
     reasons: Any = list(result.gate.reasons) if json_compatible else "|".join(result.gate.reasons)
     diagnostics: Any = list(result.gate.diagnostics) if json_compatible else "|".join(result.gate.diagnostics)
+    stale_reasons: Any = list(result.stale.reasons) if json_compatible else "|".join(result.stale.reasons)
     return {
         "frame_index": index,
         "timestamp": item.timestamp,
@@ -348,6 +349,37 @@ def _flatten_result(index: int, result: ReliabilityFrameResult, json_compatible:
         "gate_passed": result.gate.passed,
         "gate_reasons": reasons,
         "gate_diagnostics": diagnostics,
+        "observation_score": result.evidence.observation.score,
+        "observation_sufficient": result.evidence.observation.sufficient,
+        "consistency_score": result.evidence.consistency.score,
+        "consistency_sufficient": result.evidence.consistency.sufficient,
+        "freshness_score": result.evidence.freshness.score,
+        "freshness_sufficient": result.evidence.freshness.sufficient,
+        "runtime_score": result.evidence.runtime.score,
+        "latency_anomaly": result.evidence.runtime.latency_anomaly,
+        "evidence_fusion_score": result.evidence.fusion_score,
+        "stable_eligible": result.evidence.stable_eligible,
+        "temporal_deviation_ratio": result.stale.temporal_deviation_ratio,
+        "trusted_quality_baseline": result.stale.trusted_quality_baseline,
+        "quality_flatness": result.stale.quality_flatness,
+        "quality_range": result.stale.quality_range,
+        "quality_std": result.stale.quality_std,
+        "bbox_center_span_norm": result.stale.bbox_center_span_norm,
+        "bbox_area_span_ratio": result.stale.bbox_area_span_ratio,
+        "bbox_aspect_span_ratio": result.stale.bbox_aspect_span_ratio,
+        "fresh_yolo_confirmation": result.stale.fresh_yolo_confirmation,
+        "no_fresh_confirmation": result.stale.no_fresh_confirmation,
+        "stale_suspect": result.stale.suspect,
+        "stale_confirmed": result.stale.confirmed,
+        "target_evidence_state": result.stale.evidence_state.value,
+        "stale_score": result.stale.score,
+        "stale_reasons": stale_reasons,
+        "stale_suspect_frames": result.stale.suspect_frames,
+        "stale_confirmed_frames": result.stale.stale_frames,
+        "stale_suspect_duration_sec": result.stale.suspect_duration_sec,
+        "stale_confirmed_duration_sec": result.stale.stale_duration_sec,
+        "effective_tracking_present": result.stale.effective_tracking_present,
+        "trusted_history_count": result.stale.trusted_history_count,
         "stable_candidate_frames": result.temporal.stable_candidate_frames,
         "unstable_frames": result.temporal.unstable_frames,
         "missing_frames": result.temporal.missing_frames,
@@ -356,6 +388,17 @@ def _flatten_result(index: int, result: ReliabilityFrameResult, json_compatible:
         "stable_exit_ready": result.temporal.stable_exit_ready,
         "lost_ready": result.temporal.lost_ready,
         "in_hysteresis_band": result.temporal.in_hysteresis_band,
+        "untrustworthy_duration_sec": result.temporal.untrustworthy_duration_sec,
+        "missing_result_lost_ready": result.temporal.missing_result_lost_ready,
+        "observation_lost_ready": result.temporal.observation_lost_ready,
+        "fresh_observation_candidate": result.temporal.fresh_observation_candidate,
+        "fresh_reacquisition_candidate": result.temporal.fresh_reacquisition_candidate,
+        "runtime_healthy": not result.evidence.runtime.latency_anomaly,
+        "reacquisition_block_reasons": (
+            list(result.temporal.reacquisition_block_reasons)
+            if json_compatible
+            else "|".join(result.temporal.reacquisition_block_reasons)
+        ),
         "previous_state": result.transition.previous_state.value,
         "current_state": result.transition.current_state.value,
         "state_changed": result.transition.changed,
