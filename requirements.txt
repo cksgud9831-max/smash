@@ -4,6 +4,7 @@ scipy>=1.10
 opencv-python>=4.8
 onnxruntime>=1.16
 pyserial>=3.5   # bridge.range_sensor.Tf02ProRangeSensor (Benewake TF02-Pro over UART)
+numba>=0.58     # aiming_engine.forces / projectile_model JIT acceleration (unconditional import, see README v1.1.0)
 
 # Jetson/hardware-only extras (see requirements-bridge-hardware.txt):
 # bridge.pose_source.Bno08xPoseSource needs Adafruit Blinka + adafruit-circuitpython-bno08x,
