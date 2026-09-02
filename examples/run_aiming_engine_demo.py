@@ -33,7 +33,13 @@ PIXEL = (320.0, 240.0)  # principal point -> straight down the camera boresight
 # aligned with world +X — a level, straight-ahead engagement.
 EXTRINSIC = np.eye(4)
 
-INITIAL_RANGE_M = 250.0
+
+# config/aiming_engine.yaml's aim_readiness window is [min_valid_range_m,
+# max_valid_range_m] = [5.0, 100.0] (tightened from 800.0 in v1.1.0 for the
+# 100m rifle-scope profile -- see README.md). Start just outside that window
+# and close into it during the demo so aim_ready actually flips True partway
+# through instead of staying False for the whole run.
+INITIAL_RANGE_M = 120.0
 CLOSING_SPEED_MPS = 15.0
 FPS = 30.0
 DURATION_S = 3.0
