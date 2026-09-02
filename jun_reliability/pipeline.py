@@ -27,6 +27,8 @@ from .temporal import (
     TemporalEvidence,
 )
 from .types import ReliabilityInput
+from .stale_detector import StaleConfig, StaleEvidence, StaleTrackDetector
+from .evidence import EvidenceConfig, ReliabilityEvidence, ReliabilityEvidenceCalculator
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,6 +43,8 @@ class ReliabilityPipelineConfig:
     quality: QualityConfig = field(default_factory=QualityConfig)
     gate: GateConfig = field(default_factory=GateConfig)
     temporal: TemporalConfig = field(default_factory=TemporalConfig)
+    stale: StaleConfig = field(default_factory=StaleConfig)
+    evidence: EvidenceConfig = field(default_factory=EvidenceConfig)
 
     def __post_init__(self) -> None:
         if self.buffer_size <= 0:
@@ -55,6 +59,8 @@ class ReliabilityFrameResult:
     metrics: ReliabilityMetrics
     quality: ReliabilityQuality
     gate: GateResult
+    evidence: ReliabilityEvidence
+    stale: StaleEvidence
     temporal: TemporalEvidence
     transition: StateTransition
     state: TrackingReliabilityState
@@ -69,6 +75,8 @@ class ReliabilityPipeline:
         self._metric_calculator = ReliabilityMetricCalculator()
         self._quality_calculator = ReliabilityQualityCalculator(self._config.quality)
         self._hard_gate = ReliabilityHardGate(self._config.gate)
+        self._evidence_calculator = ReliabilityEvidenceCalculator(self._config.evidence)
+        self._stale_detector = StaleTrackDetector(self._config.stale)
         self._temporal_validator = ReliabilityTemporalValidator(self._config.temporal)
         self._state_machine = ReliabilityStateMachine()
 
@@ -85,7 +93,22 @@ class ReliabilityPipeline:
         metrics = self._metric_calculator.calculate(self._buffer)
         quality = self._quality_calculator.calculate(metrics)
         gate = self._hard_gate.evaluate(metrics, quality)
-        temporal = self._temporal_validator.update(metrics, quality, gate)
+        evidence = self._evidence_calculator.calculate(metrics, quality, gate)
+        stale = self._stale_detector.update(
+            self._buffer, metrics, quality, gate, evidence, self._state_machine.state
+        )
+        temporal = self._temporal_validator.update(
+            metrics,
+            quality,
+            gate,
+            stale,
+            evidence,
+            allow_stable_candidate=(
+                self._state_machine.state is not TrackingReliabilityState.LOST
+                or stale.fresh_yolo_confirmation
+            ),
+            timestamp=reliability_input.timestamp,
+        )
         transition = self._state_machine.update(
             temporal,
             timestamp=reliability_input.timestamp,
@@ -96,6 +119,8 @@ class ReliabilityPipeline:
             metrics=metrics,
             quality=quality,
             gate=gate,
+            evidence=evidence,
+            stale=stale,
             temporal=temporal,
             transition=transition,
             state=self._state_machine.state,
@@ -103,5 +128,6 @@ class ReliabilityPipeline:
 
     def reset(self) -> None:
         self._buffer.clear()
+        self._stale_detector.reset()
         self._temporal_validator.reset()
         self._state_machine.reset()

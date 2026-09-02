@@ -17,7 +17,14 @@ TRACKER_RESULT_AVAILABLE = "TRACKER_RESULT_AVAILABLE"
 STABLE_ENTRY_READY = "STABLE_ENTRY_READY"
 STABLE_EXIT_READY = "STABLE_EXIT_READY"
 LOST_READY = "LOST_READY"
+MISSING_RESULT_LOST = "MISSING_RESULT_LOST"
+OBSERVATION_EVIDENCE_LOST = "OBSERVATION_EVIDENCE_LOST"
 STATE_MAINTAINED = "STATE_MAINTAINED"
+STALE_SUSPECT_READY = "STALE_SUSPECT_READY"
+STALE_CONFIRMED_LOST = "STALE_CONFIRMED_LOST"
+FRESH_TARGET_CONFIRMATION = "FRESH_TARGET_CONFIRMATION"
+FRESH_OBSERVATION_AVAILABLE = "FRESH_OBSERVATION_AVAILABLE"
+FRESH_REACQUISITION = "FRESH_REACQUISITION"
 
 
 class TrackingReliabilityState(Enum):
@@ -42,17 +49,18 @@ class StateTransition:
 class ReliabilityStateMachine:
     """Apply transition rules to already-validated temporal evidence.
 
-    Transition table, after the common highest-priority ``lost_ready`` rule:
+    Transition table, after highest-priority confirmed-stale/missing rules:
 
-    * LOST: missing_frames == 0 -> HOLD; otherwise remain LOST.
+    * LOST: fresh confirmed effective presence -> HOLD; otherwise remain LOST.
     * HOLD: stable_entry_ready -> STABLE; otherwise remain HOLD.
-    * STABLE: stable_exit_ready -> HOLD; otherwise remain STABLE.
+    * STABLE: stale suspect or stable_exit_ready -> HOLD.
 
     A direct LOST -> STABLE transition is intentionally impossible.
     """
 
     def __init__(self) -> None:
         self._state = TrackingReliabilityState.LOST
+        self._stream_seen = False
 
     @property
     def state(self) -> TrackingReliabilityState:
@@ -60,6 +68,7 @@ class ReliabilityStateMachine:
 
     def reset(self) -> None:
         self._state = TrackingReliabilityState.LOST
+        self._stream_seen = False
 
     def update(
         self,
@@ -72,20 +81,34 @@ class ReliabilityStateMachine:
 
         # Common highest priority: explicit LOST evidence overrides every
         # state-specific entry or exit readiness flag.
-        if evidence.lost_ready:
+        if evidence.stale_confirmed_lost:
             current = TrackingReliabilityState.LOST
             if current is not previous:
-                transition_reason = LOST_READY
+                transition_reason = STALE_CONFIRMED_LOST
+        elif evidence.lost_ready:
+            current = TrackingReliabilityState.LOST
+            if current is not previous:
+                transition_reason = (
+                    MISSING_RESULT_LOST
+                    if evidence.missing_result_lost_ready
+                    else OBSERVATION_EVIDENCE_LOST
+                )
         elif previous is TrackingReliabilityState.LOST:
-            if evidence.missing_frames == 0:
+            if evidence.fresh_reacquisition_candidate:
                 current = TrackingReliabilityState.HOLD
-                transition_reason = TRACKER_RESULT_AVAILABLE
+                transition_reason = (
+                    FRESH_REACQUISITION if self._stream_seen else FRESH_OBSERVATION_AVAILABLE
+                )
+                self._stream_seen = True
         elif previous is TrackingReliabilityState.HOLD:
             if evidence.stable_entry_ready:
                 current = TrackingReliabilityState.STABLE
                 transition_reason = STABLE_ENTRY_READY
         elif previous is TrackingReliabilityState.STABLE:
-            if evidence.stable_exit_ready:
+            if evidence.stale_suspect_ready:
+                current = TrackingReliabilityState.HOLD
+                transition_reason = STALE_SUSPECT_READY
+            elif evidence.stable_exit_ready:
                 current = TrackingReliabilityState.HOLD
                 transition_reason = STABLE_EXIT_READY
 

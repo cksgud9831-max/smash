@@ -176,7 +176,10 @@ def _visibility_ratio(item: ReliabilityInput | None) -> float | None:
 
     intersection_width = max(0.0, min(x + width, item.frame_width) - max(x, 0.0))
     intersection_height = max(0.0, min(y + height, item.frame_height) - max(y, 0.0))
-    return (intersection_width * intersection_height) / bbox_area
+    ratio = (intersection_width * intersection_height) / bbox_area
+    # Floating-point subtraction can yield a value infinitesimally above 1.0
+    # for a fully visible bbox. Preserve the metric's defined [0, 1] range.
+    return min(max(ratio, 0.0), 1.0)
 
 
 def _yolo_score_age_sec(history: tuple[ReliabilityInput, ...]) -> float | None:
