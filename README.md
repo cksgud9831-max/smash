@@ -37,16 +37,27 @@ Tracker.update() 결과 (한 번만 호출, fan-out)
 ## 2. 디렉토리 구조
 
 ```
-smash-main/
-├── aiming_engine/     조준/탄도 계산 코어 (하드웨어 독립, 순수 수학)
-├── bridge/            카메라·트래커·센서를 aiming_engine 입력으로 변환하는 접착 계층
-├── jun_reliability/   트래킹 신뢰도 진단 레이어 (STABLE/HOLD/LOST, 발사 권한 아님)
-├── detector+tracker/  YOLO 학습(GA 튜닝) + 검증된 최종 추적 알고리즘의 원본(reference) 소스
-├── config/            YAML 설정 (aiming_engine.yaml, bridge*.yaml)
-├── examples/          end-to-end 데모 스크립트
-├── gazebo/            Gazebo 시뮬레이션 기반 Level-2 통합 테스트
-├── tests/             pytest 단위 테스트 (모듈별 1:1 대응)
-├── scripts/           프로젝트 패키징 스크립트
+smash/
+├── aiming_engine/        조준/탄도 계산 코어 (하드웨어 독립, 순수 수학)
+├── bridge/               카메라·트래커·센서를 aiming_engine 입력으로 변환하는 접착 계층
+├── jun_reliability/      트래킹 신뢰도 진단 레이어 (STABLE/HOLD/LOST, 발사 권한 아님)
+├── detector+tracker/     YOLO 학습(GA 튜닝) + 검증된 최종 추적 알고리즘의 원본(reference) 소스
+├── simulation/           Gazebo Harmonic + ROS 2 Jazzy 3D 포탑 시뮬레이터 (SMASH FCS)
+├── gazebo/               Gazebo 시뮬레이션 기반 Level-2 통합 테스트
+├── config/               YAML 설정 (aiming_engine.yaml, bridge*.yaml)
+├── examples/             end-to-end 데모 스크립트
+├── scripts/              시뮬레이터·검증·패키징 스크립트 (04/06 시뮬레이터, 07/08 검증, wsl_setup)
+├── tests/                pytest 단위 테스트 (모듈별 1:1 대응)
+├── test/                 검증용 정답 데이터 (visible.json 등) — tests/ 와 다른 폴더
+├── docs/
+│   ├── reports/          단계별 검증 보고서 (stage1/stage2, level1_level2, aim_oracle)
+│   ├── analysis/         분석 문서 (known_issues, sensor_integration_gap_analysis, ...)
+│   ├── sessions/         작업 세션 기록
+│   ├── interim_reports/  중간 보고서
+│   └── pdfs/             참고 논문 텍스트
+├── results/              실행 산출물 (stage2_lead_accuracy_results.json, intermediate_results/)
+├── run_smash_fcs.bat     Gazebo/ROS 2 시뮬레이터 런처 (WSL2)
+├── run_pipeline.bat/.py  Windows 네이티브 파이프라인 런처
 ├── requirements.txt / requirements-bridge-hardware.txt
 └── pytest.ini
 ```
@@ -157,9 +168,21 @@ python -m jun_reliability.integration_smoke --video video.mp4    # 신뢰도 레
 
 `gazebo/`는 실장비 없이 파이프라인을 더 강하게 검증하기 위한 **Level-2 통합 테스트**다: 실제 비디오(`test/visible.mp4`)의 2D 추적 결과에 Gazebo가 시뮬레이션한 IMU 자세와 거리(ground-truth)를 합성해 `Bridge → AimingManager`까지 실제로 흘려보고, `AimingManager`가 재계산한 거리와 시뮬레이션 ground-truth 거리가 일치하는지로 파이프라인 정합성만 검증한다(비디오 자체의 3D 정답이 없어 실측 정확도 검증은 아님).
 
-### 문서 갭 (documentation gap)
+### 문서 위치 (2026-09-07 정리)
 
-`bridge/frame_builder.py`, `bridge/optical_flow_tracker.py`, `config/aiming_engine.yaml`, `gazebo/scripts/02_e2e_simulation_runner.py` 등 여러 코드 주석이 `known_issues.md`를 참조하고, `aiming_project_summary.md`(구버전 학습 정리본)는 `paper_text.txt`와 `aiming_engine_report.html`도 언급한다. 그러나 **이 세 파일은 현재 이 체크아웃에 존재하지 않는다** (저장소 전체를 재확인함). 삭제됐거나 별도 보관 중인 것으로 보이며, 참조하는 주석들만 남아 있어 신규 합류자가 헷갈릴 수 있는 지점이다. 다시 만들거나 주석에서 참조를 제거하는 정리가 필요하다.
+`bridge/frame_builder.py`, `bridge/optical_flow_tracker.py`, `config/aiming_engine.yaml`, `gazebo/scripts/02_e2e_simulation_runner.py` 등 여러 코드 주석이 `known_issues.md`를 참조하고, `aiming_project_summary.md`(구버전 학습 정리본)는 `paper_text.txt`와 `aiming_engine_report.html`도 언급한다. 이 문서들은 모두 저장소에 있으며, 2026-09-07 루트 정리로 `docs/` 아래로 이동했다. 주석 본문의 참조 문자열은 옛 이름 그대로이므로 아래 표로 위치를 찾는다.
+
+| 주석에 적힌 이름 | 실제 위치 |
+|---|---|
+| `known_issues.md` | `docs/analysis/known_issues.md` |
+| `sensor_integration_gap_analysis.md` | `docs/analysis/sensor_integration_gap_analysis.md` |
+| `aiming_project_summary.md` | `docs/analysis/aiming_project_summary.md` |
+| `level1_level2_validation_report.md` | `docs/reports/level1_level2_validation_report.md` |
+| `aim_oracle_validation.html` | `docs/reports/aim_oracle_validation.html` |
+| `paper_text.txt` | `docs/pdfs/paper_text.txt` |
+| `aiming_engine_report.html` | `docs/interim_reports/aiming_engine_report.html` |
+
+검증 스크립트의 산출물 경로도 함께 옮겼다: `scripts/07_...`는 `results/stage2_lead_accuracy_results.json`, `scripts/08_...`은 `results/intermediate_results/` 로 쓴다.
 
 ---
 
