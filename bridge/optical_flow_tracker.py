@@ -331,6 +331,36 @@ class OpticalFlowTracker:
         self._prev_center = (0.0, 0.0)
         self._last_score = 0.0
 
+    def reset(self) -> None:
+        """Drop all follower state so the next update() re-runs a full-frame
+        YOLO acquisition, exactly as if this tracker had just been constructed.
+
+        The loaded YOLO model is deliberately kept -- reset() is meant to be
+        cheap enough to call the moment a target is judged lost, without
+        paying a model reload.
+
+        Why this exists: this follower never gives up on its own. Once
+        _smooth_bbox is set, _track() always returns a FollowerResult, even
+        when the target has left the frame entirely and the LK features are
+        riding on background texture. A caller that needs a real
+        "target lost -> reacquire from scratch" transition (e.g. the
+        SEARCH state of a fire-control state machine) has to declare the
+        loss itself and call this. See drone_sim/smash_fcs_node.py's
+        _enter_search() for the reference caller.
+        """
+
+        self._smooth_bbox = None
+        self._base_w = 0.0
+        self._base_h = 0.0
+        self._old_gray = None
+        self._p0 = None
+        self._lk_params = None
+        self._frame_index = 0
+        self._low_feature_count = 0
+        self._prev_area = 1.0
+        self._prev_center = (0.0, 0.0)
+        self._last_score = 0.0
+
     def update(self, frame_bgr: np.ndarray) -> Optional[FollowerResult]:
         if self._smooth_bbox is None:
             return self._initialize(frame_bgr)
@@ -350,7 +380,7 @@ class OpticalFlowTracker:
         self._last_score = score
         return FollowerResult(bbox=self._smooth_bbox, score=score, is_recovery_event=False, used_yolo=True)
 
-    def _track(self, frame_bgr: np.ndarray) -> FollowerResult:
+    def _track(self, frame_bgr: np.ndarray) -> Optional[FollowerResult]:
         self._frame_index += 1
         frame_gray = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY)
         feature_center_offset = 0.0
@@ -430,6 +460,17 @@ class OpticalFlowTracker:
                 self._old_gray, self._p0, self._lk_params = init_follower(frame_bgr, self._smooth_bbox)
                 self._low_feature_count = 0
                 self._last_score = yolo_score
+            else:
+                # 타깃이 시야 밖으로 소실된 경우: 상태 리셋 및 None 반환
+                if redetect_reason in _NON_PERIODIC_REDETECT_REASONS or self._low_feature_count >= LOW_FEATURE_LIMIT:
+                    self._smooth_bbox = None
+                    self._p0 = None
+                    self._old_gray = None
+                    self._low_feature_count = 0
+                    return None
+
+        if self._smooth_bbox is None:
+            return None
 
         x, y, w, h = self._smooth_bbox
         self._prev_area = max(w * h, 1)

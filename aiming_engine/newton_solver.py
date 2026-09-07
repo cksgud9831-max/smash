@@ -27,14 +27,13 @@ class NewtonSolver:
         self._tolerance = config.tolerance_m
         self._jacobian_epsilon = config.jacobian_epsilon
 
-    def solve(self, equation: Residual, x0: np.ndarray, tolerance: float | None = None) -> SolverResult:
+    def solve(self, equation: Residual, x0: np.ndarray) -> SolverResult:
         x = np.array(x0, dtype=np.float64, copy=True)
         residual = equation.residual(x)
-        tol = tolerance if tolerance is not None else self._tolerance
 
         for iteration in range(1, self._max_iterations + 1):
             norm = float(np.linalg.norm(residual))
-            if norm < tol:
+            if norm < self._tolerance:
                 return SolverResult(converged=True, iterations=iteration - 1, x=x, residual_norm=norm)
 
             jacobian = self._finite_difference_jacobian(equation, x, residual)
@@ -50,8 +49,7 @@ class NewtonSolver:
             residual = equation.residual(x)
 
         norm = float(np.linalg.norm(residual))
-        return SolverResult(converged=norm < tol, iterations=self._max_iterations, x=x, residual_norm=norm)
-
+        return SolverResult(converged=norm < self._tolerance, iterations=self._max_iterations, x=x, residual_norm=norm)
 
     def _finite_difference_jacobian(self, equation: Residual, x: np.ndarray, r_base: np.ndarray) -> np.ndarray:
         n = len(x)

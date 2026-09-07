@@ -50,6 +50,10 @@ class TargetStateConfig:
     min_dt: float
     process_noise_std: float = 1.0
     measurement_noise_std: float = 0.1
+    # ConstantVelocityEstimator only. 1.0(기본값) = 스무딩 없음, 기존 검증 수치와 완전히
+    # 동일한 무보정 OLS 동작. 1.0 미만이면 프레임 간 지수이동평균(EMA)으로 속도 추정치를
+    # 완만하게 만든다 (known_issues.md 1.5절의 이중 미분 노이즈 완화 목적, target_state.py 참고).
+    velocity_smoothing_alpha: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -130,6 +134,7 @@ def load_config(path: str | Path | None = None) -> AimAssistConfig:
             min_dt=float(raw["target_state"]["min_dt"]),
             process_noise_std=float(raw["target_state"].get("process_noise_std", 1.0)),
             measurement_noise_std=float(raw["target_state"].get("measurement_noise_std", 0.1)),
+            velocity_smoothing_alpha=float(raw["target_state"].get("velocity_smoothing_alpha", 1.0)),
         ),
         hit_probability=HitProbabilityConfig(
             weights={k: float(v) for k, v in raw["hit_probability"]["weights"].items()},

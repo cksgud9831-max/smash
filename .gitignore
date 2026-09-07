@@ -1,28 +1,12 @@
-# Python 캐시 파일 및 컴파일 파일
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Pytest 캐시 및 설정
+﻿__pycache__/
+*.pyc
+*.pyo
 .pytest_cache/
-.phpunit.result.cache
-
-# 개발 에디터 설정 (개인 설정 파일)
-.vscode/
-.idea/
-
-# 임시/결과 파일 및 로그
 .claude/
 *.log
-*.lock
-gazebo/gazebo_result.json
-
-# 결과 영상 및 미디어 파일 (용량이 큼)
+*.zip
 *.mp4
-*.avi
-*.mov
-
-# HTML 결과 보고서 (마크다운 원본만 공유하고 자동 생성되는 HTML은 제외)
-*.html
-!detector+tracker/final/media/v20_FINAL_demo.mp4
-.venv/
+*.engine
+*.pt
+*.pth
+models/

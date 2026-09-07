@@ -65,12 +65,14 @@ class PoseConfig:
 
 @dataclass(frozen=True)
 class TrackerConfig:
-    """Deployment settings shared by the selectable tracker backends."""
+    """bridge.optical_flow_tracker.OpticalFlowTracker's deployment-specific
+    knobs. Its algorithm/GA-tuned constants (ROI_MARGIN, CENTER_SHIFT_THRES,
+    etc.) are NOT here -- they're validated, hardcoded constants in that
+    module, not meant to be re-tuned per deployment."""
 
     model_path: str
     device: str  # "0" (GPU index, as a string) or "cpu"
     conf_thres: float
-    backend: str = "legacy"
 
 
 @dataclass(frozen=True)
@@ -150,7 +152,6 @@ def load_bridge_config(path: str | Path | None = None) -> BridgeConfig:
             model_path=str(raw["tracker"]["model_path"]),
             device=str(raw["tracker"]["device"]),
             conf_thres=float(raw["tracker"]["conf_thres"]),
-            backend=str(raw["tracker"].get("backend", "legacy")),
         ),
         detector=DetectorConfig(
             backend=str(raw["detector"]["backend"]),

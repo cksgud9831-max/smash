@@ -56,9 +56,6 @@ pose:
     read_timeout_s: 0.2         # cached sample older than this is reported invalid
 
 tracker:
-  # Tracker backend: legacy | final_v20. Keep legacy as the desktop/dev
-  # default; final_v20 requires a compatible TensorRT engine environment.
-  backend: legacy
   # bridge.optical_flow_tracker.OpticalFlowTracker (YOLO init/periodic +
   # Lucas-Kanade optical-flow follower). This is the project's confirmed
   # tracker, validated against test/visible.mp4 -- see known_issues.md.

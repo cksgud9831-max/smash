@@ -41,11 +41,9 @@ class AimSolver:
         self._muzzle_velocity = muzzle_velocity
         self._warm_start_enabled = warm_start_enabled
         self._previous_solution: np.ndarray | None = None
-        self._previous_naive: np.ndarray | None = None
 
     def reset_warm_start(self) -> None:
         self._previous_solution = None
-        self._previous_naive = None
 
     def solve(
         self,
@@ -57,30 +55,18 @@ class AimSolver:
     ) -> AimSolution:
         equation = HitEquation(target_state, self._projectile_model, launch_point_world, reference_time)
         naive_guess = self._lead_prediction.initial_guess(target_snapshot, launch_point_world, self._muzzle_velocity)
-        naive_arr = np.array([naive_guess.t0, naive_guess.azimuth0, naive_guess.elevation0])
 
-        if self._warm_start_enabled and self._previous_solution is not None and self._previous_naive is not None:
-            # Compensate target movement by adding previous ballistics correction offset to current naive guess
-            ballistic_offset_prev = self._previous_solution - self._previous_naive
-            x0 = naive_arr + ballistic_offset_prev
-            x0[0] = max(x0[0], 1e-4)  # ToF must remain positive
+        if self._warm_start_enabled and self._previous_solution is not None:
+            x0 = self._previous_solution.copy()
         else:
-            x0 = naive_arr.copy()
+            x0 = np.array([naive_guess.t0, naive_guess.azimuth0, naive_guess.elevation0])
 
-        # Scale solver tolerance dynamically with distance to enable early stopping for near targets
-        distance = (target_snapshot.position - launch_point_world).norm()
-        dynamic_tol = self._newton_solver._tolerance * max(1.0, distance / 50.0)
-
-        result = self._newton_solver.solve(equation, x0, tolerance=dynamic_tol)
-        
+        result = self._newton_solver.solve(equation, x0)
         # Only keep warm start solution if it is mathematically valid and reasonably bounded.
         if result.converged or (np.all(np.isfinite(result.x)) and result.residual_norm < 50.0):
             self._previous_solution = result.x.copy()
-            self._previous_naive = naive_arr.copy()
         else:
             self._previous_solution = None
-            self._previous_naive = None
-
 
         t, azimuth_world, elevation_world = result.x
         t_eval = max(t, 0.0)

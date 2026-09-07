@@ -38,6 +38,13 @@ target_state:
   min_dt: 1.0e-3
   process_noise_std: 1.0        # Process noise std for ConstantAccelerationKalmanEstimator
   measurement_noise_std: 0.1    # Measurement noise std for ConstantAccelerationKalmanEstimator
+  # ConstantVelocityEstimator only. 1.0 (default, unchanged behavior) means no smoothing,
+  # identical to what Level 1/Level 2 validation (level1_level2_validation_report.md) used.
+  # A value below 1.0 applies frame to frame EMA smoothing to the fitted velocity, to reduce
+  # the "double differentiation" noise flagged in known_issues.md section 1.5. Sweep this
+  # (e.g. 0.9 / 0.7 / 0.5 / 0.3) against the roadmap stage 2 constant velocity validation
+  # script before changing the default.
+  velocity_smoothing_alpha: 1.0
 
 hit_probability:
   weights:
@@ -54,9 +61,7 @@ aim_readiness:
   hit_probability_threshold: 0.75
   max_aim_error_mrad: 5.0
   min_valid_range_m: 5.0
-  max_valid_range_m: 100.0
-
-
+  max_valid_range_m: 800.0
 
 aim_state_machine:
   # Gates off bridge.TrackerFrame.tracking_confidence, which is itself scaled by
