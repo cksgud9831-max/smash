@@ -13,6 +13,10 @@
 #
 # 환경변수로 덮어쓸 수 있는 값
 #   SMASH_CORE_PATH        기본값 /mnt/d/Aiming
+#   SMASH_MODEL_PATH       추적기 가중치. 기본값은 우리가 GA 튜닝으로 직접 학습시킨
+#                          <core>/detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt 이다.
+#                          (학습 → 탐지 → 추적 → 조준 전 파이프라인을 한 모델로 관통시키기 위함.
+#                           다른 가중치로 비교 실험할 때만 이 값을 지정한다.)
 #   ROS2_WS                기본값 $HOME/ros2_ws
 #   SMASH_DEVICE           기본값 cpu  (CUDA 가 WSL 에서 동작하면 0)
 #   SMASH_ENABLE_FIRE_CONTROL  기본값 false (로드맵 3단계: 가상 탄환 격발/판정)
@@ -54,6 +58,13 @@ else
     REPO_DIR="$SMASH_CORE_PATH/ciws_turret_aerial_object_detection-main"
 fi
 SRC_DIR="$ROS2_WS/src"
+
+# 추적기 가중치. GA 튜닝으로 직접 학습시킨 결과물을 저장소 안 경로에서 그대로 쓴다.
+#   시뮬레이터의 목적이 "학습 → 탐지 → 추적 → 조준" 전 파이프라인 검증이므로,
+#   별도 파인튜닝본(models/best_finetuned.pt)이 아니라 학습 산출물 원본을 기본으로 한다.
+#   models/ 는 .gitignore 대상이라 새로 clone 한 저장소에는 존재하지도 않는다.
+SMASH_REPO_WEIGHTS="$SMASH_CORE_PATH/detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt"
+SMASH_MODEL_PATH="${SMASH_MODEL_PATH:-$SMASH_REPO_WEIGHTS}"
 
 ok()   { printf '  [정상] %s\n' "$1"; }
 bad()  { printf '  [문제] %s\n' "$1"; }
@@ -108,10 +119,12 @@ check() {
         echo "        aiming_engine/__init__.py 와 bridge/__init__.py 가 있어야 한다."
         problems=$((problems+1))
     fi
-    if [ -f "$SMASH_CORE_PATH/models/best_finetuned.pt" ]; then
-        ok "파인튜닝 가중치 확인: $SMASH_CORE_PATH/models/best_finetuned.pt"
+    if [ -f "$SMASH_MODEL_PATH" ]; then
+        ok "추적기 가중치 확인 (GA 튜닝 학습 결과): $SMASH_MODEL_PATH"
     else
-        bad "가중치 파일이 없다: $SMASH_CORE_PATH/models/best_finetuned.pt"
+        bad "가중치 파일이 없다: $SMASH_MODEL_PATH"
+        echo "        기본 경로: $SMASH_REPO_WEIGHTS"
+        echo "        저장소에 커밋된 파일이다. git clone 이 정상적으로 끝났는지 확인할 것."
         problems=$((problems+1))
     fi
 
@@ -270,6 +283,7 @@ run() {
     export GZ_SIM_SYSTEM_PLUGIN_PATH="/opt/ros/jazzy/lib:${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
     export LD_LIBRARY_PATH="/opt/ros/jazzy/lib:${LD_LIBRARY_PATH:-}"
     echo "  SMASH_CORE_PATH=$SMASH_CORE_PATH"
+    echo "  model_path=$SMASH_MODEL_PATH"
     echo "  device=$SMASH_DEVICE"
     echo "  enable_fire_control=$SMASH_ENABLE_FIRE_CONTROL  fire_mode=$SMASH_FIRE_MODE"
     if [ "$SMASH_ENABLE_FIRE_CONTROL" = "true" ]; then
@@ -280,7 +294,7 @@ run() {
     echo
     ros2 launch drone_sim smash_scene.launch.py \
         core_path:="$SMASH_CORE_PATH" \
-        model_path:="$SMASH_CORE_PATH/models/best_finetuned.pt" \
+        model_path:="$SMASH_MODEL_PATH" \
         device:="$SMASH_DEVICE" \
         enable_fire_control:="$SMASH_ENABLE_FIRE_CONTROL" \
         fire_mode:="$SMASH_FIRE_MODE" \

@@ -10,7 +10,7 @@
 # 실행 예:
 #   ros2 launch drone_sim smash_scene.launch.py \
 #       core_path:=/mnt/d/Aiming \
-#       model_path:=/mnt/d/Aiming/models/best_finetuned.pt
+#       model_path:=/mnt/d/Aiming/detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt
 #
 # 여기 값들은 런치 인자로 덮어쓸 수 있다.
 
@@ -27,7 +27,11 @@ smash_fcs:
     aiming_config_path: ""
 
     # ── 추적기 ────────────────────────────────────────────────────────
-    # 도심 및 3D 비행체 적응 파인튜닝 가중치. 반드시 지정해야 한다.
+    # 추적기 가중치. 반드시 지정해야 한다.
+    # 본 시뮬레이터는 "학습 → 탐지 → 추적 → 조준" 전 파이프라인을 하나로 검증하는 것이
+    # 목적이므로, 우리가 GA 튜닝으로 직접 학습시킨 산출물을 그대로 사용한다:
+    #   detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt
+    # run_smash_fcs.bat / wsl_setup_smash_fcs.sh 가 이 경로를 자동으로 넘긴다.
     model_path: ""
     device: "cpu"          # GPU 사용 시 "0"
     conf_thres: 0.25

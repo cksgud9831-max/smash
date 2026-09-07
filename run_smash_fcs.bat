@@ -3,14 +3,19 @@ setlocal enabledelayedexpansion
 title SMASH FCS 대드론 사격 통제 시뮬레이터 런처
 
 set "WSL_DISTRO=Ubuntu-24.04"
-set "CORE_PATH_WSL=/mnt/d/Aiming"
-set "SETUP_SCRIPT=%CORE_PATH_WSL%/scripts/wsl_setup_smash_fcs.sh"
 
-if defined WSL_DISTRO (
-    set "WSL_CMD=wsl.exe -d %WSL_DISTRO% bash -lc"
-) else (
-    set "WSL_CMD=wsl.exe bash -lc"
-)
+if defined WSL_DISTRO (set "WSL_D=-d %WSL_DISTRO%") else (set "WSL_D=")
+set "WSL_CMD=wsl.exe %WSL_D% bash -lc"
+
+REM 이 배치 파일이 있는 폴더를 WSL 경로로 자동 변환한다.
+REM 저장소를 D:\Aiming 이 아닌 다른 위치에 두어도 그대로 동작한다.
+set "SCRIPT_DIR=%~dp0"
+set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
+set "CORE_PATH_WSL="
+for /f "usebackq delims=" %%i in (`wsl.exe %WSL_D% wslpath -a "%SCRIPT_DIR%" 2^>nul`) do set "CORE_PATH_WSL=%%i"
+if not defined CORE_PATH_WSL set "CORE_PATH_WSL=/mnt/d/Aiming"
+set "SETUP_SCRIPT=%CORE_PATH_WSL%/scripts/wsl_setup_smash_fcs.sh"
+set "ENVPFX=SMASH_CORE_PATH='%CORE_PATH_WSL%'"
 
 :menu
 cls
@@ -47,40 +52,40 @@ pause
 goto menu
 
 :do_check
-%WSL_CMD% "bash '%SETUP_SCRIPT%' check"
+%WSL_CMD% "%ENVPFX% bash '%SETUP_SCRIPT%' check"
 goto after
 
 :do_link
-%WSL_CMD% "bash '%SETUP_SCRIPT%' link"
+%WSL_CMD% "%ENVPFX% bash '%SETUP_SCRIPT%' link"
 goto after
 
 :do_build
-%WSL_CMD% "bash '%SETUP_SCRIPT%' build"
+%WSL_CMD% "%ENVPFX% bash '%SETUP_SCRIPT%' build"
 goto after
 
 :do_run_plain
 echo   조준만 실행합니다 (격발 없음). rqt_image_view 또는 8번 뷰어로 확인.
-%WSL_CMD% "SMASH_ENABLE_FIRE_CONTROL=false bash '%SETUP_SCRIPT%' run"
+%WSL_CMD% "%ENVPFX% SMASH_ENABLE_FIRE_CONTROL=false bash '%SETUP_SCRIPT%' run"
 goto after
 
 :do_run_fire_manual
 echo   격발 포함, manual 모드(마우스 클릭 / 스페이스바로 격발)로 실행합니다.
 echo   새 창에서 8번(대화형 스코프 뷰어)을 실행하여 마우스 좌클릭/스페이스바로 격발하십시오.
-%WSL_CMD% "SMASH_ENABLE_FIRE_CONTROL=true SMASH_FIRE_MODE=manual bash '%SETUP_SCRIPT%' run"
+%WSL_CMD% "%ENVPFX% SMASH_ENABLE_FIRE_CONTROL=true SMASH_FIRE_MODE=manual bash '%SETUP_SCRIPT%' run"
 goto after
 
 :do_run_fire_auto
 echo   격발 포함, auto 모드(READY 진입 시 자동 격발)로 실행합니다.
-%WSL_CMD% "SMASH_ENABLE_FIRE_CONTROL=true SMASH_FIRE_MODE=auto bash '%SETUP_SCRIPT%' run"
+%WSL_CMD% "%ENVPFX% SMASH_ENABLE_FIRE_CONTROL=true SMASH_FIRE_MODE=auto bash '%SETUP_SCRIPT%' run"
 goto after
 
 :do_verify
-%WSL_CMD% "bash '%SETUP_SCRIPT%' verify_fire_control"
+%WSL_CMD% "%ENVPFX% bash '%SETUP_SCRIPT%' verify_fire_control"
 goto after
 
 :do_viewer
 echo   SMASH 대화형 스코프 뷰어를 실행합니다. (마우스 좌클릭 또는 스페이스바로 격발)
-%WSL_CMD% "bash '%SETUP_SCRIPT%' viewer"
+%WSL_CMD% "%ENVPFX% bash '%SETUP_SCRIPT%' viewer"
 goto after
 
 :after

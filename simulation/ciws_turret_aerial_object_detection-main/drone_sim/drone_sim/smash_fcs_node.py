@@ -296,8 +296,9 @@ class SmashFcsNode(Node):
         model_path = str(self.get_parameter("model_path").value)
         if not model_path:
             raise RuntimeError(
-                "model_path 파라미터가 비어 있습니다. 파인튜닝 가중치"
-                "(예: <core>/models/best_finetuned.pt) 경로를 지정하십시오."
+                "model_path 파라미터가 비어 있습니다. GA 튜닝 학습 가중치"
+                "(예: <core>/detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt)"
+                " 경로를 지정하십시오."
             )
         self.get_logger().info(f"추적기 가중치 로딩: {model_path}")
         self._tracker = OpticalFlowTracker(
