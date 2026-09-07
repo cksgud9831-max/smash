@@ -1,0 +1,210 @@
+# SMASH FCS 통합 노드 파라미터 (로드맵 1단계)
+#
+# ★ 무기 전제
+#   SMASH 의 실제 제품은 5.56mm 개인화기에 장착하는 스마트 조준경이다. 서보로 총을
+#   돌리는 무기가 아니라 사수에게 조준점을 알려 주는 자문 장비다. Gazebo 의 CIWS
+#   포탑은 참고 오픈소스에서 빌려 온 3D 비행 환경이고, Pan/Tilt 서보는 사수가 총을
+#   겨누는 동작의 시뮬레이션 대체물이다. 제품 기능이 아니다.
+#   따라서 아래 탄도와 기하 값은 전부 포탑이 아니라 소총 제원을 따른다.
+#
+# 실행 예:
+#   ros2 launch drone_sim smash_scene.launch.py \
+#       core_path:=/mnt/d/Aiming \
+#       model_path:=/mnt/d/Aiming/models/best_finetuned.pt
+#
+# 여기 값들은 런치 인자로 덮어쓸 수 있다.
+
+smash_fcs:
+  ros__parameters:
+    use_sim_time: true
+
+    # ── 조준 코어 위치 ────────────────────────────────────────────────
+    # aiming_engine / bridge 패키지를 담고 있는 SMASH 코어 저장소 루트.
+    # 비워 두면 환경변수 SMASH_CORE_PATH 를 사용한다.
+    # WSL2 에서 D 드라이브를 쓰는 경우 예: /mnt/d/Aiming
+    core_path: ""
+    # 비워 두면 <core_path>/config/aiming_engine.yaml 을 읽는다.
+    aiming_config_path: ""
+
+    # ── 추적기 ────────────────────────────────────────────────────────
+    # 도심 및 3D 비행체 적응 파인튜닝 가중치. 반드시 지정해야 한다.
+    model_path: ""
+    device: "cpu"          # GPU 사용 시 "0"
+    conf_thres: 0.25
+
+    # ── 토픽 ──────────────────────────────────────────────────────────
+    image_topic: "/turret_camera/image_raw"
+    camera_info_topic: "/turret_camera/camera_info"
+    # gpu_lidar 는 <topic> 으로 LaserScan(가운데 행)을, <topic>/points 로
+    # PointCloudPacked(전체 격자)를 낸다. 원뿔 전체가 필요하므로 후자를 쓴다.
+    laser_topic: "/turret_camera/boresight_range/points"
+    command_topic: "/turret_controller/commands"
+    annotated_topic: "/turret_camera/image_annotated"
+    state_topic: "/smash_fcs/state"
+
+    # ── 좌표계 ────────────────────────────────────────────────────────
+    # base_footprint 은 포탑 고정 관성계이며 Z 축이 위다. aiming_engine 의
+    # World 프레임 요구조건(관성, Z-up)을 만족하므로 그대로 쓴다. Gazebo world
+    # 원점과 스폰 오프셋만큼 차이가 나지만 표적 위치도 같은 프레임에서 나오므로
+    # 조준 계산에는 영향이 없다.
+    base_frame: "base_footprint"
+    camera_optical_frame: "camera_link_optical"
+    tf_timeout_s: 0.05
+
+    # ── 탄도 (5.56 x 45mm M855, 62 gr) ────────────────────────────────
+    # 포구초속은 총열 길이에 크게 좌우된다. 아래 920 m/s 는 20인치 총열 기준값에
+    # 가깝다. 14.5인치 M4 계열에서는 약 880 m/s 수준으로 떨어지므로, 실제 사용
+    # 총기에 맞춰 반드시 조정할 것. 포구초속 오차는 비행시간에 그대로 들어가고
+    # 비행시간 오차는 리드각 오차로 이어진다.
+    #   참고: M193(55 gr)을 쓴다면 990.0 / 0.00356 으로 바꾼다.
+    muzzle_velocity_mps: 920.0
+    enable_drag: true
+    # M855 탄두 질량 62 gr = 4.02 g.
+    projectile_mass_kg: 0.00402
+    # 5.56 탄의 실제 탄두 직경(강선 홈 기준)은 5.70 mm 다. 구경 표기 5.56 은
+    # 강선 산 기준이라 공력 계산에는 맞지 않는다.
+    projectile_diameter_m: 0.00570
+    # M855 는 보트테일 스피처이므로 평저탄용 G1 보다 G7 계열이 형상에 가깝다.
+    #
+    # 주의: aiming_engine/forces.py 의 G1/G7 항력계수 표는 해당 파일 주석에 명시된
+    # 대로 아직 1차 출처 검증이 끝나지 않은 근사치다. enable_drag 를 켜면 물리
+    # 모델은 더 타당해지지만 절대 정확도는 이 표의 품질에 종속된다. 정량 보고서에
+    # 이 한계를 병기해야 한다. 기존 Level 1/Level 2 검증 수치와 직접 비교할 때는
+    # enable_drag 를 false 로 두어 중력만 켠 조건을 맞춰야 한다.
+    #
+    # 5.56 은 20mm 대비 단면밀도가 훨씬 낮아 항력 감속이 약 2배 크다.
+    # (단위질량당 단면적 6.35e-3 대 3.08e-3 m^2/kg)
+    # 즉 탄종을 바꾸면서 공기저항의 상대적 중요도도 함께 올라갔다.
+    drag_model: "G7"
+
+    # ── 조준경 기하 (제품 고유, 실제 소총 제원) ───────────────────────
+    # 조준경 광학중심에서 본 총구 위치, FLU (X 전방, Y 좌측, Z 상방).
+    #   [0] 0.45  : 조준경 광학중심에서 총구까지 전방 거리.
+    #               시선에 평행하므로 시차 기여는 거의 없다. 실측하면 더 정확해진다.
+    #   [1] 0.0   : 좌우. 조준경이 총열 바로 위에 정렬되어 있다고 본다.
+    #   [2] -0.066: 조준경 광축과 총열 중심의 높이차(sight height over bore).
+    #               AR 계열 플랫탑 상부레일 기준. 로우 마운트 구성은 -0.038 수준.
+    #               이 값이 시차를 만드는 유일한 수직 항이며, 사거리 R 에서
+    #               대략 0.066 / R [rad] 의 조준 오차에 대응한다.
+    #                 35 m -> 1.9 mrad (0.108도)
+    #                 10 m -> 6.6 mrad (0.38도)
+    #               Gazebo 포탑 메시의 포신 끝 좌표와는 무관하며, 무관한 것이 맞다.
+    scope_to_muzzle_m: [0.45, 0.0, -0.066]
+
+    # ── 포탑 기하 (시뮬레이션 고유, URDF 유래) ────────────────────────
+    # Gazebo 서보를 올바로 구동하기 위한 배선값일 뿐 제품 기하가 아니다.
+    # camera_joint(-0.07, 0.05, 0.15) + camera_optical_joint(0.229, 0.16, 0.10)
+    gun_to_camera_optical_m: [0.159, 0.21, 0.25]
+
+    # ── 거리 추정 ─────────────────────────────────────────────────────
+    # 바운딩박스 기하 역추정에 쓰는 표적 특성 크기(최대 투영 폭).
+    # 기본값 0.47 m 는 Gazebo Fuel "x3 uav" 쿼드로터의 대략적인 로터 스팬이며
+    # 실측값이 아니다. 정확한 값은 다음 절차로 보정할 것을 권장한다.
+    #   1. 표적을 알려진 거리 R0 에 정지시킨다 (set_pose 로 좌표 지정)
+    #   2. HUD 의 BOX 거리 표시가 R0 이 되도록 이 값을 스케일 조정한다
+    #      (R = f*S/s 이므로 S_correct = S_current * R0 / R_measured)
+    target_characteristic_size_m: 0.47
+    # 표적 크기 가정 자체의 상대 불확실도. 시선 방향에 따라 투영 폭이 달라지는
+    # 계통오차를 포괄한다.
+    target_size_uncertainty_ratio: 0.25
+    bbox_pixel_sigma: 2.0
+    range_min_m: 3.0
+    range_max_m: 800.0
+    # 1.0 = 스무딩 없음. 같은 출처(laser/bbox)가 연속될 때만 적용된다.
+    range_smoothing_alpha: 1.0
+    laser_noise_sigma_m: 0.02
+    laser_staleness_timeout_s: 0.2
+    # 레이저 값과 바운딩박스 추정값의 교차검증 게이트 폭(바운딩박스 sigma 배수).
+    # 광각 원뿔이 표적이 아닌 다른 물체(다른 비행체, 조류, 저앙각의 지면)를 물었을 때
+    # 걸러 내기 위한 안전장치다. 값을 키우면 레이저를 더 잘 채택하지만 오독 위험이
+    # 커지고, 줄이면 반대가 된다.
+    laser_cross_check_sigma: 3.0
+    # 프레임 간 거리 급변 게이트의 물리 허용치. 게이트 폭은
+    #   5 x sigma + max_range_rate_mps x dt
+    # 로 계산한다. 측정 잡음만으로 게이트를 잡으면(레이저 sigma 2 cm) 실제로
+    # 접근/이탈 중인 표적의 정상적인 거리 변화까지 이상치로 기각해 거리값이
+    # 얼어붙는다. 로드맵 4단계의 15~20 m/s FPV 를 여유 있게 덮도록 60 m/s 로 둔다.
+    max_range_rate_mps: 60.0
+
+    # ── 포탑 구동 ─────────────────────────────────────────────────────
+    command_rate_hz: 30.0
+    # URDF 의 joint limit velocity 와 일치시켜야 한다 (pan 3.0, tilt 2.5).
+    pan_max_rate_rad_s: 3.0
+    tilt_max_rate_rad_s: 2.5
+    # URDF turret_tilt_joint limit: 0 ~ 85도
+    tilt_min_rad: 0.0
+    tilt_max_rad: 1.4835298641951802
+    search_pan_rad: 0.0
+    search_tilt_rad: 0.35
+    # 지향 목표각 속도 피드포워드 [초]. 0.0 = 비활성(기본값).
+    #
+    # 조준해는 프레임 k 의 영상으로 계산되지만 명령은 그 뒤에 적용되므로, 명령이
+    # 항상 표적 시선각속도 x 지연시간 만큼 뒤처진다. 오프라인 검증에서 이 지연은
+    # 표적 속도와 무관하게 0.0327초로 측정되었고 프레임 주기(1/30 = 0.0333초)와
+    # 사실상 같다. 즉 순수한 한 프레임 지연이다.
+    #   2 m/s  -> 지향오차 0.099도
+    #   5 m/s  -> 지향오차 0.169도
+    #   15 m/s -> 지향오차 0.510도  (4단계 READY 임계 0.5도 초과)
+    #
+    # 이 값을 0.0333 으로 두면 목표각을 한 프레임 외삽해 지연을 상쇄한다. 다만
+    # 목표각을 수치 미분하는 방식이라 실제 추적 잡음을 증폭할 수 있다. 1단계
+    # 표적(정지/저속)은 보정 없이도 여유가 크므로 기본값은 비활성으로 두었다.
+    # 3~4단계에서 실제 추적 잡음으로 재평가한 뒤 켤 것.
+    command_feedforward_s: 0.0
+
+    # ── 표적 이탈 판정 ────────────────────────────────────────────────
+    # 바운딩박스가 화면 가장자리에 border_frames_before_reset 프레임 연속으로
+    # 닿으면 표적이 화면을 벗어난 것으로 보고 SEARCH 로 즉시 초기화한다.
+    # OpticalFlowTracker 는 표적을 잃어도 스스로 포기하지 않으므로 이 판정이 없으면
+    # 배경 텍스처를 계속 추종한다.
+    border_margin_px: 2
+    border_frames_before_reset: 3
+
+    publish_annotated: true
+
+    # ── 3단계: 가상 탄환 격발 및 Hit/Kill 판정 ──────────────────────────
+    # 기본값 false. 1/2단계 검증 결과(stage1_fcs_integration_report.md)에는
+    # 아무 영향이 없다. 설계 근거와 한계는 smash_fcs/fire_control.py 모듈
+    # docstring 및 smash_fcs_node.py 상단 "3단계 범위와 경계" 절 참고.
+    enable_fire_control: false
+    # "auto": READY 인 동안 fire_rate_rpm 쿨다운으로 자동 격발(완전자동 근사).
+    # "manual": trigger_topic(/smash_fcs/trigger, std_msgs/Bool) 상승 엣지에서만
+    # 격발(반자동 방아쇠 근사). 둘 다 aim_solution 이 있어야(즉 최소 AIM 상태)
+    # 격발한다 — 조준각 자체가 없는 상태에서 가상 탄환을 만들 수는 없다.
+    fire_mode: "manual"
+    # 5.56mm 소총 완전자동 사이클릭 발사속도의 근사(분당 발수). auto 모드에서만
+    # 쿨다운 간격(60/fire_rate_rpm 초)으로 쓰인다.
+    fire_rate_rpm: 700.0
+    # 명중 판정 반경. 0 이하이면 target_characteristic_size_m / 2 로 자동
+    # 유도한다(즉 기본 0.235 m). 실제 드론 동체 충돌 반경을 실측한 값이 아니므로
+    # 실측 후 갱신할 것.
+    target_hit_radius_m: -1.0
+    trigger_topic: "/smash_fcs/trigger"
+    fire_event_topic: "/smash_fcs/fire_event"
+    hit_result_topic: "/smash_fcs/hit_result"
+    engagement_stats_topic: "/smash_fcs/engagement_stats"
+    # 격발 판단 및 Hit/Kill 판정을 도는 고정 주기. 영상 프레임(30Hz)과는 독립적으로
+    # 돈다 — 표적을 놓친 동안에도 이미 비행 중인 탄환의 판정 시각은 실시간으로
+    # 도래하기 때문이다.
+    fire_control_rate_hz: 60.0
+    # HUD 상 KILL/MISS 이펙트를 얼마나 오래 표시할지(초).
+    impact_effect_hold_s: 0.35
+
+    # ── 3단계: Gazebo 실측(ground truth) 연동 ───────────────────────────
+    # Hit/Kill 판정은 FCS 자신의 표적 추정치가 아니라 이 토픽으로 들어오는
+    # Gazebo 실측 위치를 기준으로 한다(왜 그런지는 fire_control.py 모듈
+    # docstring 참고). drone_sim/models/drone/model.sdf 에 추가한 PosePublisher
+    # 플러그인이 이 이름으로 발행한다고 "가정"한 값이다 — gz-sim 버전에 따라
+    # 실제 토픽 이름이 다를 수 있으므로 WSL2 에서 `gz topic -l` 로 반드시 확인할
+    # 것. smash_scene.launch.py 에 이 토픽을 geometry_msgs/PoseStamped 로
+    # 브리지하는 parameter_bridge 노드를 추가해 두었다.
+    ground_truth_pose_topic: "/model/drone/pose"
+    # 이보다 오래된 ground truth 는 판정에 쓰지 않고 UNVERIFIED 로 남긴다.
+    ground_truth_timeout_s: 0.5
+    # Gazebo world 프레임 -> base_footprint 프레임 변환(포탑 스폰 변환).
+    # view.launch.py 의 `ros_gz_sim create -topic robot_description
+    # -name ciws_turret -z 0.05` 와 반드시 일치해야 한다(x=y=0, 회전 없음이
+    # 현재 기본값). 스폰 인자를 바꾸면 이 값도 반드시 함께 바꿀 것 — 이 동기화는
+    # 코드로 강제되지 않는다.
+    turret_world_translation_m: [0.0, 0.0, 0.05]
+    turret_world_yaw_rad: 0.0

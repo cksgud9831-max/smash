@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ciws_turret">
+
+  <xacro:property name="mesh" value="package://ciws_turret/meshes"/>
+  <xacro:property name="base_top" value="0.0885"/>
+  <xacro:property name="PI" value="3.14159265359"/>
+  <!-- trunnion (elevation pivot) in the turret(pan) frame -->
+  <xacro:property name="piv_x" value="-0.024"/>
+  <xacro:property name="piv_z" value="0.4565"/>
+
+  <material name="tan"><color rgba="0.80 0.72 0.52 1.0"/></material>
+  <material name="lgrey"><color rgba="0.75 0.75 0.77 1.0"/></material>
+  <material name="mgrey"><color rgba="0.55 0.55 0.58 1.0"/></material>
+  <material name="white"><color rgba="0.93 0.93 0.92 1.0"/></material>
+  <material name="black"><color rgba="0.12 0.12 0.14 1.0"/></material>
+
+  <xacro:macro name="box_inertia" params="m x y z">
+    <inertial><mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/12.0}" ixy="0" ixz="0"
+               iyy="${m*(x*x+z*z)/12.0}" iyz="0" izz="${m*(x*x+y*y)/12.0}"/></inertial>
+  </xacro:macro>
+
+  <!-- ===================== BASE ===================== -->
+  <link name="base_footprint"/>
+  <joint name="base_joint" type="fixed"><parent link="base_footprint"/><child link="base_link"/>
+    <origin xyz="0 0 0"/></joint>
+  <link name="base_link">
+    <visual><geometry><mesh filename="${mesh}/base.stl"/></geometry><material name="tan"/></visual>
+    <collision><origin xyz="0 0 ${base_top/2}"/><geometry><box size="0.72 0.75 ${base_top}"/></geometry></collision>
+    <inertial><origin xyz="0 0 ${base_top/2}"/><mass value="6.0"/>
+      <inertia ixx="0.30" ixy="0" ixz="0" iyy="0.30" iyz="0" izz="0.55"/></inertial>
+  </link>
+
+  <!-- ===================== TURRET: PAN (azimuth, continuous) ===================== -->
+  <joint name="turret_pan_joint" type="continuous">
+    <parent link="base_link"/><child link="turret_link"/>
+    <origin xyz="0 0 ${base_top}"/><axis xyz="0 0 1"/>
+    <limit effort="40.0" velocity="3.0"/><dynamics damping="0.3" friction="0.1"/>
+  </joint>
+  <link name="turret_link">
+    <visual><geometry><mesh filename="${mesh}/turret.stl"/></geometry><material name="lgrey"/></visual>
+    <collision><origin xyz="0 0 0.27"/><geometry><cylinder radius="0.28" length="0.52"/></geometry></collision>
+    <inertial><origin xyz="0 0 0.22"/><mass value="4.0"/>
+      <inertia ixx="0.22" ixy="0" ixz="0" iyy="0.22" iyz="0" izz="0.18"/></inertial>
+  </link>
+
+  <!-- ===================== ELEVATION ASSEMBLY (tilts about trunnion Y) ===================== -->
+  <!-- The gun link carries the elevation joint; radome, rod, camera are fixed to it. -->
+  <joint name="turret_tilt_joint" type="revolute">
+    <parent link="turret_link"/><child link="gun_link"/>
+    <origin xyz="${piv_x - 0.03785} 0 ${piv_z + 0.05}"/><axis xyz="0 -1 0"/>
+    <limit lower="${0.0*PI/180.0}" upper="${85.0*PI/180.0}" effort="25.0" velocity="2.5"/>
+    <dynamics damping="0.4" friction="0.1"/>
+  </joint>
+  <link name="gun_link">
+    <visual><geometry><mesh filename="${mesh}/gun.stl"/></geometry><material name="black"/></visual>
+    <collision><origin xyz="0.293 0 -0.042"/><geometry><box size="0.876 0.358 0.234"/></geometry></collision>
+    <xacro:box_inertia m="3.0" x="0.876" y="0.358" z="0.234"/>
+  </link>
+
+  <!-- radar dome (big white cylinder) -->
+  <joint name="radome_joint" type="fixed"><parent link="gun_link"/><child link="radome_link"/>
+    <origin xyz="0 0.25 0.4575" rpy="${PI/2} -${PI/2} 0"/></joint>
+  <link name="radome_link">
+    <visual><geometry><mesh filename="${mesh}/radome.stl"/></geometry><material name="white"/></visual>
+    <collision><origin xyz="-0.10 0 0.265" rpy="0 ${PI/2} 0"/>
+      <geometry><cylinder radius="0.170" length="0.60"/></geometry></collision>
+    <xacro:box_inertia m="2.0" x="0.63" y="0.35" z="0.35"/>
+  </link>
+
+  <!-- trunnion truss (grey), tilts with the assembly -->
+  <joint name="rod_joint" type="fixed"><parent link="gun_link"/><child link="rod_link"/>
+    <origin xyz="0 0 0"/></joint>
+  <link name="rod_link">
+    <visual><geometry><mesh filename="${mesh}/rod.stl"/></geometry><material name="mgrey"/></visual>
+    <collision><geometry><box size="0.17 0.325 0.235"/></geometry></collision>
+    <xacro:box_inertia m="1.0" x="0.17" y="0.325" z="0.235"/>
+  </link>
+
+  <!-- ===================== CAMERA (EO box + lens, side bracket, looks +X) ===================== -->
+  <joint name="camera_joint" type="fixed"><parent link="gun_link"/><child link="camera_link"/>
+    <origin xyz="-0.07 0.05 0.15"/></joint>
+  <link name="camera_link">
+    <visual><geometry><mesh filename="${mesh}/camera.stl"/></geometry><material name="mgrey"/></visual>
+    <collision><origin xyz="0.12 0.16 0.10"/><geometry><box size="0.218 0.075 0.075"/></geometry></collision>
+    <inertial><origin xyz="0.12 0.16 0.10"/><mass value="0.1"/>
+      <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="1e-4"/></inertial>
+  </link>
+  <joint name="camera_optical_joint" type="fixed"><parent link="camera_link"/><child link="camera_link_optical"/>
+    <origin xyz="0.229 0.16 0.10" rpy="0 0 0"/></joint>
+  <link name="camera_link_optical"/>
+
+  <gazebo reference="camera_link">
+    <sensor name="turret_camera" type="camera">
+      <pose>0.229 0.16 0.10 0 0 0</pose>
+      <always_on>1</always_on><update_rate>30</update_rate><visualize>true</visualize>
+      <topic>/turret_camera/image_raw</topic><gz_frame_id>camera_link_optical</gz_frame_id>
+      <camera><horizontal_fov>0.4</horizontal_fov>
+        <image><width>640</width><height>640</height><format>R8G8B8</format></image>
+        <clip><near>0.05</near><far>500.0</far></clip></camera>
+    </sensor>
+
+    <!-- ===== SMASH FCS: 동축 광각 레이저 거리측정기 =====
+         카메라 광학중심과 동일한 위치(0.229 0.16 0.10)에 동축으로 놓인 LiDAR 다.
+
+         왜 단일 보어사이트 빔이 아니라 원뿔형 다중 빔인가:
+           카메라 광학중심과 포구는 gun_link 기준 (0.572, -0.21, -0.292) m 만큼
+           떨어져 있고, 이 중 보어사이트에 수직인 성분이 약 0.359 m 다. 포탑이
+           탄도해에 맞춰 지향하면 카메라 시선과 포신 지향선 사이에 시차가 생기며,
+           그 크기는 35 m 교전에서 약 15.6 mrad(0.90도) 다(오프라인 검증 A3 항목).
+           반면 35 m 의 소형 드론은 화면에서 약 21픽셀(13.4 mrad)에 불과하다.
+           즉 포신이 정확히 조준된 순간, 표적은 카메라 주점에서 벗어나 있으므로
+           주점에 고정된 단일 빔은 표적을 맞히지 못하고 배경(하늘)을 읽는다.
+           실제로 오프라인 검증에서 단일 빔 구성은 전 프레임에서 무효였다.
+
+         해결: 예상 시차 + 리드각 + 추적오차를 모두 덮는 +-0.04 rad(+-2.29도)
+         원뿔로 넓히고, 원뿔 안의 최근접 유효 반사(first return)를 표적 거리로 쓴다.
+         실제 펄스식 레이저 거리측정기의 first-return 논리와 동일한 방식이다.
+         원뿔은 카메라 화각(+-0.2 rad) 안에 완전히 들어가므로, 빔이 맞힌 물체는
+         반드시 화면에도 보인다. 오독을 막기 위해 바운딩박스 기하 추정치와의
+         교차검증 게이트를 소프트웨어(range_estimator.py)에서 한 번 더 건다.
+
+         33 x 33 = 1089 빔, 빔 간격 2.5 mrad. 35 m 표적(13.4 mrad)은 약 5개 빔에
+         걸친다. 100 m 이상에서는 표적 각크기가 빔 간격에 근접해 빔 사이로 빠질 수
+         있으므로, 원거리 교전을 검증할 때는 samples 를 늘려야 한다.
+
+         gpu_lidar 는 <topic> 으로 LaserScan(가운데 행)을,
+         <topic>/points 로 PointCloudPacked(전체 격자)를 발행한다. FCS 노드는
+         2차원 정보가 필요하므로 후자를 구독한다.
+
+         빈 링크에 센서를 달면 gz-sim 이 고정관절을 병합하며 센서를 누락시키는
+         경우가 있어, 관성이 정의된 camera_link 에 직접 부착했다. -->
+    <sensor name="turret_boresight_laser" type="gpu_lidar">
+      <pose>0.229 0.16 0.10 0 0 0</pose>
+      <always_on>1</always_on><update_rate>30</update_rate><visualize>false</visualize>
+      <topic>/turret_camera/boresight_range</topic><gz_frame_id>camera_link_optical</gz_frame_id>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>33</samples><resolution>1</resolution>
+            <min_angle>-0.04</min_angle><max_angle>0.04</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>33</samples><resolution>1</resolution>
+            <min_angle>-0.04</min_angle><max_angle>0.04</max_angle>
+          </vertical>
+        </scan>
+        <range><min>1.0</min><max>500.0</max><resolution>0.01</resolution></range>
+        <noise><type>gaussian</type><mean>0.0</mean><stddev>0.02</stddev></noise>
+      </lidar>
+    </sensor>
+  </gazebo>
+
+  <!-- ===================== Gazebo colours ===================== -->
+  <gazebo reference="base_link"><visual><material><ambient>0.80 0.72 0.52 1</ambient><diffuse>0.82 0.74 0.54 1</diffuse></material></visual></gazebo>
+  <gazebo reference="turret_link"><visual><material><ambient>0.75 0.75 0.77 1</ambient><diffuse>0.75 0.75 0.77 1</diffuse></material></visual></gazebo>
+  <gazebo reference="gun_link"><visual><material><ambient>0.12 0.12 0.14 1</ambient><diffuse>0.12 0.12 0.14 1</diffuse></material></visual></gazebo>
+  <gazebo reference="radome_link"><visual><material><ambient>0.90 0.90 0.90 1</ambient><diffuse>0.95 0.95 0.94 1</diffuse></material></visual></gazebo>
+  <gazebo reference="rod_link"><visual><material><ambient>0.55 0.55 0.58 1</ambient><diffuse>0.55 0.55 0.58 1</diffuse></material></visual></gazebo>
+  <gazebo reference="camera_link"><visual><material><ambient>0.50 0.50 0.52 1</ambient><diffuse>0.50 0.50 0.52 1</diffuse></material></visual></gazebo>
+
+  <!-- ===================== ros2_control ===================== -->
+  <ros2_control name="GazeboSimSystem" type="system">
+    <hardware><plugin>gz_ros2_control/GazeboSimSystem</plugin></hardware>
+    <joint name="turret_pan_joint">
+      <command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/>
+    </joint>
+    <joint name="turret_tilt_joint">
+      <command_interface name="position">
+        <param name="min">${0.0*PI/180.0}</param><param name="max">${85.0*PI/180.0}</param></command_interface>
+      <state_interface name="position"/><state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find ciws_turret)/config/controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+</robot>

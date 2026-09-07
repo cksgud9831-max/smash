@@ -1,16 +1,8 @@
-"""Live-viewing companion to 01_gazebo_bridge_node.py.
+"""가제보 3D 타겟 드론 안정 호버링(정지 체공) 드라이버
 
-01_gazebo_bridge_node.py starts its OWN headless server, runs one fixed
-300-frame pass, and exits -- built for batch data generation, nothing to
-look at. This script instead assumes a GUI server is ALREADY running
-(started separately, e.g. via gazebo/run_gazebo_gui.bat) and just connects
-to it as a transport client, looping the same platform-shake + target-motion
-profile indefinitely so a person watching the GUI window can see it move.
-
-Not used by the data pipeline (01/02/03) -- this is purely for visual
-sanity-checking that the world/set_pose/IMU wiring actually works, by eye.
-Run gazebo/run_gazebo_gui.bat first, THEN this script (or
-gazebo/run_live_demo_drive.bat) in a second terminal.
+기능:
+1. 전방 35m, 상공 3.5m 위치에 타겟 드론을 안정적으로 고정 체공(Hovering)
+2. 초기 영점 정렬, 탐지 신뢰도 및 정지 표적 사격 격추 판정을 완벽하게 검증
 """
 
 from __future__ import annotations
@@ -23,15 +15,16 @@ from gz.msgs.pose_pb2 import Pose
 from gz.transport import Node
 
 WORLD_NAME = "aiming_test"
-FPS = 20.0
-LOOP_PERIOD_S = 20.0  # target sweeps out and resets every 20s so the demo runs forever
+FPS = 60.0
+DT = 1.0 / FPS
 
-PLATFORM_AMP_DEG = (2.0, 2.0, 2.0)
-PLATFORM_FREQ_HZ = (2.0, 2.0, 2.0)
-PLATFORM_POSITION = (0.0, 0.0, 0.0)
+# 사격 플랫폼 기본 자세 (원점 고정 및 미세 안정 상태)
+PLATFORM_POSITION = (0.0, 0.0, 1.2)
 
-TARGET_P0 = (75.0, 0.0, 3.0)
-TARGET_V = (0.0, 8.0, 0.0)
+# 드론 고정 호버링 위치 (전방 35m 정중앙, 상공 3.5m)
+HOVER_X = 35.0
+HOVER_Y = 0.0
+HOVER_Z = 3.5
 
 
 def euler_to_quat_xyzw(roll: float, pitch: float, yaw: float) -> tuple[float, float, float, float]:
@@ -56,30 +49,35 @@ def set_pose(node: Node, name: str, position, orientation_xyzw) -> bool:
 
 def main() -> None:
     node = Node()
-    print("Connecting to a running GUI server (start gazebo/run_gazebo_gui.bat first if you haven't)...")
-    print("Driving platform shake + target motion, looping forever. Ctrl+C to stop.")
+    print("=======================================================")
+    print(f" Gazebo 드론 안정 호버링(고정 체공) 시작: ({HOVER_X}m, {HOVER_Y}m, {HOVER_Z}m)")
+    print("=======================================================")
 
-    dt = 1.0 / FPS
-    t = 0.0
+    t0 = time.time()
+    next_step = t0
+
     while True:
-        t_local = t % LOOP_PERIOD_S
+        now = time.time()
+        t = now - t0
 
-        roll = math.radians(PLATFORM_AMP_DEG[0]) * math.sin(2 * math.pi * PLATFORM_FREQ_HZ[0] * t)
-        pitch = math.radians(PLATFORM_AMP_DEG[1]) * math.sin(2 * math.pi * PLATFORM_FREQ_HZ[1] * t)
-        yaw = math.radians(PLATFORM_AMP_DEG[2]) * math.sin(2 * math.pi * PLATFORM_FREQ_HZ[2] * t)
-        platform_quat = euler_to_quat_xyzw(roll, pitch, yaw)
+        # 1. 사격 플랫폼 안정 자세
+        p_quat = euler_to_quat_xyzw(0.0, 0.0, 0.0)
+        set_pose(node, "platform", PLATFORM_POSITION, p_quat)
 
-        target_pos = (
-            TARGET_P0[0] + TARGET_V[0] * t_local,
-            TARGET_P0[1] + TARGET_V[1] * t_local,
-            TARGET_P0[2] + TARGET_V[2] * t_local,
-        )
+        # 2. 타겟 드론 고정 호버링 (자연스러운 미세 기류 요동 2cm만 반영)
+        target_x = HOVER_X
+        target_y = HOVER_Y + 0.02 * math.sin(1.2 * t)
+        target_z = HOVER_Z + 0.02 * math.cos(1.0 * t)
+        t_quat = euler_to_quat_xyzw(0.0, 0.0, 0.0)
+        
+        set_pose(node, "target", (target_x, target_y, target_z), t_quat)
 
-        set_pose(node, "platform", PLATFORM_POSITION, platform_quat)
-        set_pose(node, "target", target_pos, (0.0, 0.0, 0.0, 1.0))
-
-        time.sleep(dt)
-        t += dt
+        next_step += DT
+        sleep_dur = next_step - time.time()
+        if sleep_dur > 0:
+            time.sleep(sleep_dur)
+        else:
+            next_step = time.time()
 
 
 if __name__ == "__main__":
