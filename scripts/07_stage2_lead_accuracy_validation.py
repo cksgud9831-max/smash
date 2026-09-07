@@ -22,7 +22,7 @@ TargetState만 단독으로 떼어내 검증한다. 이렇게 하면 "비전 파
 (known_issues.md, level1_level2_validation_report.md Level 3 항목과 동일한 주의사항).
 
 실행: python 07_stage2_lead_accuracy_validation.py
-출력: 콘솔 요약 테이블 + <project_root>/stage2_lead_accuracy_results.json
+출력: 콘솔 요약 테이블 + <project_root>/results/stage2_lead_accuracy_results.json
 """
 
 import json
@@ -159,7 +159,9 @@ def main():
                 f"(p95 {s['position_error_m']['p95']:.4f})"
             )
 
-    out_path = os.path.join(project_root, "stage2_lead_accuracy_results.json")
+    out_dir = os.path.join(project_root, "results")
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, "stage2_lead_accuracy_results.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump({
             "methodology": "TargetState 단독 오라클 검증, drone_motion_models.compute_drone_linear_position을 정답으로 사용",

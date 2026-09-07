@@ -11,19 +11,17 @@
    * **drone_sim/:** SMASH FCS 핵심 노드(smash_fcs_node.py), 대화형 스마트 스코프 뷰어(smash_scope_viewer.py), 3차원 비행 타깃(드론, 비행기, 헬기, 조류) 모델 및 런치 파이프라인(smash_scene.launch.py).
    * **assets/ 및 3D 모델 메쉬:** 비행체 및 포탑 3D 메쉬/텍스처 에셋 전체.
 
-2. **standalone/ (Windows 네이티브 대화형 시뮬레이터):**
-   * **06_gazebo_interactive_shooter.py:** 사수 1인칭 마우스 조준, 100% 순수 비전 추적 및 마우스 좌클릭/스페이스바 격발 드론 격추 시뮬레이터.
-
-3. **launchers/ (통합 실행 및 환경 관리 런처):**
-   * **run_smash_fcs.bat:** Windows CMD 환경에서 환경 진단, 빌드, 조준, 수동/자동 격발, 대화형 스코프 뷰어를 원클릭으로 구동하는 마스터 배치 파일.
-   * **wsl_setup_smash_fcs.sh:** WSL2 Ubuntu_24.04 환경 내부에서 ROS 2 Jazzy, Gazebo Harmonic, 심볼릭 링크 및 가상환경 경로를 자동 관리하는 스크립트.
+2. **실행 진입점 (저장소 루트 및 scripts/ 에 위치):**
+   * **../run_smash_fcs.bat:** Windows CMD 환경에서 환경 진단, 빌드, 조준, 수동/자동 격발, 대화형 스코프 뷰어를 원클릭으로 구동하는 마스터 배치 파일.
+   * **../scripts/wsl_setup_smash_fcs.sh:** WSL2 Ubuntu_24.04 환경 내부에서 ROS 2 Jazzy, Gazebo Harmonic, 심볼릭 링크 및 가상환경 경로를 자동 관리하는 스크립트. run_smash_fcs.bat 이 이 경로를 직접 호출한다.
+   * **../scripts/06_gazebo_interactive_shooter.py:** Windows 네이티브 대화형 시뮬레이터. 사수 1인칭 마우스 조준, 100% 순수 비전 추적 및 마우스 좌클릭/스페이스바 격발 드론 격추 시뮬레이터. ../run_pipeline.py 4번 메뉴가 이 경로를 호출한다.
 
 ============================================================
 
 ### 2. 주요 실행 방법
 
 1. **Gazebo Harmonic + ROS 2 3D 포탑 시뮬레이터 실행:**
-   * launchers/run_smash_fcs.bat 실행 후 메뉴 선택:
+   * 저장소 루트의 run_smash_fcs.bat 실행 후 메뉴 선택:
      * 1번: 환경 진단 (check)
      * 2번: 워크스페이스 심볼릭 링크 연결 (link, 최초 1회)
      * 3번: 패키지 빌드 (build)
@@ -33,4 +31,4 @@
      * 8번: 대화형 스마트 스코프 뷰어 창 실행 (마우스 좌클릭 / 스페이스바 즉시 격발)
 
 2. **Windows 네이티브 대화형 시뮬레이터 실행:**
-   * run_pipeline.bat 실행 후 4번 선택 또는 python simulation/standalone/06_gazebo_interactive_shooter.py 실행.
+   * run_pipeline.bat 실행 후 4번 선택 또는 python scripts/06_gazebo_interactive_shooter.py 실행.

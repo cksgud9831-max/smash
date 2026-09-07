@@ -18,8 +18,8 @@ ROS 2 와 Gazebo 없이, 1단계에서 새로 만든 수학 경로만 떼어 내
 실행:
     python scripts/08_stage1_fcs_offline_validation.py
 결과:
-    intermediate_results/stage1_fcs_offline_validation.json  (전체 수치)
-    intermediate_results/stage1_range_sensitivity.csv        (거리오차 민감도, utf-8-sig)
+    results/intermediate_results/stage1_fcs_offline_validation.json  (전체 수치)
+    results/intermediate_results/stage1_range_sensitivity.csv        (거리오차 민감도, utf-8-sig)
 """
 
 from __future__ import annotations
@@ -628,8 +628,8 @@ def main() -> None:
     report["C_거리추정"] = range_results
     report["D_종단조준"] = test_engagements()
 
-    out_dir = REPO_ROOT / "intermediate_results"
-    out_dir.mkdir(exist_ok=True)
+    out_dir = REPO_ROOT / "results" / "intermediate_results"
+    out_dir.mkdir(parents=True, exist_ok=True)
     json_path = out_dir / "stage1_fcs_offline_validation.json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)

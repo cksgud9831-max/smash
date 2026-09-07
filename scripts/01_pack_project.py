@@ -16,8 +16,8 @@ def pack_project(output_filename: str = "smart_scope_project.zip") -> None:
         "config",
         "examples",
         "tests",
-        "interim_reports",
-        "pdfs",
+        "docs/interim_reports",
+        "docs/pdfs",
     ]
 
     # Individual files to include
@@ -25,7 +25,7 @@ def pack_project(output_filename: str = "smart_scope_project.zip") -> None:
         "requirements.txt",
         "requirements-bridge-hardware.txt",
         "pytest.ini",
-        "known_issues.md",
+        "docs/analysis/known_issues.md",
     ]
 
     print(f"Creating package: {output_path.name}")
