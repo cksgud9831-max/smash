@@ -1,9 +1,0 @@
-Python: 3.10.12
-PyTorch: 2.8.0
-CUDA: 12.6
-CUDA available: True
-GPU: Orin
-Ultralytics: 8.4.66
-OpenCV: 4.13.0
-NumPy: 1.23.5
-ONNX: 1.17.0

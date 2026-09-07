@@ -1,0 +1,636 @@
+﻿Total pages: 5
+=== PAGE 1 ===
+Algorithm and Simulation of Airborne Fire Control 
+Aiming Angle Correction 
+Boyu Gao 
+College of Information Science and 
+Engineering 
+Shenyang University of Technology 
+Shenyang, China 
+gaoboyu0726@163.com 
+Baoshu Xu 
+College of Information Science and 
+Engineering, Shenyang University of 
+Technology, Shenyang, China 
+Shenyang Sumboy Intelligent Imaging 
+Technology Co., Ltd. 
+Shenyang, China 
+Chengshuo Zhang 
+College of Information Science and 
+Engineering  
+Shenyang University of Technology 
+Shenyang, China 
+tensurezhang@sut.edu.cn 
+xbs001@sumboy.cn 
+Abstract?봎odern warfare is rapidly evolving towards 
+unmanned and intelligent trends. Currently, one of the 
+technical difficulties in unmanned aerial vehicle (UAV) 
+airborne fire control systems is how to accurately and quickly 
+solve shooting data. Therefore, in this paper, we propose a 
+method for onboard fire control calculations based on variable 
+angle integration. First, the ballistic model equations are 
+mathematically transformed to transform the time integration 
+into an angular integration. In each iteration, the target is 
+always treated as a moving state, and the relation between the 
+hit-point distance and the trajectory inclination angle is 
+introduced. The firing elements were modified by Newton 
+descending method. The variable angle integral method 
+reduces the calculation times of the ballistic differential 
+equation and improves the accuracy of the end of the hit point 
+under the same operation conditions. The results of the 
+simulation experiments show that the proposed method is 
+computationally accurate and time-efficient compared to 
+conventional methods, providing some reference for the study 
+of airborne fire control midpoint and firing element 
+calculations.
+Keywords?봵ariable angle integral, hit equation, newton 
+downhill method, iterative correction 
+I. INTRODUCTION 
+With the development of network and information 
+technology, unmanned aerial vehicle (UAV) combat has 
+become one of the crucial tasks in modern warfare, making it 
+easier to carry firepower weapons for effective strikes. 
+Among them, the accuracy and speed at which the various 
+elements are solved are the most critical factors affecting the 
+accuracy of airborne fire control. Therefore, it is important to 
+design a fast and accurate algorithm for fire control solution. 
+Reference [1] uses interpolation algorithm to solve 
+uncontrolled trajectory in three-dimensional space. Although 
+it meets real-time requirements, it requires a large amount of 
+memory space and has limited accuracy. References [2-4]
+are based on CE-LSTM, Bi LSTM, and  BP neural networ k 
+algorithms for predicting external ballistic impact points, 
+which improves the accuracy and speed of prediction. 
+However, their trained models are only applicable to a single 
+type of projectile and environmental conditions, leading to
+limited generality in practical applications. In this regard, 
+adopting ballistic models based on ballistic differential 
+
+=== PAGE 2 ===
+Fig. 1. Polar coordinate schematic diagram 
+Substitute polar coordinates, as follows. 
+째째
+짱
+째째
+짰
+짯
+ 
+ 
+U
+Y
+GW
+G
+YGW
+GU
+VLQ
+FRV
+DTD
+DT
+                                     (1) 
+By combining equation (1) with the trajectory equation 
+for time integration, the tra jectory equation for angle 
+integration transformation can be obtained: 
+째
+째
+째
+째
+째
+째
+째
+째
+째
+짱
+째째
+째
+째
+째
+째
+째
+째
+째
+짰
+짯
+ 
+ 
+
+ 
+
+
+ 
+
+
+ 
+VLQ
+VLQ
+VLQ
+FRV
+VLQ
+FRV
+FRV
+VLQ
+VLQ
+@>
+
+
+
+
+
+
+DTS
+U
+D
+DTD
+DT
+DT
+D
+DT
+TMDU
+D
+T
+DT
+TDU
+D
+Y-
+UY3&6
+G
+G3
+Y
+U
+G
+GW
+UG
+GU
+Y
+UJP
+&6Y
+G
+G
+Y
+UJP
+&&6Y
+G
+GY
+[
+OS
+HOD
+H'L'
+(2)
+Where x and y are the coordinates of the projectile's 
+center of mass, v is the projectile's velocity, m is the 
+projectile's mass, and g is the gravitational acceleration, 罐 is 
+the ballistic inclination angle, ? is the air density function, S 
+is the cross-sectional area of the projectile, and Jx i s  t h e  
+moment of inertia along the projectile axis. CD0 is the zero-
+lift drag coefficient and CDi is the induced drag coefficient. 
+舒팫 is the dynamic equilibrium angle, which approximates the 
+change in attack angle. 
+B. Coordinate conversion 
+The ballistic differential equation describes the spatial 
+position of the center of mass of the projectile based on the 
+emission coordinate system, and the target motion equation 
+and the hit equation describe the spatial position and the shot 
+data of the moving target based on the inertial coordinate 
+system. Therefore, it is necessary to convert the emission 
+frame to the inertial frame, and the conversion relation is 
+shown in Fig.2. 
+In the firing coordinate system O-XAYAZA, the origin O 
+is the center of the weapon carrier, the horizontal firing 
+direction is XA forward, the horizontal plane straight up is YA
+forward, and ZA forward is determined by the right-hand rule. 
+In the inertial frame O-XEYEZE, the center of mass of the 
+vehicle is the origin O, the due east direction is XE forward, 
+the due north direction is Y E forward, and the vertical 
+horizontal plane is ZE f o r w a r d .
+
+ 
+,
+
+  is projected 
+on the ground for X A, Z A, XE a n d  ZE,?is the launch 
+elevation angle, and 舒퇳s the launch azimuth angle. 
+Fig. 2. Coordinate transformation 
+When the UAV is flying, it searches for targets through a 
+photoelectric pod. When the target appears in the image, it is 
+locked and tracked through the ground control pod so that 
+the target is located in the center of the image. As shown in 
+Fig.3.
+Fig. 3. Target diagram in pod coordinate system 
+Laser ranging is turned on to measure the distance to the 
+target and the relative position of the target is calculated 
+using the frame angle of the pod itself. Set the distance 
+between the target and the pod as Dm, the pitch angle of the 
+pod as ?u, and the azimuth angle as 薯릙, then the target is 
+represented in the pod coordinate system by the following 
+formula. 
+쨩
+쨩
+쨩
+쩌
+쨘
+짬
+짬
+짬
+짭
+짧
+ 
+쨩
+쨩
+쨩
+쩌
+쨘
+짬
+짬
+짬
+짭
+짧
+ 
+XP
+XXP
+XXP
+X
+X
+X
+X
+'
+'
+'
+]
+\
+[
+5
+T
+MT
+MT
+VLQ
+VLQFRV
+FRVFRV
+   
+
+=== PAGE 3 ===
+쨩
+쨩
+쨩
+쩌
+쨘
+짬
+짬
+짬
+짭
+짧
+
+
+
+ 
+쨩
+쨩
+쨩
+쩌
+쨘
+짬
+짬
+짬
+짭
+짧
+ 
+VLQ
+VLQFRV
+FRVFRV
+IXP
+IXIXP
+IXIXP
+7
+7
+7
+7
+'
+'
+'
+]
+\
+[
+5
+TT
+MMTT
+MMTT
+(4)
+C. Calculation of trajectory equation  
+The Runge-Kutta method is an iterative algorithm 
+commonly used to solve ordinary differential equations. The 
+ballistic differential equations and initial values are 
+formulated as follows. 
+째짱
+째짰
+짯
+ 
+d 
+
+
+
+
+<<
+[<IG
+G< DDD                          (5)
+,Y0 is the initial ballistic parameter. The 
+fourth-order Runge-Kutta method is formulated as follows.  
+째
+째
+째
+째
+째
+째
+짱
+째째
+째
+째
+째
+째
+짰
+짯
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+NNNNK<<
+NK<KIN
+NK<KIN
+NK<KIN
+<IN
+QQ
+QQ
+QQ
+QQ
+QQ
+D
+D
+D
+D
+(6)
+The fourth-order Runge-Kutta method is a single-step 
+numerical solution that uses only the information from the 
+previous step in the calculation and requires the computation 
+of four function values at each step; Whereas Adams linear 
+multi-step prediction only requires the computation of two 
+function values at each step and the prediction is corrected, 
+which reduces the computational effort and improves the 
+accuracy. In this paper, we use the idea of converting the 
+four-order Runge-Kutta method to the four-order Adams 
+predictive correction method to improve the accuracy, and 
+the idea of changing the step size to shorten the solution 
+speed. The detailed derivation process of universal variable 
+step Adams is given in reference [11].
+D. Step size selection 
+Since UAV-mounted fire control normally strikes ground 
+targets, if the angle a1 between the target and the launch point 
+is known, a complete ballistic curve can be obtained by 
+integrating angle a on [0,a1], and limiting the unknown 
+integral of the traditional time integral to the known limit of 
+the Angle integral. 
+Compared to the time integration method, the angle 
+integration method increases the integration step size and has 
+a lower error divergence, so that the computation can be 
+completed in a smaller number of steps and the 
+computational speed is increased while the accuracy is 
+maintained. 
+E. Prediction correction 
+In a real-world scenario, if the prediction correction is not 
+applied, there will be a large error distance between the 
+predicted impact point and the actual impact point, and the 
+subsequent impact accuracy will be improved after the 
+prediction correction. Since the lift-drag coefficient in the 
+ballistic equation is the main effect factor of the errors, and 
+m o s t  o f  t h e m  a r e  o b t a i n e d  f r o m  e m p i r i c a l  f o r m u l a e  o r  
+simulations, they deviate from the actual environment. In this 
+way, the coincidence drag lift coefficient is set. The 
+coincidence drag lift coefficient is corrected after the 
+elements of the first test projectile landing site are obtained. 
+The elements of the predicted landing site and the 
+information of the test projectile landing site are corrected 
+within a certain error by an iterative correction method. 
+
+=== PAGE 4 ===
+G. Solving shooting elements 
+In the problem of solving the firing parameters in a fire 
+control system, the boundary value problem is transformed 
+into an initial value problem for iterative solution in order to 
+allow the results to converge quickly. The solution steps are 
+as follows. 
+1) Estimated aiming angle 
+Due to the fact that onboard fire control systems typically 
+fire at a downward angle, the initial aiming angle can be 
+estimated using the vacuum motion formula. The formula for 
+the estimated azimuthal angle derived from the vacuum
+motion formula is: 
+쨍
+쨍
+쨍
+쨍
+쨍
+쨔
+쨌
+짢
+짢
+짢
+짢
+짢
+짤
+짠
+
+'쨍쨍
+쨔
+쨌
+짢짢
+짤
+짠 
+ 
+
+DUFFRV
+
+
+
+
+
+
+
+
+F
+F
+F
+F
+F
+[
+\
+Y
+J\
+[
+\
+T (8)
+Where,
+ . 
+2) Solving differential equation systems 
+With the initial aiming angle, numerical solutions can be 
+obtained based on the initial value problem, with the distance 
+between the target and the launch point set to Dm. Formula (2) 
+after integral transformation is used, and its initial values are: 
+짱
+짰
+짯
+  
+     
+IXFPF 'U&
+33WYYUU2
+TTD
+D
+
+  (9)
+O is launch starting point, C is target position. After 
+solving the first three starting values using the fourth-order 
+Runge-Kutta method, and then numerically integrating the 
+solution pattern using a variable step size fourth-order 
+Adams prediction correction, the resulting sequence values 
+of the trajectory elements are:  
+g q
+. 
+Among them, j is the iteration correction sequence 
+number, and i is the calculation sequence number during the 
+numerical integration process. 
+Given the location of the target point, when 慣=慣c, it can 
+be considered that the integration process has been 
+completed, and the ballistic data ri at this point is the distance 
+between the grenade and the launch point. 
+3) Aiming angle correction 
+Viewing the target as a state of motion allows am and rm
+to be adjusted according to time-of-flight during integration, 
+which can synchronously correct high and low angles and 
+target positions, reduce the number of loop layers, and 
+improve iteration efficiency. Among them, Newton's 
+downhill method is used to correct the aiming angle, and a 
+relationship is established between the distance rd from the 
+midpoint and the ballistic inclination angle ?d :
+ , 
+establish correction formula: 
+ .  
+4) Iteration - correction completion conditions 
+After correcting the aiming angle, the iterative 
+computation process is continued in steps 2 and 3, and the 
+two iterative correction end conditions are set simultaneously. 
+Condition 1: When 慣=慣m, the target distance 
+.Where 刮 is the maximum set error value.
+Condition 2: In order to avoid the divergence of results or 
+the excessive number of iterations and corrections that may 
+affect the fire control calculation time, an upper limit of 
+iterations and corrections has been set. 
+The ergodic correction procedure is terminated when the 
+error is smaller than the set value or the number of 
+corrections reaches an upper bound. 
+The block diagram of program design is 
+
+=== PAGE 5 ===
+Fig. 7. GUI interface 
+The initial speed at which the grenade is launched is set 
+to 120 m/s. For moving targets, different target positions and 
+moving speeds are assumed. The parameters of the initial 
+targets of the simulations are listed in Table I.
+TABLE I. TARGET MOTION PARAMETERS
+Serial NumberTarget Position/mTarget movement speed/(m/s)
+1 (350, -140, 20) (5, -5, 3)
+2 (600, -300, -100) (-7, 3, -5)
+3 (200, -60, 60) ( 4 ,0 ,4 )
+4 (550, -160, -80) ( - 8 ,0 ,6 )
+For the traditional iterative correction method, the 
+Runge-Kutta method is used to solve the trajectory equations 
+with an integration step of 0.01s. For the conventional 
+iterative correction method, the Runge-Kutta method is used 
+to solve the trajectory equations with an integration step of 
+0.01s, and the parameter solution results are shown in Table 
+II. For the variational Angle iterative correction method in 
+this paper, the results of the parameter solution are shown in 
+Table III.
+TABLE II. TRADITIONAL ITERATIVE CORRECTION METHOD
+Serial 
+Number
+altitude 
+angle/ee
+azimuth 
+angle/e
+Missing
+distance /m
+Iteration 
+Correction 
+Times
+Number of 
+single 
+integrals
+1 -14.814 4.808 0.71 9 366
+2 -12.253 -13.186 0.81 16 612
+3 -10.727 18.104 0.15 7 201
+4 -4.948 -5.500 0.48 20 518
+TABLE III. VARIABLE ANGLE ITERATIVE CORRECTION METHOD
+Serial 
+Number
+altitude 
+angle /e
+azimuth 
+angle /e
+Missing
+distance /m
+Iteration 
+Correction 
+Times
+Number 
+of single 
+integrals
+1 -14.904 4.816 0.08 6 86
+2 -12.272 -13.187 0.085 5 150
+3 -10.694 18.111 0.001 4 56
+4 -4.980 -5.499 0.0003 7 121
+According to the comparative analysis of the results in 
+Table II and Table III, due to its variable step size, the 
+method proposed in this paper has higher accuracy than the 
+traditional method in solving the end of the hit point, and 
+because the Angle integral is compared with the time integral, 
+the error divergence of the step size data is increased slowly, 
+ensuring the accuracy of the results. 
+At the same time, the method in this paper effectively 
+reduces the number of integrals for a single trajectory 
+solution, reduces the number of iterative corrections, and 
+improves the computational speed. In order to show that the 
+improved algorithm in this paper has good real-time 
+performance, the solution times required by the conventional 
+method and the algorithm in this paper are compared in a 
+matlab environment, and the simulation results are shown in 
+Table IV. 
+TABLE IV. COMPARISON OF TIME CONSUMING UNDER WINDOWS 
+PLATFORM
+Serial 
+Number
+Traditional iterative 
+correction method
+Variable angle iterative 
+correction method
+1 146ms 18ms
+2 320ms 26ms
+3 95ms 10ms
+4 345ms 34ms
+A s  c a n  b e  s e e n  f r o m  t h e  t a b l e ,  t h e  s o l u t i o n  t i m e  o f  t h e  
+modified algorithm in this paper is smaller than that of the 
+conventional method for different target positions and 
+motion states. 
+IV. CONCLUSION 
+T o  i m p r o v e  t h e  a c c u r a c y  a nd real-time performance of 
+on-board fire control
+
