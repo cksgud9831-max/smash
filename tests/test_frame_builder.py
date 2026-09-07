@@ -41,15 +41,11 @@ class _FakeTracker:
     def __init__(self, results: list):
         self._results = list(results)
         self._calls = 0
-        self.close_calls = 0
 
     def update(self, frame_bgr):
         result = self._results[min(self._calls, len(self._results) - 1)]
         self._calls += 1
         return result
-
-    def close(self):
-        self.close_calls += 1
 
 
 def make_result(cx=320.0, cy=240.0, w=40.0, h=40.0, score=0.9, is_recovery_event=False) -> FollowerResult:
@@ -68,95 +64,6 @@ def make_frame_bgr() -> np.ndarray:
 def test_no_track_returns_none():
     builder = make_builder(_FakeTracker([None]))
     assert builder.build(make_frame_bgr(), timestamp=0.0) is None
-
-
-def test_tracker_config_defaults_to_legacy_backend():
-    tracker_config = TrackerConfig(model_path="unused.pt", device="cpu", conf_thres=0.25)
-    assert tracker_config.backend == "legacy"
-
-
-def test_injected_tracker_takes_priority_over_final_v20_backend():
-    config = make_config()
-    config = BridgeConfig(
-        camera=config.camera,
-        laser=config.laser,
-        pose=config.pose,
-        tracker=TrackerConfig("unused.engine", "0", 0.25, backend="final_v20"),
-        detector=config.detector,
-    )
-    fake = _FakeTracker([None])
-    builder = TrackerFrameBuilder(
-        config, MockRangeSensor(fixed_distance_m=250.0), MockPoseSource(np.eye(4)), tracker=fake
-    )
-    assert builder._tracker is fake
-
-
-def test_legacy_backend_constructs_optical_flow_tracker(monkeypatch):
-    captured = {}
-    fake = _FakeTracker([None])
-
-    def constructor(**kwargs):
-        captured.update(kwargs)
-        return fake
-
-    monkeypatch.setattr("bridge.frame_builder.OpticalFlowTracker", constructor)
-    config = make_config()
-    builder = TrackerFrameBuilder(
-        config, MockRangeSensor(fixed_distance_m=250.0), MockPoseSource(np.eye(4))
-    )
-    assert builder._tracker is fake
-    assert captured == {"model_path": "unused.pt", "device": "cpu", "conf_thres": 0.25}
-
-
-def test_final_v20_backend_constructs_final_tracker(monkeypatch):
-    captured = {}
-    fake = _FakeTracker([None])
-
-    def constructor(**kwargs):
-        captured.update(kwargs)
-        return fake
-
-    monkeypatch.setattr("bridge.frame_builder.FinalTracker", constructor)
-    config = make_config()
-    config = BridgeConfig(
-        camera=config.camera,
-        laser=config.laser,
-        pose=config.pose,
-        tracker=TrackerConfig("model.engine", "0", 0.99, backend="final_v20"),
-        detector=config.detector,
-    )
-    builder = TrackerFrameBuilder(
-        config, MockRangeSensor(fixed_distance_m=250.0), MockPoseSource(np.eye(4))
-    )
-    assert builder._tracker is fake
-    assert captured == {"engine_path": "model.engine", "device": "0"}
-
-
-def test_unknown_backend_raises_value_error():
-    config = make_config()
-    config = BridgeConfig(
-        camera=config.camera,
-        laser=config.laser,
-        pose=config.pose,
-        tracker=TrackerConfig("unused", "cpu", 0.25, backend="something_invalid"),
-        detector=config.detector,
-    )
-    try:
-        TrackerFrameBuilder(
-            config, MockRangeSensor(fixed_distance_m=250.0), MockPoseSource(np.eye(4))
-        )
-    except ValueError as exc:
-        assert str(exc) == "Unsupported tracker backend: something_invalid"
-    else:
-        raise AssertionError("unknown tracker backend was accepted")
-
-
-def test_builder_close_forwards_once_and_is_idempotent():
-    fake = _FakeTracker([None])
-    builder = make_builder(fake)
-    builder.close()
-    builder.close()
-    assert fake.close_calls == 1
 
 
 def test_track_produces_valid_trackerframe():

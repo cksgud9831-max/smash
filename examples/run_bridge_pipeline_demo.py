@@ -48,7 +48,6 @@ def main() -> None:
     cap = cv2.VideoCapture(src)
     if not cap.isOpened():
         print(f"Error: could not open video source {args.source}")
-        frame_builder.close()
         range_sensor.close()
         pose_source.close()
         return
@@ -85,7 +84,6 @@ def main() -> None:
             frame_idx += 1
     finally:
         cap.release()
-        frame_builder.close()
         range_sensor.close()
         pose_source.close()
 

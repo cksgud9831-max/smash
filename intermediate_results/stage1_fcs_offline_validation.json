@@ -1,0 +1,475 @@
+{
+  "설명": "SMASH FCS 1단계 오프라인 정량 검증 결과",
+  "카메라모델": {
+    "image_w": 640,
+    "image_h": 640,
+    "horizontal_fov_rad": 0.4,
+    "fx": 1578.6095601878058,
+    "fy": 1578.6095601878058,
+    "cx": 320.0,
+    "cy": 320.0,
+    "pixel_ifov_mrad": 0.625
+  },
+  "무기제원": {
+    "탄종": "5.56 x 45mm M855 (62 gr)",
+    "muzzle_velocity_mps": 920.0,
+    "projectile_mass_kg": 0.00402,
+    "projectile_diameter_m": 0.0057,
+    "drag_model": "G7",
+    "단위질량당_단면적_m2_per_kg": 0.006348,
+    "sight_height_over_bore_m": 0.066,
+    "muzzle_forward_of_scope_m": 0.45
+  },
+  "scope_mount_offset_pinhole_m": [
+    -0.0,
+    0.066,
+    0.45
+  ],
+  "A_기구학": {
+    "A1_boresight_vs_rotation_max_err": 0.0,
+    "A2_ik_residual_max_rad": 2.580956827951785e-08,
+    "A2_ik_residual_max_urad": 0.02580956827951785,
+    "A3a_product_sight_over_bore_m": 0.066,
+    "A3a_product_parallax_mrad": {
+      "10m": 6.6,
+      "20m": 3.3,
+      "35m": 1.8857,
+      "50m": 1.32,
+      "100m": 0.66
+    },
+    "A3a_product_parallax_at_35m_deg": 0.108,
+    "A3b_sim_turret_total_parallax_mean_mrad": 7.126105125947582,
+    "A3b_sim_turret_total_parallax_at_35m_mrad": 22.862903805792488,
+    "A3b_설명": "A3b 는 포탑 회전축 지렛대까지 포함한 시뮬레이션상의 총 시차다. 제품 정확도에 물리적으로 의미가 있는 값은 A3a 이며, A3b 는 Gazebo 서보 구동을 올바로 하기 위해 코드가 처리해야 하는 양이다.",
+    "A4_unwrap_pi_boundary": {
+      "target_deg": 179.0,
+      "reference_deg": -179.0,
+      "unwrapped_deg": -181.0,
+      "step_deg": -1.9999999999999774
+    }
+  },
+  "B_좌표변환": {
+    "B1_image_to_world_max_err_m": 2.340480746738735e-13,
+    "B1_image_to_world_mean_err_m": 3.437504884228855e-14,
+    "B2_launch_point_vs_muzzle_max_err_m": 2.618455766672135e-16
+  },
+  "C_거리추정": {
+    "C1_bbox_range_table": [
+      {
+        "true_range_m": 10.0,
+        "bbox_size_px": 74.0,
+        "estimated_range_m": 10.0263,
+        "abs_error_m": 0.0263,
+        "rel_error_pct": 0.263,
+        "reported_sigma_m": 2.5212,
+        "valid": true
+      },
+      {
+        "true_range_m": 20.0,
+        "bbox_size_px": 38.0,
+        "estimated_range_m": 19.5249,
+        "abs_error_m": 0.4751,
+        "rel_error_pct": 2.3755,
+        "reported_sigma_m": 4.9882,
+        "valid": true
+      },
+      {
+        "true_range_m": 35.0,
+        "bbox_size_px": 22.0,
+        "estimated_range_m": 33.7248,
+        "abs_error_m": 1.2752,
+        "rel_error_pct": 3.6433,
+        "reported_sigma_m": 8.9713,
+        "valid": true
+      },
+      {
+        "true_range_m": 50.0,
+        "bbox_size_px": 14.0,
+        "estimated_range_m": 52.9962,
+        "abs_error_m": 2.9962,
+        "rel_error_pct": 5.9924,
+        "reported_sigma_m": 15.2596,
+        "valid": true
+      },
+      {
+        "true_range_m": 80.0,
+        "bbox_size_px": 10.0,
+        "estimated_range_m": 74.1946,
+        "abs_error_m": 5.8054,
+        "rel_error_pct": 7.2567,
+        "reported_sigma_m": 23.7539,
+        "valid": true
+      },
+      {
+        "true_range_m": 120.0,
+        "bbox_size_px": 6.0,
+        "estimated_range_m": 123.6577,
+        "abs_error_m": 3.6577,
+        "rel_error_pct": 3.0481,
+        "reported_sigma_m": 51.5241,
+        "valid": true
+      },
+      {
+        "true_range_m": 200.0,
+        "bbox_size_px": 4.0,
+        "estimated_range_m": 185.4866,
+        "abs_error_m": 14.5134,
+        "rel_error_pct": 7.2567,
+        "reported_sigma_m": 103.6902,
+        "valid": true
+      },
+      {
+        "true_range_m": 350.0,
+        "bbox_size_px": 2.0,
+        "estimated_range_m": null,
+        "abs_error_m": null,
+        "rel_error_pct": null,
+        "reported_sigma_m": null,
+        "valid": false
+      }
+    ],
+    "C2_gating": {
+      "nearest_return_source": "laser",
+      "nearest_return_range_m": 35.0,
+      "outlier_laser_source": "bbox",
+      "outlier_laser_range_m": 35.0,
+      "outlier_rejected_count": 1,
+      "stale_laser_falls_back_to": "bbox"
+    },
+    "C2b_pointcloud_parse": {
+      "input_points": 4,
+      "valid_points": 2,
+      "ranges": [
+        5.0,
+        35.0
+      ],
+      "expected_ranges": [
+        5.0,
+        35.0
+      ]
+    },
+    "C3_range_error_sensitivity": [
+      {
+        "true_range_m": 20.0,
+        "range_rel_error_pct": 5.0,
+        "aim_error_mrad_static_target": 0.005795,
+        "aim_error_mrad_lateral_5mps": 0.271739
+      },
+      {
+        "true_range_m": 20.0,
+        "range_rel_error_pct": 10.0,
+        "aim_error_mrad_static_target": 0.01159,
+        "aim_error_mrad_lateral_5mps": 0.543478
+      },
+      {
+        "true_range_m": 20.0,
+        "range_rel_error_pct": 20.0,
+        "aim_error_mrad_static_target": 0.023181,
+        "aim_error_mrad_lateral_5mps": 1.086957
+      },
+      {
+        "true_range_m": 20.0,
+        "range_rel_error_pct": 30.0,
+        "aim_error_mrad_static_target": 0.034771,
+        "aim_error_mrad_lateral_5mps": 1.630435
+      },
+      {
+        "true_range_m": 35.0,
+        "range_rel_error_pct": 5.0,
+        "aim_error_mrad_static_target": 0.010141,
+        "aim_error_mrad_lateral_5mps": 0.271739
+      },
+      {
+        "true_range_m": 35.0,
+        "range_rel_error_pct": 10.0,
+        "aim_error_mrad_static_target": 0.020283,
+        "aim_error_mrad_lateral_5mps": 0.543478
+      },
+      {
+        "true_range_m": 35.0,
+        "range_rel_error_pct": 20.0,
+        "aim_error_mrad_static_target": 0.040566,
+        "aim_error_mrad_lateral_5mps": 1.086957
+      },
+      {
+        "true_range_m": 35.0,
+        "range_rel_error_pct": 30.0,
+        "aim_error_mrad_static_target": 0.060849,
+        "aim_error_mrad_lateral_5mps": 1.630435
+      },
+      {
+        "true_range_m": 60.0,
+        "range_rel_error_pct": 5.0,
+        "aim_error_mrad_static_target": 0.017385,
+        "aim_error_mrad_lateral_5mps": 0.271739
+      },
+      {
+        "true_range_m": 60.0,
+        "range_rel_error_pct": 10.0,
+        "aim_error_mrad_static_target": 0.034771,
+        "aim_error_mrad_lateral_5mps": 0.543478
+      },
+      {
+        "true_range_m": 60.0,
+        "range_rel_error_pct": 20.0,
+        "aim_error_mrad_static_target": 0.069542,
+        "aim_error_mrad_lateral_5mps": 1.086957
+      },
+      {
+        "true_range_m": 60.0,
+        "range_rel_error_pct": 30.0,
+        "aim_error_mrad_static_target": 0.104312,
+        "aim_error_mrad_lateral_5mps": 1.630435
+      },
+      {
+        "true_range_m": 100.0,
+        "range_rel_error_pct": 5.0,
+        "aim_error_mrad_static_target": 0.028976,
+        "aim_error_mrad_lateral_5mps": 0.271739
+      },
+      {
+        "true_range_m": 100.0,
+        "range_rel_error_pct": 10.0,
+        "aim_error_mrad_static_target": 0.057951,
+        "aim_error_mrad_lateral_5mps": 0.543478
+      },
+      {
+        "true_range_m": 100.0,
+        "range_rel_error_pct": 20.0,
+        "aim_error_mrad_static_target": 0.115903,
+        "aim_error_mrad_lateral_5mps": 1.086957
+      },
+      {
+        "true_range_m": 100.0,
+        "range_rel_error_pct": 30.0,
+        "aim_error_mrad_static_target": 0.173854,
+        "aim_error_mrad_lateral_5mps": 1.630435
+      }
+    ]
+  },
+  "D_종단조준": {
+    "D1_정지호버링_거리exact_중력만": {
+      "frames": 180,
+      "solved_frames": 180,
+      "range_sources": [
+        "exact"
+      ],
+      "laser_share_all_frames": 0.0,
+      "laser_share_tail": 0.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 0.7277777777777777,
+      "settle_frames_to_0p5deg": 1,
+      "settle_time_s": 0.0333,
+      "steady_pointing_error_deg_mean": 0.0017778550929163732,
+      "steady_pointing_error_deg_max": 0.003879101184114297,
+      "steady_aim_error_mrad_mean": 0.006204917575246991,
+      "steady_lead_magnitude_mrad_mean": 0.09269066804320984,
+      "steady_tof_ms_mean": 37.53493507320963,
+      "steady_range_abs_error_m_mean": 0.0,
+      "target_speed_true_mps": 0.0,
+      "steady_target_speed_est_mps_mean": 0.0039376084421746185,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 0.0,
+      "implied_command_lag_s": null
+    },
+    "D2_정지호버링_거리hybrid_중력만": {
+      "frames": 180,
+      "solved_frames": 180,
+      "range_sources": [
+        "bbox",
+        "laser"
+      ],
+      "laser_share_all_frames": 0.9944444444444445,
+      "laser_share_tail": 1.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 0.9833333333333333,
+      "settle_frames_to_0p5deg": 1,
+      "settle_time_s": 0.0333,
+      "steady_pointing_error_deg_mean": 0.0022451226750470816,
+      "steady_pointing_error_deg_max": 0.0046029342070179205,
+      "steady_aim_error_mrad_mean": 0.00078465743798977,
+      "steady_lead_magnitude_mrad_mean": 0.09430481944133878,
+      "steady_tof_ms_mean": 37.5297203758737,
+      "steady_range_abs_error_m_mean": 0.0128957146177657,
+      "target_speed_true_mps": 0.0,
+      "steady_target_speed_est_mps_mean": 0.02747572037228962,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 0.0,
+      "implied_command_lag_s": null
+    },
+    "D3_정지호버링_거리hybrid_공기저항": {
+      "frames": 180,
+      "solved_frames": 180,
+      "range_sources": [
+        "bbox",
+        "laser"
+      ],
+      "laser_share_all_frames": 0.9944444444444445,
+      "laser_share_tail": 1.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 0.9777777777777777,
+      "settle_frames_to_0p5deg": 1,
+      "settle_time_s": 0.0333,
+      "steady_pointing_error_deg_mean": 0.0021053233006239663,
+      "steady_pointing_error_deg_max": 0.00459015264956366,
+      "steady_aim_error_mrad_mean": 0.00040763827749466135,
+      "steady_lead_magnitude_mrad_mean": 0.09261955356297133,
+      "steady_tof_ms_mean": 38.292092526782994,
+      "steady_range_abs_error_m_mean": 0.0128957146177657,
+      "target_speed_true_mps": 0.0,
+      "steady_target_speed_est_mps_mean": 0.02762275039246368,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 0.0,
+      "implied_command_lag_s": null
+    },
+    "D4_등속직선_2mps_거리exact": {
+      "frames": 180,
+      "solved_frames": 180,
+      "range_sources": [
+        "exact"
+      ],
+      "laser_share_all_frames": 0.0,
+      "laser_share_tail": 0.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 1.0,
+      "settle_frames_to_0p5deg": 1,
+      "settle_time_s": 0.0333,
+      "steady_pointing_error_deg_mean": 0.09949393490163637,
+      "steady_pointing_error_deg_max": 0.10159410604459856,
+      "steady_aim_error_mrad_mean": 0.0018219870138116926,
+      "steady_lead_magnitude_mrad_mean": 2.07676390406504,
+      "steady_tof_ms_mean": 39.38501625749832,
+      "steady_range_abs_error_m_mean": 0.0,
+      "target_speed_true_mps": 2.0,
+      "steady_target_speed_est_mps_mean": 2.0022110345423485,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 3.025252485331044,
+      "implied_command_lag_s": 0.03288781197075822
+    },
+    "D5_등속직선_2mps_거리hybrid": {
+      "frames": 180,
+      "solved_frames": 180,
+      "range_sources": [
+        "bbox",
+        "laser"
+      ],
+      "laser_share_all_frames": 0.9944444444444445,
+      "laser_share_tail": 1.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 1.0055555555555555,
+      "settle_frames_to_0p5deg": 1,
+      "settle_time_s": 0.0333,
+      "steady_pointing_error_deg_mean": 0.09946329568976547,
+      "steady_pointing_error_deg_max": 0.10165041146201355,
+      "steady_aim_error_mrad_mean": 0.001849239270321338,
+      "steady_lead_magnitude_mrad_mean": 2.0946133193132748,
+      "steady_tof_ms_mean": 39.379819897762445,
+      "steady_range_abs_error_m_mean": 0.0128957146177657,
+      "target_speed_true_mps": 2.0,
+      "steady_target_speed_est_mps_mean": 2.0014754953775484,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 3.0252524341026796,
+      "implied_command_lag_s": 0.032877684707744825
+    },
+    "D6_등속직선_5mps_거리hybrid": {
+      "frames": 180,
+      "solved_frames": 180,
+      "range_sources": [
+        "bbox",
+        "laser"
+      ],
+      "laser_share_all_frames": 0.9944444444444445,
+      "laser_share_tail": 1.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 1.0166666666666666,
+      "settle_frames_to_0p5deg": 2,
+      "settle_time_s": 0.0667,
+      "steady_pointing_error_deg_mean": 0.16978454496805093,
+      "steady_pointing_error_deg_max": 0.18164588807145718,
+      "steady_aim_error_mrad_mean": 0.008516272654304336,
+      "steady_lead_magnitude_mrad_mean": 4.284701915296669,
+      "steady_tof_ms_mean": 47.971806243476294,
+      "steady_range_abs_error_m_mean": 0.0128957146177657,
+      "target_speed_true_mps": 5.0,
+      "steady_target_speed_est_mps_mean": 5.002495002146253,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 5.150569983519203,
+      "implied_command_lag_s": 0.032964224447260715
+    },
+    "D7_등속직선_15mps_거리hybrid_4단계선행확인": {
+      "frames": 120,
+      "solved_frames": 120,
+      "range_sources": [
+        "bbox",
+        "laser"
+      ],
+      "laser_share_all_frames": 0.9916666666666667,
+      "laser_share_tail": 1.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 1.9916666666666667,
+      "settle_frames_to_0p5deg": 107,
+      "settle_time_s": 3.5667,
+      "steady_pointing_error_deg_mean": 0.5124411504570854,
+      "steady_pointing_error_deg_max": 0.620898552602145,
+      "steady_aim_error_mrad_mean": 6.075974264187515e-06,
+      "steady_lead_magnitude_mrad_mean": 12.879850687350524,
+      "steady_tof_ms_mean": 48.318527963791006,
+      "steady_range_abs_error_m_mean": 0.01713301024306991,
+      "target_speed_true_mps": 15.0,
+      "steady_target_speed_est_mps_mean": 15.00064057364271,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 15.587085314418895,
+      "implied_command_lag_s": 0.032876008575063724
+    },
+    "D8_등속직선_5mps_피드포워드ON": {
+      "frames": 180,
+      "solved_frames": 180,
+      "range_sources": [
+        "bbox",
+        "laser"
+      ],
+      "laser_share_all_frames": 0.9944444444444445,
+      "laser_share_tail": 1.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 1.0166666666666666,
+      "settle_frames_to_0p5deg": 2,
+      "settle_time_s": 0.0667,
+      "steady_pointing_error_deg_mean": 0.003991423044541137,
+      "steady_pointing_error_deg_max": 0.007637906333590511,
+      "steady_aim_error_mrad_mean": 0.008508260403280964,
+      "steady_lead_magnitude_mrad_mean": 4.344552283410058,
+      "steady_tof_ms_mean": 47.97228343318665,
+      "steady_range_abs_error_m_mean": 0.0128957146177657,
+      "target_speed_true_mps": 5.0,
+      "steady_target_speed_est_mps_mean": 4.996394996980834,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 5.1506430575928634,
+      "implied_command_lag_s": 0.0007749368379657269
+    },
+    "D9_등속직선_15mps_피드포워드ON": {
+      "frames": 120,
+      "solved_frames": 120,
+      "range_sources": [
+        "bbox",
+        "laser"
+      ],
+      "laser_share_all_frames": 0.9916666666666667,
+      "laser_share_tail": 1.0,
+      "converged_ratio": 1.0,
+      "mean_iterations": 1.9916666666666667,
+      "settle_frames_to_0p5deg": 3,
+      "settle_time_s": 0.1,
+      "steady_pointing_error_deg_mean": 0.007722125762374601,
+      "steady_pointing_error_deg_max": 0.011265462658551396,
+      "steady_aim_error_mrad_mean": 6.076060325908189e-06,
+      "steady_lead_magnitude_mrad_mean": 12.909619725634053,
+      "steady_tof_ms_mean": 48.320090506297355,
+      "steady_range_abs_error_m_mean": 0.01713301024306991,
+      "target_speed_true_mps": 15.0,
+      "steady_target_speed_est_mps_mean": 14.999332812660585,
+      "ready_ratio_tail": 1.0,
+      "steady_target_angular_rate_deg_s": 15.587697072543968,
+      "implied_command_lag_s": 0.0004953987575224493
+    }
+  }
+}

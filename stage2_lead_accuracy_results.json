@@ -1,0 +1,430 @@
+{
+  "methodology": "TargetState 단독 오라클 검증, drone_motion_models.compute_drone_linear_position을 정답으로 사용",
+  "fps": 45.0,
+  "duration_s": 40.0,
+  "lateral_noise_std_m": 0.1,
+  "range_noise_std_m": 0.05,
+  "note": "노이즈는 가정치이며 실측 아님. Level 3(실 하드웨어) 검증 전까지는 상대 비교 용도로만 사용.",
+  "results": [
+    {
+      "history_length": 10,
+      "velocity_smoothing_alpha": 1.0,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.10540360360143408,
+          "p95": 0.18572928054092278,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.15442547954160843,
+          "p95": 0.2882538372844752,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.13466708561675683,
+          "p95": 0.27070928346358464,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.18318872028645455,
+          "p95": 0.38483547807366386,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 10,
+      "velocity_smoothing_alpha": 0.9,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.10473003223949931,
+          "p95": 0.18522348966365199,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.15345663771565707,
+          "p95": 0.2862991187490685,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.13481113563179437,
+          "p95": 0.27162858404114965,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.1834436555787107,
+          "p95": 0.38698754197727137,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 10,
+      "velocity_smoothing_alpha": 0.7,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.10294016471739827,
+          "p95": 0.18256454416629156,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.1508564454781458,
+          "p95": 0.28122734858830745,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.13475606098949575,
+          "p95": 0.2760317685590561,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.18348061899712395,
+          "p95": 0.38914540777796847,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 10,
+      "velocity_smoothing_alpha": 0.5,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.10002034801166289,
+          "p95": 0.17716352968757262,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.1465815697900389,
+          "p95": 0.27403422109202036,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.1337876089626903,
+          "p95": 0.29033951888487725,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.18249489596354412,
+          "p95": 0.42255634844114065,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 10,
+      "velocity_smoothing_alpha": 0.3,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.09478817567269031,
+          "p95": 0.16838789287499106,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.1389131742422043,
+          "p95": 0.2616702698274315,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.13114386467479863,
+          "p95": 0.29785341118105246,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.17968991578309979,
+          "p95": 0.4254999099272774,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 20,
+      "velocity_smoothing_alpha": 1.0,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.06722600950041822,
+          "p95": 0.12308886768679896,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.09833163337004716,
+          "p95": 0.1921680002971383,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.13681251272823944,
+          "p95": 0.33626707873328926,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.18864238685410678,
+          "p95": 0.47743880833798447,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 20,
+      "velocity_smoothing_alpha": 0.9,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.06710880529922728,
+          "p95": 0.12315399662255262,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.09815969303152068,
+          "p95": 0.19203347312780966,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.13730450835915547,
+          "p95": 0.33692750557983253,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.18937044384508234,
+          "p95": 0.47847304963887444,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 20,
+      "velocity_smoothing_alpha": 0.7,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.06678637178982946,
+          "p95": 0.12223514326482122,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.09768612917593623,
+          "p95": 0.1911676390587276,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.13831610360714272,
+          "p95": 0.339947835178679,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.19088322896634627,
+          "p95": 0.4805804155682621,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 20,
+      "velocity_smoothing_alpha": 0.5,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.06623278576848207,
+          "p95": 0.12124726693316111,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.09687263171230502,
+          "p95": 0.19054733823649206,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.13956738805278263,
+          "p95": 0.34361613139676156,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.1929654557628808,
+          "p95": 0.4878487674144664,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 20,
+      "velocity_smoothing_alpha": 0.3,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.06505348143051737,
+          "p95": 0.11981608270771547,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.09513915323019045,
+          "p95": 0.18635250330682188,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.1420624603659832,
+          "p95": 0.3532699690816804,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.19730325976475976,
+          "p95": 0.495471652691612,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 30,
+      "velocity_smoothing_alpha": 1.0,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.052557483197568824,
+          "p95": 0.09678999542083545,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.07643987187782082,
+          "p95": 0.1500634018629806,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.18018124088961962,
+          "p95": 0.4341556995566106,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.2504399919174149,
+          "p95": 0.5992134627052759,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 30,
+      "velocity_smoothing_alpha": 0.9,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.05251995384434472,
+          "p95": 0.09669376077825592,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.07638366248118937,
+          "p95": 0.14977926279976436,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.18068639868062497,
+          "p95": 0.434732738668366,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.25117129957368817,
+          "p95": 0.6000179781042346,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 30,
+      "velocity_smoothing_alpha": 0.7,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.05241674228531037,
+          "p95": 0.09639817281792933,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.07622770204255115,
+          "p95": 0.14920581819614245,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.18173414938986748,
+          "p95": 0.4362418401921134,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.25268856417841207,
+          "p95": 0.6021025233450499,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 30,
+      "velocity_smoothing_alpha": 0.5,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.052240404550536926,
+          "p95": 0.09615709906381165,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.07596189091396732,
+          "p95": 0.14839207706682103,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.18307242396887988,
+          "p95": 0.43857713408603766,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.25482741698489303,
+          "p95": 0.6056595778369126,
+          "n": 113
+        }
+      }
+    },
+    {
+      "history_length": 30,
+      "velocity_smoothing_alpha": 0.3,
+      "steady_state": {
+        "position_error_m": {
+          "mean": 0.05186095626573349,
+          "p95": 0.0961838878186622,
+          "n": 1687
+        },
+        "angle_error_deg": {
+          "mean": 0.07540273792618826,
+          "p95": 0.14835633355610459,
+          "n": 1687
+        }
+      },
+      "near_turn": {
+        "position_error_m": {
+          "mean": 0.1858353981703028,
+          "p95": 0.4429726174609657,
+          "n": 113
+        },
+        "angle_error_deg": {
+          "mean": 0.2595312448293577,
+          "p95": 0.614533477579544,
+          "n": 113
+        }
+      }
+    }
+  ]
+}

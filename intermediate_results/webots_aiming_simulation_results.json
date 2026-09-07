@@ -1,0 +1,9002 @@
+[
+  {
+    "frame": 0,
+    "sim_time_sec": 0.0,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.0,
+      0.0
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.4314578125,
+        1.5
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.36976196062147,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 1,
+    "sim_time_sec": 0.016,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.008,
+      0.096
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.439457812499999,
+        1.596
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.37130542566612,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 2,
+    "sim_time_sec": 0.032,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.016,
+      0.192
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.4474578125,
+        1.692
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.3729105881241,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 3,
+    "sim_time_sec": 0.048,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.024,
+      0.28800000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.455457812499999,
+        1.788
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.37457744601966,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 4,
+    "sim_time_sec": 0.064,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.032,
+      0.384
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.4634578125,
+        1.884
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.37630599730122,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 5,
+    "sim_time_sec": 0.08,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.04,
+      0.48
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.471457812499999,
+        1.98
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.37809623984128,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 6,
+    "sim_time_sec": 0.096,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.048,
+      0.5760000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.4794578125,
+        2.076
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.3799481714366,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 7,
+    "sim_time_sec": 0.112,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.056,
+      0.672
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.487457812499999,
+        2.172
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.38186178980817,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 8,
+    "sim_time_sec": 0.128,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.064,
+      0.768
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.4954578125,
+        2.268
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.38383709260103,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 9,
+    "sim_time_sec": 0.14400000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.072,
+      0.8640000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.503457812499999,
+        2.364
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.38587407738456,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 10,
+    "sim_time_sec": 0.16,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.08,
+      0.96
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.5114578125,
+        2.46
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.38797274165233,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 11,
+    "sim_time_sec": 0.176,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.088,
+      1.056
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.519457812499999,
+        2.556
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.3901330828222,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 12,
+    "sim_time_sec": 0.192,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.096,
+      1.1520000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.5274578125,
+        2.652
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.39235509823618,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 13,
+    "sim_time_sec": 0.20800000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.104,
+      1.2480000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.535457812499999,
+        2.748
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.3946387851607,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 14,
+    "sim_time_sec": 0.224,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.112,
+      1.344
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.5434578125,
+        2.8440000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.39698414078643,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 15,
+    "sim_time_sec": 0.24,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.12,
+      1.44
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.551457812499999,
+        2.94
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.39939116222834,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 16,
+    "sim_time_sec": 0.256,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.128,
+      1.536
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.5594578125,
+        3.036
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.40185984652572,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 17,
+    "sim_time_sec": 0.272,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.136,
+      1.6320000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.567457812499999,
+        3.132
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.40439019064226,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 18,
+    "sim_time_sec": 0.28800000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.144,
+      1.7280000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.5754578125,
+        3.228
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.406982191466,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 19,
+    "sim_time_sec": 0.304,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.152,
+      1.8239999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.583457812499999,
+        3.324
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4096358458093,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 20,
+    "sim_time_sec": 0.32,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.16,
+      1.92
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.5914578125,
+        3.42
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.41235115040908,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 21,
+    "sim_time_sec": 0.336,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.168,
+      2.016
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.599457812499999,
+        3.516
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4151281019265,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 22,
+    "sim_time_sec": 0.352,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.176,
+      2.112
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.6074578125,
+        3.612
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.41796669694736,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 23,
+    "sim_time_sec": 0.368,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.184,
+      2.208
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.615457812499999,
+        3.708
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.42086693198178,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 24,
+    "sim_time_sec": 0.384,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.192,
+      2.3040000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.6234578125,
+        3.8040000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4238288034644,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 25,
+    "sim_time_sec": 0.4,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.2,
+      2.4000000000000004
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.631457812499999,
+        3.9000000000000004
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.42685230775444,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 26,
+    "sim_time_sec": 0.41600000000000004,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.208,
+      2.4960000000000004
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.6394578125,
+        3.9960000000000004
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4299374411356,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 27,
+    "sim_time_sec": 0.432,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.216,
+      2.592
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.647457812499999,
+        4.0920000000000005
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4330841998161,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 28,
+    "sim_time_sec": 0.448,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.224,
+      2.688
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.6554578125,
+        4.188000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4362925799289,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 29,
+    "sim_time_sec": 0.464,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.232,
+      2.7840000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.663457812499999,
+        4.284000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.43956257753135,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 30,
+    "sim_time_sec": 0.48,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.24,
+      2.88
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.6714578125,
+        4.38
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.44289418860555,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 31,
+    "sim_time_sec": 0.496,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.248,
+      2.976
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.679457812499999,
+        4.476
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.44628740905827,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 32,
+    "sim_time_sec": 0.512,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.256,
+      3.072
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.6874578125,
+        4.572
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4497422347209,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 33,
+    "sim_time_sec": 0.528,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.264,
+      3.168
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.695457812499999,
+        4.668
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4532586613496,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 34,
+    "sim_time_sec": 0.544,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.272,
+      3.2640000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7034578125,
+        4.764
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.45683668462516,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 35,
+    "sim_time_sec": 0.56,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.28,
+      3.3600000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.711457812499999,
+        4.86
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.46047630015323,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 36,
+    "sim_time_sec": 0.5760000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.288,
+      3.4560000000000004
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7194578125,
+        4.956
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.46417750346413,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 37,
+    "sim_time_sec": 0.592,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.296,
+      3.5519999999999996
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.727457812499999,
+        5.052
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.46794029001316,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 38,
+    "sim_time_sec": 0.608,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.304,
+      3.6479999999999997
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7354578125,
+        5.148
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.4717646551803,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 39,
+    "sim_time_sec": 0.624,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.312,
+      3.7439999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.743457812499999,
+        5.244
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.47565059427046,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 40,
+    "sim_time_sec": 0.64,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.32,
+      3.84
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7514578125,
+        5.34
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.47959810251345,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 41,
+    "sim_time_sec": 0.656,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.328,
+      3.936
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.759457812499999,
+        5.436
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.48360717506398,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 42,
+    "sim_time_sec": 0.672,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.336,
+      4.032
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7674578125,
+        5.532
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.48767780700175,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 43,
+    "sim_time_sec": 0.6880000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.344,
+      4.128
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7754578125,
+        5.628
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.49180999333143,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 44,
+    "sim_time_sec": 0.704,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.352,
+      4.224
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7834578125,
+        5.724
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.49600372898269,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 45,
+    "sim_time_sec": 0.72,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.36,
+      4.32
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7914578125,
+        5.82
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.50025900881025,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 46,
+    "sim_time_sec": 0.736,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.368,
+      4.416
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.7994578125,
+        5.916
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.50457582759392,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 47,
+    "sim_time_sec": 0.752,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.376,
+      4.5120000000000005
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8074578125,
+        6.0120000000000005
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.50895418003864,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 48,
+    "sim_time_sec": 0.768,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.384,
+      4.6080000000000005
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8154578125,
+        6.1080000000000005
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.51339406077443,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 49,
+    "sim_time_sec": 0.784,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.392,
+      4.704000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8234578125,
+        6.204000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.51789546435654,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 50,
+    "sim_time_sec": 0.8,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.4,
+      4.800000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8314578125,
+        6.300000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.52245838526545,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 51,
+    "sim_time_sec": 0.8160000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.408,
+      4.896000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8394578125,
+        6.396000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.52708281790677,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 52,
+    "sim_time_sec": 0.8320000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.416,
+      4.992000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8474578125,
+        6.492000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.53176875661154,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 53,
+    "sim_time_sec": 0.848,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.424,
+      5.088
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8554578125,
+        6.588
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.53651619563595,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 54,
+    "sim_time_sec": 0.864,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.432,
+      5.184
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8634578125,
+        6.684
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.5413251291617,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 55,
+    "sim_time_sec": 0.88,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.44,
+      5.28
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8714578125,
+        6.78
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.5461955512957,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 56,
+    "sim_time_sec": 0.896,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.448,
+      5.376
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8794578125,
+        6.876
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.55112745607045,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 57,
+    "sim_time_sec": 0.912,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.456,
+      5.472
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8874578125,
+        6.972
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.55612083744376,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 58,
+    "sim_time_sec": 0.928,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.464,
+      5.5680000000000005
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.8954578125,
+        7.0680000000000005
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.561175689299,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 59,
+    "sim_time_sec": 0.9440000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.472,
+      5.664000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9034578125,
+        7.164000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.56629200544512,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 60,
+    "sim_time_sec": 0.96,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.48,
+      5.76
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9114578125,
+        7.26
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.5714697796165,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 61,
+    "sim_time_sec": 0.976,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.488,
+      5.856
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9194578125,
+        7.356
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.57670900547325,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 62,
+    "sim_time_sec": 0.992,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.496,
+      5.952
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9274578125,
+        7.452
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.58200967660102,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 63,
+    "sim_time_sec": 1.008,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.504,
+      6.048
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9354578125,
+        7.548
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.58737178651126,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 64,
+    "sim_time_sec": 1.024,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.512,
+      6.144
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9434578125,
+        7.644
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.59279532864102,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 65,
+    "sim_time_sec": 1.04,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.52,
+      6.24
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9514578125,
+        7.74
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.5982802963532,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 66,
+    "sim_time_sec": 1.056,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.528,
+      6.336
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9594578125,
+        7.836
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.60382668293647,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 67,
+    "sim_time_sec": 1.072,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.536,
+      6.432
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9674578125,
+        7.932
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.60943448160532,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 68,
+    "sim_time_sec": 1.088,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.544,
+      6.5280000000000005
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9754578125,
+        8.028
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.61510368550017,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 69,
+    "sim_time_sec": 1.104,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.552,
+      6.6240000000000006
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9834578125,
+        8.124
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.62083428768733,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 70,
+    "sim_time_sec": 1.12,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.56,
+      6.720000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9914578125,
+        8.22
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.6266262811591,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 71,
+    "sim_time_sec": 1.1360000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.568,
+      6.816000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        10.9994578125,
+        8.316
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.63247965883377,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 72,
+    "sim_time_sec": 1.1520000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.576,
+      6.912000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0074578125,
+        8.412
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.6383944135557,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 73,
+    "sim_time_sec": 1.168,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.584,
+      7.007999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0154578125,
+        8.508
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.64437053809533,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 74,
+    "sim_time_sec": 1.184,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.592,
+      7.103999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0234578125,
+        8.604
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.6504080251493,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 75,
+    "sim_time_sec": 1.2,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.6,
+      7.199999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0314578125,
+        8.7
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.65650686734034,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 76,
+    "sim_time_sec": 1.216,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.608,
+      7.295999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0394578125,
+        8.796
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.66266705721748,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 77,
+    "sim_time_sec": 1.232,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.616,
+      7.3919999999999995
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0474578125,
+        8.892
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.66888858725602,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 78,
+    "sim_time_sec": 1.248,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.624,
+      7.4879999999999995
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0554578125,
+        8.988
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.67517144985754,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 79,
+    "sim_time_sec": 1.264,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.632,
+      7.584
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0634578125,
+        9.084
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.68151563735006,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 80,
+    "sim_time_sec": 1.28,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.64,
+      7.68
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0714578125,
+        9.18
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.6879211419879,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 81,
+    "sim_time_sec": 1.296,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.648,
+      7.776
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0794578125,
+        9.276
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.69438795595198,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 82,
+    "sim_time_sec": 1.312,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.656,
+      7.872
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0874578125,
+        9.372
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.70091607134964,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 83,
+    "sim_time_sec": 1.328,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.664,
+      7.968
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.0954578125,
+        9.468
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.70750548021476,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 84,
+    "sim_time_sec": 1.344,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.672,
+      8.064
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1034578125,
+        9.564
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.71415617450793,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 85,
+    "sim_time_sec": 1.36,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.68,
+      8.16
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1114578125,
+        9.66
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.7208681461163,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 86,
+    "sim_time_sec": 1.3760000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.688,
+      8.256
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1194578125,
+        9.756
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.7276413868537,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 87,
+    "sim_time_sec": 1.3920000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.696,
+      8.352
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1274578125,
+        9.852
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.7344758884608,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 88,
+    "sim_time_sec": 1.408,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.704,
+      8.448
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1354578125,
+        9.948
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.74137164260503,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 89,
+    "sim_time_sec": 1.424,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.712,
+      8.544
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1434578125,
+        10.044
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.7483286408807,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 90,
+    "sim_time_sec": 1.44,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.72,
+      8.64
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1514578125,
+        10.14
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.75534687480894,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 91,
+    "sim_time_sec": 1.456,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.728,
+      8.736
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1594578125,
+        10.236
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.76242633583797,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 92,
+    "sim_time_sec": 1.472,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.736,
+      8.832
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1674578125,
+        10.332
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.7695670153429,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 93,
+    "sim_time_sec": 1.488,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.744,
+      8.928
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1754578125,
+        10.428
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.7767689046259,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 94,
+    "sim_time_sec": 1.504,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.752,
+      9.024000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1834578125,
+        10.524000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.78403199491638,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 95,
+    "sim_time_sec": 1.52,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.76,
+      9.120000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1914578125,
+        10.620000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.79135627737077,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 96,
+    "sim_time_sec": 1.536,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.768,
+      9.216000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.1994578125,
+        10.716000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.7987417430728,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 97,
+    "sim_time_sec": 1.552,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.776,
+      9.312000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2074578125,
+        10.812000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.80618838303343,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 98,
+    "sim_time_sec": 1.568,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.784,
+      9.408000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2154578125,
+        10.908000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.813696188191,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 99,
+    "sim_time_sec": 1.584,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.792,
+      9.504000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2234578125,
+        11.004000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.82126514941112,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 100,
+    "sim_time_sec": 1.6,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.8,
+      9.600000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2314578125,
+        11.100000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.82889525748695,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 101,
+    "sim_time_sec": 1.616,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.808,
+      9.696000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2394578125,
+        11.196000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.8365865031391,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 102,
+    "sim_time_sec": 1.6320000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.816,
+      9.792000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2474578125,
+        11.292000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.84433887701576,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 103,
+    "sim_time_sec": 1.6480000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.824,
+      9.888000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2554578125,
+        11.388000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.85215236969265,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 104,
+    "sim_time_sec": 1.6640000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.832,
+      9.984000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2634578125,
+        11.484000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.86002697167322,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 105,
+    "sim_time_sec": 1.68,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.84,
+      10.08
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2714578125,
+        11.58
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.86796267338858,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 106,
+    "sim_time_sec": 1.696,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.848,
+      10.176
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2794578125,
+        11.676
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.87595946519767,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 107,
+    "sim_time_sec": 1.712,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.856,
+      10.272
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2874578125,
+        11.772
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.88401733738723,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 108,
+    "sim_time_sec": 1.728,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.864,
+      10.368
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.2954578125,
+        11.868
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.89213628017188,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 109,
+    "sim_time_sec": 1.744,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.872,
+      10.464
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3034578125,
+        11.964
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.90031628369428,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 110,
+    "sim_time_sec": 1.76,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.88,
+      10.56
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3114578125,
+        12.06
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.90855733802496,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 111,
+    "sim_time_sec": 1.776,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.888,
+      10.656
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3194578125,
+        12.156
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.9168594331626,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 112,
+    "sim_time_sec": 1.792,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.896,
+      10.752
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3274578125,
+        12.252
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.92522255903407,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 113,
+    "sim_time_sec": 1.808,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.904,
+      10.848
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3354578125,
+        12.348
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.93364670549428,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 114,
+    "sim_time_sec": 1.824,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.912,
+      10.944
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3434578125,
+        12.444
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.94213186232653,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 115,
+    "sim_time_sec": 1.84,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.92,
+      11.040000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3514578125,
+        12.540000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.95067801924233,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 116,
+    "sim_time_sec": 1.856,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.928,
+      11.136000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3594578125,
+        12.636000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.95928516588162,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 117,
+    "sim_time_sec": 1.872,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.936,
+      11.232000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3674578125,
+        12.732000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.9679532918128,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 118,
+    "sim_time_sec": 1.8880000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.944,
+      11.328000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3754578125,
+        12.828000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.97668238653267,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 119,
+    "sim_time_sec": 1.9040000000000001,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.952,
+      11.424000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3834578125,
+        12.924000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.98547243946672,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 120,
+    "sim_time_sec": 1.92,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.96,
+      11.52
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3914578125,
+        13.02
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 150.99432343996898,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 121,
+    "sim_time_sec": 1.936,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.968,
+      11.616
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.3994578125,
+        13.116
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.00323537732217,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 122,
+    "sim_time_sec": 1.952,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.975999999999999,
+      11.712
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.407457812499999,
+        13.212
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.01220824073783,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 123,
+    "sim_time_sec": 1.968,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.984,
+      11.808
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4154578125,
+        13.308
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.02124201935624,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 124,
+    "sim_time_sec": 1.984,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      10.992,
+      11.904
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4234578125,
+        13.404
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.0303367022466,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 125,
+    "sim_time_sec": 2.0,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.0,
+      12.0
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4314578125,
+        13.5
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.039492278407,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 126,
+    "sim_time_sec": 2.016,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.008,
+      12.096
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.439457812499999,
+        13.596
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.04870873676467,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 127,
+    "sim_time_sec": 2.032,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.016,
+      12.192
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4474578125,
+        13.692
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.05798606617583,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 128,
+    "sim_time_sec": 2.048,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.024000000000001,
+      12.288
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4554578125,
+        13.788
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.06732425542583,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 129,
+    "sim_time_sec": 2.064,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.032,
+      12.384
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4634578125,
+        13.884
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.0767232932293,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 130,
+    "sim_time_sec": 2.08,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.04,
+      12.48
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.471457812499999,
+        13.98
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.08618316823006,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 131,
+    "sim_time_sec": 2.096,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.048,
+      12.576
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4794578125,
+        14.076
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.0957038690014,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 132,
+    "sim_time_sec": 2.112,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.056000000000001,
+      12.672
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4874578125,
+        14.172
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.10528538404594,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 133,
+    "sim_time_sec": 2.128,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.064,
+      12.768
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.4954578125,
+        14.268
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.11492770179578,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 134,
+    "sim_time_sec": 2.144,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.072,
+      12.864
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.503457812499999,
+        14.364
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.12463081061264,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 135,
+    "sim_time_sec": 2.16,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.08,
+      12.96
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5114578125,
+        14.46
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.13439469878776,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 136,
+    "sim_time_sec": 2.176,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.088000000000001,
+      13.056000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5194578125,
+        14.556000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.1442193545422,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 137,
+    "sim_time_sec": 2.192,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.096,
+      13.152000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5274578125,
+        14.652000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.15410476602668,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 138,
+    "sim_time_sec": 2.208,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.104,
+      13.248000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.535457812499999,
+        14.748000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.1640509213218,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 139,
+    "sim_time_sec": 2.224,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.112,
+      13.344000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5434578125,
+        14.844000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.17405780843802,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 140,
+    "sim_time_sec": 2.24,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.120000000000001,
+      13.440000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5514578125,
+        14.940000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.18412541531592,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 141,
+    "sim_time_sec": 2.2560000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.128,
+      13.536000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5594578125,
+        15.036000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.19425372982587,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 142,
+    "sim_time_sec": 2.2720000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.136,
+      13.632000000000001
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.567457812499999,
+        15.132000000000001
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.20444273976864,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 143,
+    "sim_time_sec": 2.2880000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.144,
+      13.728000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5754578125,
+        15.228000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.21469243287495,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 144,
+    "sim_time_sec": 2.3040000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.152000000000001,
+      13.824000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5834578125,
+        15.324000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.22500279680594,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 145,
+    "sim_time_sec": 2.32,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.16,
+      13.919999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.5914578125,
+        15.419999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.23537381915307,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 146,
+    "sim_time_sec": 2.336,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.168,
+      14.015999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.599457812499999,
+        15.515999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.2458054874381,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 147,
+    "sim_time_sec": 2.352,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.176,
+      14.111999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.6074578125,
+        15.611999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.25629778911346,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 148,
+    "sim_time_sec": 2.368,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.184,
+      14.207999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.615457812499999,
+        15.707999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.26685071156194,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 149,
+    "sim_time_sec": 2.384,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.192,
+      14.303999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.6234578125,
+        15.803999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.2774642420971,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 150,
+    "sim_time_sec": 2.4,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.2,
+      14.399999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.631457812499999,
+        15.899999999999999
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.28813836796317,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 151,
+    "sim_time_sec": 2.416,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.208,
+      14.495999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.6394578125,
+        15.995999999999999
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.29887307633513,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 152,
+    "sim_time_sec": 2.432,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.216,
+      14.591999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.647457812499999,
+        16.092
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.30966835431886,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 153,
+    "sim_time_sec": 2.448,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.224,
+      14.687999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.6554578125,
+        16.188
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.3205241889512,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 154,
+    "sim_time_sec": 2.464,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.232,
+      14.783999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.663457812499999,
+        16.284
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.33144056719993,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 155,
+    "sim_time_sec": 2.48,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.24,
+      14.879999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.6714578125,
+        16.38
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.34241747596397,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 156,
+    "sim_time_sec": 2.496,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.248,
+      14.975999999999999
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.679457812499999,
+        16.476
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.3534549020734,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 157,
+    "sim_time_sec": 2.512,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.256,
+      15.072
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.6874578125,
+        16.572
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.36455283228955,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 158,
+    "sim_time_sec": 2.528,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.264,
+      15.168
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.695457812499999,
+        16.668
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.37571125330498,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 159,
+    "sim_time_sec": 2.544,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.272,
+      15.264
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7034578125,
+        16.764
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.38693015174383,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 160,
+    "sim_time_sec": 2.56,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.28,
+      15.36
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.711457812499999,
+        16.86
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.39820951416158,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 161,
+    "sim_time_sec": 2.576,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.288,
+      15.456
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7194578125,
+        16.956
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.4095493270453,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 162,
+    "sim_time_sec": 2.592,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.296,
+      15.552
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.727457812499999,
+        17.052
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.42094957681374,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 163,
+    "sim_time_sec": 2.608,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.304,
+      15.648
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7354578125,
+        17.148
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.43241024981728,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 164,
+    "sim_time_sec": 2.624,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.312,
+      15.744
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.743457812499999,
+        17.244
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.4439313323382,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 165,
+    "sim_time_sec": 2.64,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.32,
+      15.84
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7514578125,
+        17.34
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.45551281059056,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 166,
+    "sim_time_sec": 2.656,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.328,
+      15.936
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.759457812499999,
+        17.436
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.4671546707205,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 167,
+    "sim_time_sec": 2.672,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.336,
+      16.032
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7674578125,
+        17.532
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.47885689880607,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 168,
+    "sim_time_sec": 2.688,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.344,
+      16.128
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7754578125,
+        17.628
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.4906194808575,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 169,
+    "sim_time_sec": 2.704,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.352,
+      16.224
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7834578125,
+        17.724
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.50244240281728,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 170,
+    "sim_time_sec": 2.72,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.36,
+      16.32
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7914578125,
+        17.82
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.51432565056007,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 171,
+    "sim_time_sec": 2.736,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.368,
+      16.416
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.7994578125,
+        17.916
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.526269209893,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 172,
+    "sim_time_sec": 2.7520000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.376,
+      16.512
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8074578125,
+        18.012
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.53827306655558,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 173,
+    "sim_time_sec": 2.7680000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.384,
+      16.608
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8154578125,
+        18.108
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.55033720621992,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 174,
+    "sim_time_sec": 2.7840000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.392,
+      16.704
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8234578125,
+        18.204
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.5624616144907,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 175,
+    "sim_time_sec": 2.8000000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.4,
+      16.8
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8314578125,
+        18.3
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.57464627690533,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 176,
+    "sim_time_sec": 2.816,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.408,
+      16.896
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8394578125,
+        18.396
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.58689117893397,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 177,
+    "sim_time_sec": 2.832,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.416,
+      16.991999999999997
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8474578125,
+        18.491999999999997
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.5991963059797,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 178,
+    "sim_time_sec": 2.848,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.424,
+      17.088
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8554578125,
+        18.588
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.61156164337854,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 179,
+    "sim_time_sec": 2.864,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.432,
+      17.183999999999997
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8634578125,
+        18.683999999999997
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.6239871763995,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 180,
+    "sim_time_sec": 2.88,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.44,
+      17.28
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8714578125,
+        18.78
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.63647289024487,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 181,
+    "sim_time_sec": 2.896,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.448,
+      17.375999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8794578125,
+        18.875999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.64901877004996,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 182,
+    "sim_time_sec": 2.912,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.456,
+      17.472
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8874578125,
+        18.972
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.66162480088352,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 183,
+    "sim_time_sec": 2.928,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.464,
+      17.567999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.8954578125,
+        19.067999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.67429096774762,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 184,
+    "sim_time_sec": 2.944,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.472,
+      17.664
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9034578125,
+        19.164
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.68701725557784,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 185,
+    "sim_time_sec": 2.96,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.48,
+      17.759999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9114578125,
+        19.259999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.69980364924328,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 186,
+    "sim_time_sec": 2.976,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.488,
+      17.856
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9194578125,
+        19.356
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.71265013354676,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 187,
+    "sim_time_sec": 2.992,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.496,
+      17.951999999999998
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9274578125,
+        19.451999999999998
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.72555669322477,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 188,
+    "sim_time_sec": 3.008,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.504,
+      18.048000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9354578125,
+        19.548000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.73852331294768,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 189,
+    "sim_time_sec": 3.024,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.512,
+      18.144
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9434578125,
+        19.644
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.7515499773197,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 190,
+    "sim_time_sec": 3.04,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.52,
+      18.240000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9514578125,
+        19.740000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.76463667087918,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 191,
+    "sim_time_sec": 3.056,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.528,
+      18.336
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9594578125,
+        19.836
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.7777833780984,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 192,
+    "sim_time_sec": 3.072,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.536,
+      18.432000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9674578125,
+        19.932000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.79099008338395,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 193,
+    "sim_time_sec": 3.088,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.544,
+      18.528
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9754578125,
+        20.028
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.80425677107664,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 194,
+    "sim_time_sec": 3.104,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.552,
+      18.624000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9834578125,
+        20.124000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.81758342545163,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 195,
+    "sim_time_sec": 3.12,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.56,
+      18.72
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9914578125,
+        20.22
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.8309700307186,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 196,
+    "sim_time_sec": 3.136,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.568,
+      18.816000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        11.9994578125,
+        20.316000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.8444165710217,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 197,
+    "sim_time_sec": 3.152,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.576,
+      18.912
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0074578125,
+        20.412
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.85792303043976,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 198,
+    "sim_time_sec": 3.168,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.584,
+      19.008000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0154578125,
+        20.508000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.87148939298635,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 199,
+    "sim_time_sec": 3.184,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.592,
+      19.104
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0234578125,
+        20.604
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.88511564260986,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 200,
+    "sim_time_sec": 3.2,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.6,
+      19.200000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0314578125,
+        20.700000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.89880176319355,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 201,
+    "sim_time_sec": 3.216,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.608,
+      19.296
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0394578125,
+        20.796
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.9125477385557,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 202,
+    "sim_time_sec": 3.232,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.616,
+      19.392000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0474578125,
+        20.892000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.92635355244977,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 203,
+    "sim_time_sec": 3.248,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.624,
+      19.488
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0554578125,
+        20.988
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.94021918856433,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 204,
+    "sim_time_sec": 3.2640000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.632,
+      19.584000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0634578125,
+        21.084000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.95414463052322,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 205,
+    "sim_time_sec": 3.2800000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.64,
+      19.68
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0714578125,
+        21.18
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.96812986188573,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 206,
+    "sim_time_sec": 3.2960000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.648,
+      19.776000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0794578125,
+        21.276000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.9821748661466,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 207,
+    "sim_time_sec": 3.3120000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.656,
+      19.872
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0874578125,
+        21.372
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 151.99627962673617,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 208,
+    "sim_time_sec": 3.3280000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.664,
+      19.968000000000004
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.0954578125,
+        21.468000000000004
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.01044412702032,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 209,
+    "sim_time_sec": 3.344,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.672,
+      20.064
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1034578125,
+        21.564
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.02466835030086,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 210,
+    "sim_time_sec": 3.36,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.68,
+      20.16
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1114578125,
+        21.66
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.03895227981533,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 211,
+    "sim_time_sec": 3.376,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.688,
+      20.256
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1194578125,
+        21.756
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.05329589873733,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 212,
+    "sim_time_sec": 3.392,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.696,
+      20.352
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1274578125,
+        21.852
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.06769919017637,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 213,
+    "sim_time_sec": 3.408,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.704,
+      20.448
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1354578125,
+        21.948
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.08216213717824,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 214,
+    "sim_time_sec": 3.424,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.712,
+      20.544
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1434578125,
+        22.044
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.09668472272486,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 215,
+    "sim_time_sec": 3.44,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.72,
+      20.64
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1514578125,
+        22.14
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.1112669297346,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 216,
+    "sim_time_sec": 3.456,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.728,
+      20.736
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1594578125,
+        22.236
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.12590874106215,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 217,
+    "sim_time_sec": 3.472,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.736,
+      20.832
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1674578125,
+        22.332
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.14061013949882,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 218,
+    "sim_time_sec": 3.488,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.744,
+      20.928
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1754578125,
+        22.428
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.15537110777248,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 219,
+    "sim_time_sec": 3.504,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.752,
+      21.024
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1834578125,
+        22.524
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.17019162854783,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 220,
+    "sim_time_sec": 3.52,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.76,
+      21.12
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1914578125,
+        22.62
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.18507168442628,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 221,
+    "sim_time_sec": 3.536,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.768,
+      21.216
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.1994578125,
+        22.716
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.20001125794624,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 222,
+    "sim_time_sec": 3.552,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.776,
+      21.312
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2074578125,
+        22.812
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.21501033158316,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 223,
+    "sim_time_sec": 3.568,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.784,
+      21.408
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2154578125,
+        22.908
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.23006888774952,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 224,
+    "sim_time_sec": 3.584,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.792,
+      21.504
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2234578125,
+        23.004
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.24518690879515,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 225,
+    "sim_time_sec": 3.6,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.8,
+      21.6
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2314578125,
+        23.1
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.26036437700708,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 226,
+    "sim_time_sec": 3.616,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.808,
+      21.696
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2394578125,
+        23.196
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.27560127460987,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 227,
+    "sim_time_sec": 3.632,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.816,
+      21.792
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2474578125,
+        23.292
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.29089758376554,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 228,
+    "sim_time_sec": 3.648,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.824,
+      21.888
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2554578125,
+        23.388
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.30625328657376,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 229,
+    "sim_time_sec": 3.664,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.832,
+      21.984
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2634578125,
+        23.484
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.32166836507196,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 230,
+    "sim_time_sec": 3.68,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.84,
+      22.080000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2714578125,
+        23.580000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.33714280123533,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 231,
+    "sim_time_sec": 3.696,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.848,
+      22.176000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2794578125,
+        23.676000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.35267657697705,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 232,
+    "sim_time_sec": 3.712,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.856,
+      22.272000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2874578125,
+        23.772000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.36826967414825,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 233,
+    "sim_time_sec": 3.728,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.864,
+      22.368000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.2954578125,
+        23.868000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.3839220745383,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 234,
+    "sim_time_sec": 3.744,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.872,
+      22.464000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3034578125,
+        23.964000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.3996337598748,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 235,
+    "sim_time_sec": 3.7600000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.88,
+      22.560000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3114578125,
+        24.060000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.41540471182356,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 236,
+    "sim_time_sec": 3.7760000000000002,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.888,
+      22.656000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3194578125,
+        24.156000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.43123491198898,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 237,
+    "sim_time_sec": 3.7920000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.896,
+      22.752000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3274578125,
+        24.252000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.44712434191393,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 238,
+    "sim_time_sec": 3.8080000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.904,
+      22.848000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3354578125,
+        24.348000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.46307298307997,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 239,
+    "sim_time_sec": 3.8240000000000003,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.912,
+      22.944000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3434578125,
+        24.444000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.47908081690738,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 240,
+    "sim_time_sec": 3.84,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.92,
+      23.04
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3514578125,
+        24.54
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.4951478247553,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 241,
+    "sim_time_sec": 3.856,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.928,
+      23.136
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3594578125,
+        24.636
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.51127398792184,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 242,
+    "sim_time_sec": 3.872,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.936,
+      23.232
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3674578125,
+        24.732
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.52745928764423,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 243,
+    "sim_time_sec": 3.888,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.943999999999999,
+      23.328
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.375457812499999,
+        24.828
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.54370370509878,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 244,
+    "sim_time_sec": 3.904,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.952,
+      23.424
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3834578125,
+        24.924
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.56000722140115,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 245,
+    "sim_time_sec": 3.92,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.96,
+      23.52
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3914578125,
+        25.02
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.57636981760632,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 246,
+    "sim_time_sec": 3.936,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.968,
+      23.616
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.3994578125,
+        25.116
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.5927914747088,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 247,
+    "sim_time_sec": 3.952,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.975999999999999,
+      23.712
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.407457812499999,
+        25.212
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.60927217364272,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 248,
+    "sim_time_sec": 3.968,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.984,
+      23.808
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4154578125,
+        25.308
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.62581189528188,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 249,
+    "sim_time_sec": 3.984,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      11.992,
+      23.904
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4234578125,
+        25.404
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.64241062043985,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 250,
+    "sim_time_sec": 4.0,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.0,
+      24.0
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4314578125,
+        25.5
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.65906832987017,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 251,
+    "sim_time_sec": 4.016,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.008,
+      24.096
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.439457812499999,
+        25.596
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.67578500426637,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 252,
+    "sim_time_sec": 4.032,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.016,
+      24.192
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4474578125,
+        25.692
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.69256062426214,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 253,
+    "sim_time_sec": 4.048,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.024000000000001,
+      24.288
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4554578125,
+        25.788
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.70939517043135,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 254,
+    "sim_time_sec": 4.064,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.032,
+      24.384
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4634578125,
+        25.884
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.72628862328833,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 255,
+    "sim_time_sec": 4.08,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.04,
+      24.48
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.471457812499999,
+        25.98
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.7432409632877,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 256,
+    "sim_time_sec": 4.096,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.048,
+      24.576
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4794578125,
+        26.076
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.76025217082474,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 257,
+    "sim_time_sec": 4.112,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.056000000000001,
+      24.672
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4874578125,
+        26.172
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.7773222262354,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 258,
+    "sim_time_sec": 4.128,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.064,
+      24.768
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.4954578125,
+        26.268
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.79445110979643,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 259,
+    "sim_time_sec": 4.144,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.072,
+      24.864
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.503457812499999,
+        26.364
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.81163880172534,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 260,
+    "sim_time_sec": 4.16,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.08,
+      24.96
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5114578125,
+        26.46
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.82888528218078,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 261,
+    "sim_time_sec": 4.176,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.088000000000001,
+      25.056
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5194578125,
+        26.556
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.8461905312624,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 262,
+    "sim_time_sec": 4.192,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.096,
+      25.152
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5274578125,
+        26.652
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.86355452901117,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 263,
+    "sim_time_sec": 4.208,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.104,
+      25.248
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.535457812499999,
+        26.748
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.88097725540928,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 264,
+    "sim_time_sec": 4.224,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.112,
+      25.344
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5434578125,
+        26.844
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.8984586903804,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 265,
+    "sim_time_sec": 4.24,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.120000000000001,
+      25.44
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5514578125,
+        26.94
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.9159988137898,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 266,
+    "sim_time_sec": 4.256,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.128,
+      25.536
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5594578125,
+        27.036
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.93359760544433,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 267,
+    "sim_time_sec": 4.272,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.136,
+      25.632
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.567457812499999,
+        27.132
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.9512550450926,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 268,
+    "sim_time_sec": 4.288,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.144,
+      25.728
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5754578125,
+        27.228
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.96897111242518,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 269,
+    "sim_time_sec": 4.304,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.152000000000001,
+      25.824
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5834578125,
+        27.324
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 152.98674578707454,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 270,
+    "sim_time_sec": 4.32,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.16,
+      25.92
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.5914578125,
+        27.42
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.00457904861528,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 271,
+    "sim_time_sec": 4.336,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.168,
+      26.016000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.599457812499999,
+        27.516000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.02247087656428,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 272,
+    "sim_time_sec": 4.352,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.176,
+      26.112000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6074578125,
+        27.612000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.04042125038066,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 273,
+    "sim_time_sec": 4.368,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.184000000000001,
+      26.208000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6154578125,
+        27.708000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.058430149466,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 274,
+    "sim_time_sec": 4.384,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.192,
+      26.304000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6234578125,
+        27.804000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.07649755316447,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 275,
+    "sim_time_sec": 4.4,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.2,
+      26.400000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.631457812499999,
+        27.900000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.09462344076283,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 276,
+    "sim_time_sec": 4.416,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.208,
+      26.496000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6394578125,
+        27.996000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.11280779149067,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 277,
+    "sim_time_sec": 4.432,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.216000000000001,
+      26.592000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6474578125,
+        28.092000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.13105058452047,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 278,
+    "sim_time_sec": 4.448,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.224,
+      26.688000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6554578125,
+        28.188000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.14935179896767,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 279,
+    "sim_time_sec": 4.464,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.232,
+      26.784000000000002
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.663457812499999,
+        28.284000000000002
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.1677114138909,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 280,
+    "sim_time_sec": 4.48,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.24,
+      26.880000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6714578125,
+        28.380000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.18612940829195,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 281,
+    "sim_time_sec": 4.496,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.248000000000001,
+      26.976000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6794578125,
+        28.476000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.20460576111597,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 282,
+    "sim_time_sec": 4.5120000000000005,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.256,
+      27.072000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.6874578125,
+        28.572000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.22314045125157,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 283,
+    "sim_time_sec": 4.5280000000000005,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.264,
+      27.168000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.695457812499999,
+        28.668000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.24173345753096,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 284,
+    "sim_time_sec": 4.5440000000000005,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.272,
+      27.264000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7034578125,
+        28.764000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.26038475873003,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 285,
+    "sim_time_sec": 4.5600000000000005,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.280000000000001,
+      27.360000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7114578125,
+        28.860000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.27909433356842,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 286,
+    "sim_time_sec": 4.5760000000000005,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.288,
+      27.456000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7194578125,
+        28.956000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.29786216070974,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 287,
+    "sim_time_sec": 4.5920000000000005,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.296,
+      27.552000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.727457812499999,
+        29.052000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.31668821876167,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 288,
+    "sim_time_sec": 4.6080000000000005,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.304,
+      27.648000000000003
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7354578125,
+        29.148000000000003
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.33557248627588,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 289,
+    "sim_time_sec": 4.624,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.312,
+      27.744
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.743457812499999,
+        29.244
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.3545149417485,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 290,
+    "sim_time_sec": 4.64,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.32,
+      27.839999999999996
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7514578125,
+        29.339999999999996
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.37351556361995,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 291,
+    "sim_time_sec": 4.656,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.328,
+      27.936
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.759457812499999,
+        29.436
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.39257433027507,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 292,
+    "sim_time_sec": 4.672,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.336,
+      28.031999999999996
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7674578125,
+        29.531999999999996
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.41169122004348,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 293,
+    "sim_time_sec": 4.688,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.344,
+      28.128
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7754578125,
+        29.628
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.43086621119937,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 294,
+    "sim_time_sec": 4.704,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.352,
+      28.223999999999997
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7834578125,
+        29.723999999999997
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.4500992819619,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 295,
+    "sim_time_sec": 4.72,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.36,
+      28.32
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7914578125,
+        29.82
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.4693904104951,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 296,
+    "sim_time_sec": 4.736,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.368,
+      28.415999999999997
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.7994578125,
+        29.915999999999997
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.48873957490812,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 297,
+    "sim_time_sec": 4.752,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.376,
+      28.512
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.8074578125,
+        30.012
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.5081467532553,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 298,
+    "sim_time_sec": 4.768,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.384,
+      28.607999999999997
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.8154578125,
+        30.107999999999997
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.5276119235363,
+      "is_hit": false
+    }
+  },
+  {
+    "frame": 299,
+    "sim_time_sec": 4.784,
+    "platform_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_distance_m": 200.0,
+    "target_true_pos": [
+      50.0,
+      12.392,
+      28.704
+    ],
+    "aiming_result": {
+      "tof_sec": 0.25,
+      "predicted_pos": [
+        50.0,
+        12.8234578125,
+        30.204
+      ],
+      "impact_pos": [
+        200.0,
+        0.0,
+        0.0
+      ],
+      "miss_distance_m": 153.5471350636962,
+      "is_hit": false
+    }
+  }
+]

@@ -1,0 +1,6011 @@
+{
+  "summary": {
+    "total_frames": 300,
+    "total_fired_frames": 292,
+    "total_hits": 292,
+    "hit_rate_pct": 100.0,
+    "video_path": "D:\\Aiming\\visualizations\\webots_aiming_simulation_demo.mp4"
+  },
+  "logs": [
+    {
+      "frame": 0,
+      "timestamp_s": 0.0,
+      "laser_range_m": 60.98024576451377,
+      "target_pos_world": [
+        60.0,
+        -10.0,
+        5.0
+      ],
+      "aim_state": "SEARCH",
+      "aim_ready": false,
+      "hit_probability": 0.9765056246719349,
+      "aim_point_px": [
+        320.0,
+        161.05776391809158
+      ],
+      "time_of_flight_s": 0.07180165578509226,
+      "miss_distance_m": null,
+      "is_hit": false
+    },
+    {
+      "frame": 1,
+      "timestamp_s": 0.032,
+      "laser_range_m": 60.90142729719903,
+      "target_pos_world": [
+        60.0,
+        -9.872,
+        5.0096
+      ],
+      "aim_state": "SEARCH",
+      "aim_ready": false,
+      "hit_probability": 0.962117338195128,
+      "aim_point_px": [
+        319.0648205381164,
+        160.885070726992
+      ],
+      "time_of_flight_s": 0.07150286387696642,
+      "miss_distance_m": null,
+      "is_hit": false
+    },
+    {
+      "frame": 2,
+      "timestamp_s": 0.064,
+      "laser_range_m": 60.89710006338468,
+      "target_pos_world": [
+        60.0,
+        -9.744,
+        5.0192
+      ],
+      "aim_state": "TRACK",
+      "aim_ready": false,
+      "hit_probability": 0.9633587733356409,
+      "aim_point_px": [
+        320.53048262197706,
+        161.41648747034276
+      ],
+      "time_of_flight_s": 0.0715812347413504,
+      "miss_distance_m": null,
+      "is_hit": false
+    },
+    {
+      "frame": 3,
+      "timestamp_s": 0.096,
+      "laser_range_m": 60.9199091024313,
+      "target_pos_world": [
+        60.0,
+        -9.616,
+        5.0288
+      ],
+      "aim_state": "AIM",
+      "aim_ready": false,
+      "hit_probability": 0.9638365329088967,
+      "aim_point_px": [
+        321.6133723995012,
+        162.3646952914358
+      ],
+      "time_of_flight_s": 0.07165663158380639,
+      "miss_distance_m": null,
+      "is_hit": false
+    },
+    {
+      "frame": 4,
+      "timestamp_s": 0.128,
+      "laser_range_m": 60.90995239893928,
+      "target_pos_world": [
+        60.0,
+        -9.488,
+        5.0384
+      ],
+      "aim_state": "AIM",
+      "aim_ready": false,
+      "hit_probability": 0.9639559472589172,
+      "aim_point_px": [
+        322.17697361966964,
+        163.63359873399503
+      ],
+      "time_of_flight_s": 0.07167432732877166,
+      "miss_distance_m": null,
+      "is_hit": false
+    },
+    {
+      "frame": 5,
+      "timestamp_s": 0.16,
+      "laser_range_m": 60.877354844410455,
+      "target_pos_world": [
+        60.0,
+        -9.36,
+        5.048
+      ],
+      "aim_state": "AIM",
+      "aim_ready": false,
+      "hit_probability": 0.9639456181246842,
+      "aim_point_px": [
+        322.14485437387293,
+        165.0941139736774
+      ],
+      "time_of_flight_s": 0.07165287204799278,
+      "miss_distance_m": null,
+      "is_hit": false
+    },
+    {
+      "frame": 6,
+      "timestamp_s": 0.192,
+      "laser_range_m": 60.81708383355648,
+      "target_pos_world": [
+        60.0,
+        -9.232,
+        5.0576
+      ],
+      "aim_state": "AIM",
+      "aim_ready": false,
+      "hit_probability": 0.9638615116454556,
+      "aim_point_px": [
+        321.51310948041083,
+        166.59366797352095
+      ],
+      "time_of_flight_s": 0.0715959241387039,
+      "miss_distance_m": null,
+      "is_hit": false
+    },
+    {
+      "frame": 7,
+      "timestamp_s": 0.224,
+      "laser_range_m": 60.78053247711783,
+      "target_pos_world": [
+        60.0,
+        -9.104,
+        5.0672
+      ],
+      "aim_state": "AIM",
+      "aim_ready": false,
+      "hit_probability": 0.9638174076348064,
+      "aim_point_px": [
+        320.35376029739956,
+        167.9713116635089
+      ],
+      "time_of_flight_s": 0.07154271745394439,
+      "miss_distance_m": null,
+      "is_hit": false
+    },
+    {
+      "frame": 8,
+      "timestamp_s": 0.256,
+      "laser_range_m": 60.819151355010746,
+      "target_pos_world": [
+        60.0,
+        -8.975999999999999,
+        5.0768
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638811565176914,
+      "aim_point_px": [
+        318.8087418797918,
+        169.07650717427697
+      ],
+      "time_of_flight_s": 0.07153863050250041,
+      "miss_distance_m": 0.041889869950303374,
+      "is_hit": true
+    },
+    {
+      "frame": 9,
+      "timestamp_s": 0.28800000000000003,
+      "laser_range_m": 60.727602943010254,
+      "target_pos_world": [
+        60.0,
+        -8.847999999999999,
+        5.0864
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638191124477722,
+      "aim_point_px": [
+        317.0730827085889,
+        169.7874778636706
+      ],
+      "time_of_flight_s": 0.07148842088090884,
+      "miss_distance_m": 0.016707472059898563,
+      "is_hit": true
+    },
+    {
+      "frame": 10,
+      "timestamp_s": 0.32,
+      "laser_range_m": 60.77033193185981,
+      "target_pos_world": [
+        60.0,
+        -8.72,
+        5.096
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638681651455301,
+      "aim_point_px": [
+        315.3677018421706,
+        170.02461573410005
+      ],
+      "time_of_flight_s": 0.07147869306563684,
+      "miss_distance_m": 0.025688605840240054,
+      "is_hit": true
+    },
+    {
+      "frame": 11,
+      "timestamp_s": 0.352,
+      "laser_range_m": 60.76009909024757,
+      "target_pos_world": [
+        60.0,
+        -8.592,
+        5.1056
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638863660251831,
+      "aim_point_px": [
+        313.91178389767657,
+        169.75673324657348
+      ],
+      "time_of_flight_s": 0.07146953731692371,
+      "miss_distance_m": 0.034889515979975,
+      "is_hit": true
+    },
+    {
+      "frame": 12,
+      "timestamp_s": 0.384,
+      "laser_range_m": 60.77649391152967,
+      "target_pos_world": [
+        60.0,
+        -8.464,
+        5.1152
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639109922942237,
+      "aim_point_px": [
+        312.89119950839677,
+        168.9993972565651
+      ],
+      "time_of_flight_s": 0.0714715339947088,
+      "miss_distance_m": 0.05330883434302092,
+      "is_hit": true
+    },
+    {
+      "frame": 13,
+      "timestamp_s": 0.41600000000000004,
+      "laser_range_m": 60.68735606815805,
+      "target_pos_world": [
+        60.0,
+        -8.336,
+        5.1248
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638933481163194,
+      "aim_point_px": [
+        312.4348399560379,
+        167.8084457054075
+      ],
+      "time_of_flight_s": 0.07144091473987739,
+      "miss_distance_m": 0.04372275577618614,
+      "is_hit": true
+    },
+    {
+      "frame": 14,
+      "timestamp_s": 0.448,
+      "laser_range_m": 60.7099468997263,
+      "target_pos_world": [
+        60.0,
+        -8.208,
+        5.1344
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639090500976577,
+      "aim_point_px": [
+        312.59827309040037,
+        166.27174679764985
+      ],
+      "time_of_flight_s": 0.07142714235381102,
+      "miss_distance_m": 0.048197765412510585,
+      "is_hit": true
+    },
+    {
+      "frame": 15,
+      "timestamp_s": 0.48,
+      "laser_range_m": 60.6730709748847,
+      "target_pos_world": [
+        60.0,
+        -8.08,
+        5.144
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639068906314255,
+      "aim_point_px": [
+        313.3598961735024,
+        164.50202599046312
+      ],
+      "time_of_flight_s": 0.07140583061713844,
+      "miss_distance_m": 0.045993647256997006,
+      "is_hit": true
+    },
+    {
+      "frame": 16,
+      "timestamp_s": 0.512,
+      "laser_range_m": 60.64312184159826,
+      "target_pos_world": [
+        60.0,
+        -7.952,
+        5.1536
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639040033991133,
+      "aim_point_px": [
+        314.6246432584667,
+        162.63066533496178
+      ],
+      "time_of_flight_s": 0.07138120617851942,
+      "miss_distance_m": 0.040705229556936826,
+      "is_hit": true
+    },
+    {
+      "frame": 17,
+      "timestamp_s": 0.544,
+      "laser_range_m": 60.6504769248705,
+      "target_pos_world": [
+        60.0,
+        -7.824,
+        5.1632
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639121744191957,
+      "aim_point_px": [
+        316.2374652155676,
+        160.80122754328818
+      ],
+      "time_of_flight_s": 0.07136486171848494,
+      "miss_distance_m": 0.04219096581782556,
+      "is_hit": true
+    },
+    {
+      "frame": 18,
+      "timestamp_s": 0.5760000000000001,
+      "laser_range_m": 60.62490714378524,
+      "target_pos_world": [
+        60.0,
+        -7.696,
+        5.1728
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639133230042449,
+      "aim_point_px": [
+        318.0022061962324,
+        159.16025003551027
+      ],
+      "time_of_flight_s": 0.07134584046474747,
+      "miss_distance_m": 0.041132556238101005,
+      "is_hit": true
+    },
+    {
+      "frame": 19,
+      "timestamp_s": 0.608,
+      "laser_range_m": 60.66129018910308,
+      "target_pos_world": [
+        60.0,
+        -7.568,
+        5.1824
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639262375374301,
+      "aim_point_px": [
+        319.70345865752773,
+        157.84415943537553
+      ],
+      "time_of_flight_s": 0.07134063060742535,
+      "miss_distance_m": 0.051551677355672856,
+      "is_hit": true
+    },
+    {
+      "frame": 20,
+      "timestamp_s": 0.64,
+      "laser_range_m": 60.56866391181019,
+      "target_pos_world": [
+        60.0,
+        -7.4399999999999995,
+        5.192
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963924558800862,
+      "aim_point_px": [
+        321.1320074665284,
+        156.96360427089783
+      ],
+      "time_of_flight_s": 0.07131864245206428,
+      "miss_distance_m": 0.04743397707801256,
+      "is_hit": true
+    },
+    {
+      "frame": 21,
+      "timestamp_s": 0.672,
+      "laser_range_m": 60.627371493900355,
+      "target_pos_world": [
+        60.0,
+        -7.311999999999999,
+        5.2016
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639292016571052,
+      "aim_point_px": [
+        322.1013940998466,
+        156.58767596626114
+      ],
+      "time_of_flight_s": 0.07130768622774716,
+      "miss_distance_m": 0.05243044809895691,
+      "is_hit": true
+    },
+    {
+      "frame": 22,
+      "timestamp_s": 0.704,
+      "laser_range_m": 60.53295724224791,
+      "target_pos_world": [
+        60.0,
+        -7.184,
+        5.2112
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639136780035669,
+      "aim_point_px": [
+        322.4842011110131,
+        156.73447651656323
+      ],
+      "time_of_flight_s": 0.07127757516973927,
+      "miss_distance_m": 0.04086893904246905,
+      "is_hit": true
+    },
+    {
+      "frame": 23,
+      "timestamp_s": 0.736,
+      "laser_range_m": 60.537400713690076,
+      "target_pos_world": [
+        60.0,
+        -7.056,
+        5.2208
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639257649043708,
+      "aim_point_px": [
+        322.22019204095864,
+        157.3678897964963
+      ],
+      "time_of_flight_s": 0.07125977670599858,
+      "miss_distance_m": 0.039508494199520766,
+      "is_hit": true
+    },
+    {
+      "frame": 24,
+      "timestamp_s": 0.768,
+      "laser_range_m": 60.544183718915214,
+      "target_pos_world": [
+        60.0,
+        -6.928,
+        5.2304
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639383012961437,
+      "aim_point_px": [
+        321.3279879334129,
+        158.40380607658622
+      ],
+      "time_of_flight_s": 0.07125006663842712,
+      "miss_distance_m": 0.044757918773641166,
+      "is_hit": true
+    },
+    {
+      "frame": 25,
+      "timestamp_s": 0.8,
+      "laser_range_m": 60.51112516686519,
+      "target_pos_world": [
+        60.0,
+        -6.8,
+        5.24
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639416114006718,
+      "aim_point_px": [
+        319.90943293525675,
+        159.7230872705193
+      ],
+      "time_of_flight_s": 0.07123431270765668,
+      "miss_distance_m": 0.0445994904230642,
+      "is_hit": true
+    },
+    {
+      "frame": 26,
+      "timestamp_s": 0.8320000000000001,
+      "laser_range_m": 60.541821862646685,
+      "target_pos_world": [
+        60.0,
+        -6.672,
+        5.2496
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639454293454206,
+      "aim_point_px": [
+        318.13861847492353,
+        161.18677333929884
+      ],
+      "time_of_flight_s": 0.07122444006432938,
+      "miss_distance_m": 0.04917253106586219,
+      "is_hit": true
+    },
+    {
+      "frame": 27,
+      "timestamp_s": 0.864,
+      "laser_range_m": 60.54169858487371,
+      "target_pos_world": [
+        60.0,
+        -6.5440000000000005,
+        5.2592
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639448426557892,
+      "aim_point_px": [
+        316.24360492055627,
+        162.650254008496
+      ],
+      "time_of_flight_s": 0.07121444663269703,
+      "miss_distance_m": 0.05337303110019831,
+      "is_hit": true
+    },
+    {
+      "frame": 28,
+      "timestamp_s": 0.896,
+      "laser_range_m": 60.45089435842904,
+      "target_pos_world": [
+        60.0,
+        -6.416,
+        5.2688
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639422629302302,
+      "aim_point_px": [
+        314.47615699473255,
+        163.97368520180464
+      ],
+      "time_of_flight_s": 0.07119231581281632,
+      "miss_distance_m": 0.046982776110247405,
+      "is_hit": true
+    },
+    {
+      "frame": 29,
+      "timestamp_s": 0.928,
+      "laser_range_m": 60.49378001124505,
+      "target_pos_world": [
+        60.0,
+        -6.288,
+        5.2783999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639374012685158,
+      "aim_point_px": [
+        313.0642199728237,
+        165.02816936690442
+      ],
+      "time_of_flight_s": 0.07117425740555279,
+      "miss_distance_m": 0.04378733367015972,
+      "is_hit": true
+    },
+    {
+      "frame": 30,
+      "timestamp_s": 0.96,
+      "laser_range_m": 60.51477261992581,
+      "target_pos_world": [
+        60.0,
+        -6.16,
+        5.288
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639492269346226,
+      "aim_point_px": [
+        312.2026532558575,
+        165.70466248567323
+      ],
+      "time_of_flight_s": 0.07117320239331701,
+      "miss_distance_m": 0.05477844279937379,
+      "is_hit": true
+    },
+    {
+      "frame": 31,
+      "timestamp_s": 0.992,
+      "laser_range_m": 60.44102824247265,
+      "target_pos_world": [
+        60.0,
+        -6.032,
+        5.2976
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639483175406895,
+      "aim_point_px": [
+        312.00548851045505,
+        165.9199996242292
+      ],
+      "time_of_flight_s": 0.07115695699682717,
+      "miss_distance_m": 0.0525832601901191,
+      "is_hit": true
+    },
+    {
+      "frame": 32,
+      "timestamp_s": 1.024,
+      "laser_range_m": 60.46338610894501,
+      "target_pos_world": [
+        60.0,
+        -5.904,
+        5.3072
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639628477108076,
+      "aim_point_px": [
+        312.50286513177093,
+        165.62771960730774
+      ],
+      "time_of_flight_s": 0.07115564266573438,
+      "miss_distance_m": 0.06281415155822695,
+      "is_hit": true
+    },
+    {
+      "frame": 33,
+      "timestamp_s": 1.056,
+      "laser_range_m": 60.475818626173215,
+      "target_pos_world": [
+        60.0,
+        -5.776,
+        5.3168
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639627874289423,
+      "aim_point_px": [
+        313.6290313012621,
+        164.82648969506434
+      ],
+      "time_of_flight_s": 0.07114984144922185,
+      "miss_distance_m": 0.06895967242089308,
+      "is_hit": true
+    },
+    {
+      "frame": 34,
+      "timestamp_s": 1.088,
+      "laser_range_m": 60.39100475506878,
+      "target_pos_world": [
+        60.0,
+        -5.648,
+        5.3264
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639601146828947,
+      "aim_point_px": [
+        315.24837988992374,
+        163.56654900544982
+      ],
+      "time_of_flight_s": 0.0711303115959931,
+      "miss_distance_m": 0.0631607341955846,
+      "is_hit": true
+    },
+    {
+      "frame": 35,
+      "timestamp_s": 1.12,
+      "laser_range_m": 60.40847330694028,
+      "target_pos_world": [
+        60.0,
+        -5.52,
+        5.336
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963962399282977,
+      "aim_point_px": [
+        317.1555768820148,
+        161.94604678051587
+      ],
+      "time_of_flight_s": 0.07111599740190457,
+      "miss_distance_m": 0.06152634067945612,
+      "is_hit": true
+    },
+    {
+      "frame": 36,
+      "timestamp_s": 1.1520000000000001,
+      "laser_range_m": 60.351823408155695,
+      "target_pos_world": [
+        60.0,
+        -5.3919999999999995,
+        5.3456
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963949909534894,
+      "aim_point_px": [
+        319.1121569984586,
+        160.1015261603805
+      ],
+      "time_of_flight_s": 0.07108791617622731,
+      "miss_distance_m": 0.047914961925783324,
+      "is_hit": true
+    },
+    {
+      "frame": 37,
+      "timestamp_s": 1.184,
+      "laser_range_m": 60.410426998820064,
+      "target_pos_world": [
+        60.0,
+        -5.264,
+        5.3552
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963962651270532,
+      "aim_point_px": [
+        320.87248486734813,
+        158.19093793538013
+      ],
+      "time_of_flight_s": 0.0710820177251758,
+      "miss_distance_m": 0.052894124589162726,
+      "is_hit": true
+    },
+    {
+      "frame": 38,
+      "timestamp_s": 1.216,
+      "laser_range_m": 60.3984634750294,
+      "target_pos_world": [
+        60.0,
+        -5.136,
+        5.3648
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639636581554372,
+      "aim_point_px": [
+        322.2083259276888,
+        156.37417669014974
+      ],
+      "time_of_flight_s": 0.07107396616713908,
+      "miss_distance_m": 0.055771432285765345,
+      "is_hit": true
+    },
+    {
+      "frame": 39,
+      "timestamp_s": 1.248,
+      "laser_range_m": 60.4101411952767,
+      "target_pos_world": [
+        60.0,
+        -5.008,
+        5.3744
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639745138055886,
+      "aim_point_px": [
+        322.9436024178603,
+        154.79655205060192
+      ],
+      "time_of_flight_s": 0.07107935963831774,
+      "miss_distance_m": 0.06980936589981843,
+      "is_hit": true
+    },
+    {
+      "frame": 40,
+      "timestamp_s": 1.28,
+      "laser_range_m": 60.34687936380172,
+      "target_pos_world": [
+        60.0,
+        -4.88,
+        5.384
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639647813551618,
+      "aim_point_px": [
+        322.96446159657836,
+        153.57569030677155
+      ],
+      "time_of_flight_s": 0.07105906985648881,
+      "miss_distance_m": 0.061738540954270504,
+      "is_hit": true
+    },
+    {
+      "frame": 41,
+      "timestamp_s": 1.312,
+      "laser_range_m": 60.35594402458749,
+      "target_pos_world": [
+        60.0,
+        -4.752,
+        5.3936
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639769878952975,
+      "aim_point_px": [
+        322.25899070328325,
+        152.7968993918479
+      ],
+      "time_of_flight_s": 0.07105500968325516,
+      "miss_distance_m": 0.06719564326784737,
+      "is_hit": true
+    },
+    {
+      "frame": 42,
+      "timestamp_s": 1.344,
+      "laser_range_m": 60.387815290691115,
+      "target_pos_world": [
+        60.0,
+        -4.624,
+        5.4032
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639742055495765,
+      "aim_point_px": [
+        320.89663970450493,
+        152.50816186159477
+      ],
+      "time_of_flight_s": 0.071049739585941,
+      "miss_distance_m": 0.07135164156198699,
+      "is_hit": true
+    },
+    {
+      "frame": 43,
+      "timestamp_s": 1.3760000000000001,
+      "laser_range_m": 60.37210501648059,
+      "target_pos_world": [
+        60.0,
+        -4.4959999999999996,
+        5.4128
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639737702720611,
+      "aim_point_px": [
+        319.04889426912234,
+        152.72084985934146
+      ],
+      "time_of_flight_s": 0.07104416874162338,
+      "miss_distance_m": 0.07497975720273124,
+      "is_hit": true
+    },
+    {
+      "frame": 44,
+      "timestamp_s": 1.408,
+      "laser_range_m": 60.30697293539398,
+      "target_pos_world": [
+        60.0,
+        -4.368,
+        5.4224
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963969467746441,
+      "aim_point_px": [
+        316.95392177024036,
+        153.40635822673175
+      ],
+      "time_of_flight_s": 0.07102644776235306,
+      "miss_distance_m": 0.06800606564154493,
+      "is_hit": true
+    },
+    {
+      "frame": 45,
+      "timestamp_s": 1.44,
+      "laser_range_m": 60.28761322801317,
+      "target_pos_world": [
+        60.0,
+        -4.24,
+        5.432
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963962286267227,
+      "aim_point_px": [
+        314.88769886549215,
+        154.49452042831342
+      ],
+      "time_of_flight_s": 0.07100345317511758,
+      "miss_distance_m": 0.05627740675454964,
+      "is_hit": true
+    },
+    {
+      "frame": 46,
+      "timestamp_s": 1.472,
+      "laser_range_m": 60.274451862396845,
+      "target_pos_world": [
+        60.0,
+        -4.112,
+        5.4416
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963966772822897,
+      "aim_point_px": [
+        313.1330717758322,
+        155.87533239051888
+      ],
+      "time_of_flight_s": 0.07098660481917544,
+      "miss_distance_m": 0.04950167828649033,
+      "is_hit": true
+    },
+    {
+      "frame": 47,
+      "timestamp_s": 1.504,
+      "laser_range_m": 60.26915160159856,
+      "target_pos_world": [
+        60.0,
+        -3.984,
+        5.4512
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639719119987473,
+      "aim_point_px": [
+        311.92972462674055,
+        157.4048156289606
+      ],
+      "time_of_flight_s": 0.07097392900097269,
+      "miss_distance_m": 0.04600161539499458,
+      "is_hit": true
+    },
+    {
+      "frame": 48,
+      "timestamp_s": 1.536,
+      "laser_range_m": 60.27463858110457,
+      "target_pos_world": [
+        60.0,
+        -3.856,
+        5.4608
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639619530354544,
+      "aim_point_px": [
+        311.4399778439955,
+        158.91892521717992
+      ],
+      "time_of_flight_s": 0.07095390456353103,
+      "miss_distance_m": 0.035983293827903384,
+      "is_hit": true
+    },
+    {
+      "frame": 49,
+      "timestamp_s": 1.568,
+      "laser_range_m": 60.29110517153279,
+      "target_pos_world": [
+        60.0,
+        -3.7279999999999998,
+        5.4704
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639695682752949,
+      "aim_point_px": [
+        311.7394135371933,
+        160.25386222058398
+      ],
+      "time_of_flight_s": 0.07094855481641836,
+      "miss_distance_m": 0.038166591095196406,
+      "is_hit": true
+    },
+    {
+      "frame": 50,
+      "timestamp_s": 1.6,
+      "laser_range_m": 60.25212874897049,
+      "target_pos_world": [
+        60.0,
+        -3.5999999999999996,
+        5.48
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963974910492581,
+      "aim_point_px": [
+        312.79006120795174,
+        161.2650579155228
+      ],
+      "time_of_flight_s": 0.07094077235845193,
+      "miss_distance_m": 0.03800840062828223,
+      "is_hit": true
+    },
+    {
+      "frame": 51,
+      "timestamp_s": 1.6320000000000001,
+      "laser_range_m": 60.27303261686657,
+      "target_pos_world": [
+        60.0,
+        -3.4719999999999995,
+        5.4896
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639731447048192,
+      "aim_point_px": [
+        314.4498527538841,
+        161.84419736988144
+      ],
+      "time_of_flight_s": 0.07093207890285498,
+      "miss_distance_m": 0.03680558879444011,
+      "is_hit": true
+    },
+    {
+      "frame": 52,
+      "timestamp_s": 1.6640000000000001,
+      "laser_range_m": 60.29316743697218,
+      "target_pos_world": [
+        60.0,
+        -3.3439999999999994,
+        5.4992
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639787088433014,
+      "aim_point_px": [
+        316.50647421531653,
+        161.9296252167954
+      ],
+      "time_of_flight_s": 0.07093556210971755,
+      "miss_distance_m": 0.045679758668062675,
+      "is_hit": true
+    },
+    {
+      "frame": 53,
+      "timestamp_s": 1.696,
+      "laser_range_m": 60.256782444357505,
+      "target_pos_world": [
+        60.0,
+        -3.216,
+        5.5088
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639848546613484,
+      "aim_point_px": [
+        318.69253435103474,
+        161.50682325775978
+      ],
+      "time_of_flight_s": 0.07093523701954049,
+      "miss_distance_m": 0.051043740305254326,
+      "is_hit": true
+    },
+    {
+      "frame": 54,
+      "timestamp_s": 1.728,
+      "laser_range_m": 60.272640803648194,
+      "target_pos_world": [
+        60.0,
+        -3.088,
+        5.5184
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639820510730152,
+      "aim_point_px": [
+        320.719541806507,
+        160.60404858992433
+      ],
+      "time_of_flight_s": 0.07093004314842574,
+      "miss_distance_m": 0.051996999043929605,
+      "is_hit": true
+    },
+    {
+      "frame": 55,
+      "timestamp_s": 1.76,
+      "laser_range_m": 60.245084693546815,
+      "target_pos_world": [
+        60.0,
+        -2.96,
+        5.5280000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639825109942332,
+      "aim_point_px": [
+        322.3276840399634,
+        159.28676474625024
+      ],
+      "time_of_flight_s": 0.07092302048229278,
+      "miss_distance_m": 0.05112164230157057,
+      "is_hit": true
+    },
+    {
+      "frame": 56,
+      "timestamp_s": 1.792,
+      "laser_range_m": 60.265104592404974,
+      "target_pos_world": [
+        60.0,
+        -2.832,
+        5.5376
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639779958242414,
+      "aim_point_px": [
+        323.29969108724663,
+        157.65011339300395
+      ],
+      "time_of_flight_s": 0.07091550588837461,
+      "miss_distance_m": 0.04955738880070323,
+      "is_hit": true
+    },
+    {
+      "frame": 57,
+      "timestamp_s": 1.824,
+      "laser_range_m": 60.203355277996636,
+      "target_pos_world": [
+        60.0,
+        -2.7039999999999997,
+        5.5472
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639790360998731,
+      "aim_point_px": [
+        323.5057752013903,
+        155.81541010244212
+      ],
+      "time_of_flight_s": 0.07090328693019621,
+      "miss_distance_m": 0.04371807972649443,
+      "is_hit": true
+    },
+    {
+      "frame": 58,
+      "timestamp_s": 1.856,
+      "laser_range_m": 60.252664067186366,
+      "target_pos_world": [
+        60.0,
+        -2.5759999999999996,
+        5.5568
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639836788223732,
+      "aim_point_px": [
+        322.903620209058,
+        153.92333945781598
+      ],
+      "time_of_flight_s": 0.07090605670927451,
+      "miss_distance_m": 0.05034741298628357,
+      "is_hit": true
+    },
+    {
+      "frame": 59,
+      "timestamp_s": 1.8880000000000001,
+      "laser_range_m": 60.20239659392517,
+      "target_pos_world": [
+        60.0,
+        -2.4479999999999995,
+        5.5664
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639877129620529,
+      "aim_point_px": [
+        321.56039185763666,
+        152.12686119979475
+      ],
+      "time_of_flight_s": 0.07090083622025094,
+      "miss_distance_m": 0.04991070251040699,
+      "is_hit": true
+    },
+    {
+      "frame": 60,
+      "timestamp_s": 1.92,
+      "laser_range_m": 60.18631706231631,
+      "target_pos_world": [
+        60.0,
+        -2.3200000000000003,
+        5.576
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639836196342326,
+      "aim_point_px": [
+        319.6380029507603,
+        150.57734649234004
+      ],
+      "time_of_flight_s": 0.07088576387261561,
+      "miss_distance_m": 0.040828162680679375,
+      "is_hit": true
+    },
+    {
+      "frame": 61,
+      "timestamp_s": 1.952,
+      "laser_range_m": 60.2431736787371,
+      "target_pos_world": [
+        60.0,
+        -2.192,
+        5.5856
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639880663293774,
+      "aim_point_px": [
+        317.38783580339225,
+        149.40861293804372
+      ],
+      "time_of_flight_s": 0.07088998926216153,
+      "miss_distance_m": 0.04787516882487934,
+      "is_hit": true
+    },
+    {
+      "frame": 62,
+      "timestamp_s": 1.984,
+      "laser_range_m": 60.24702459547931,
+      "target_pos_world": [
+        60.0,
+        -2.064,
+        5.5952
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639913993235426,
+      "aim_point_px": [
+        315.1109528779308,
+        148.71825425360407
+      ],
+      "time_of_flight_s": 0.07090258861329131,
+      "miss_distance_m": 0.06176653696506355,
+      "is_hit": true
+    },
+    {
+      "frame": 63,
+      "timestamp_s": 2.016,
+      "laser_range_m": 60.199603899186684,
+      "target_pos_world": [
+        60.0,
+        -1.936,
+        5.6048
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639970131318297,
+      "aim_point_px": [
+        313.11541518049063,
+        148.55368441943466
+      ],
+      "time_of_flight_s": 0.07090348462394507,
+      "miss_distance_m": 0.06543796098398633,
+      "is_hit": true
+    },
+    {
+      "frame": 64,
+      "timestamp_s": 2.048,
+      "laser_range_m": 60.16391191457114,
+      "target_pos_world": [
+        60.0,
+        -1.8079999999999998,
+        5.6144
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639939957223982,
+      "aim_point_px": [
+        311.6747314418496,
+        148.9067878397074
+      ],
+      "time_of_flight_s": 0.0708884961411514,
+      "miss_distance_m": 0.055332801574256504,
+      "is_hit": true
+    },
+    {
+      "frame": 65,
+      "timestamp_s": 2.08,
+      "laser_range_m": 60.16402189305937,
+      "target_pos_world": [
+        60.0,
+        -1.6799999999999997,
+        5.624
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639930569280023,
+      "aim_point_px": [
+        310.99215941727977,
+        149.71815161374974
+      ],
+      "time_of_flight_s": 0.07087343595850013,
+      "miss_distance_m": 0.044892324088056684,
+      "is_hit": true
+    },
+    {
+      "frame": 66,
+      "timestamp_s": 2.112,
+      "laser_range_m": 60.19193908606147,
+      "target_pos_world": [
+        60.0,
+        -1.5519999999999996,
+        5.6336
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639935576441474,
+      "aim_point_px": [
+        311.16424229819563,
+        150.88784137825326
+      ],
+      "time_of_flight_s": 0.0708659961956077,
+      "miss_distance_m": 0.04065575213828747,
+      "is_hit": true
+    },
+    {
+      "frame": 67,
+      "timestamp_s": 2.144,
+      "laser_range_m": 60.19436328171423,
+      "target_pos_world": [
+        60.0,
+        -1.4239999999999995,
+        5.6432
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639921913202898,
+      "aim_point_px": [
+        312.16860282834193,
+        152.28993623351687
+      ],
+      "time_of_flight_s": 0.0708600549966848,
+      "miss_distance_m": 0.03741998870173403,
+      "is_hit": true
+    },
+    {
+      "frame": 68,
+      "timestamp_s": 2.176,
+      "laser_range_m": 60.21172815396951,
+      "target_pos_world": [
+        60.0,
+        -1.2959999999999994,
+        5.6528
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639919061504028,
+      "aim_point_px": [
+        313.8681679361897,
+        153.7857442803541
+      ],
+      "time_of_flight_s": 0.07086098359726113,
+      "miss_distance_m": 0.039750246356166315,
+      "is_hit": true
+    },
+    {
+      "frame": 69,
+      "timestamp_s": 2.208,
+      "laser_range_m": 60.22029128539392,
+      "target_pos_world": [
+        60.0,
+        -1.1679999999999993,
+        5.6624
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639921654091286,
+      "aim_point_px": [
+        316.03243835213254,
+        155.23369851233394
+      ],
+      "time_of_flight_s": 0.07086802593247978,
+      "miss_distance_m": 0.047002590567181084,
+      "is_hit": true
+    },
+    {
+      "frame": 70,
+      "timestamp_s": 2.24,
+      "laser_range_m": 60.18455997328541,
+      "target_pos_world": [
+        60.0,
+        -1.0399999999999991,
+        5.672
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639904957473673,
+      "aim_point_px": [
+        318.3675315967437,
+        156.49630501726944
+      ],
+      "time_of_flight_s": 0.07086122257391306,
+      "miss_distance_m": 0.04221442880256693,
+      "is_hit": true
+    },
+    {
+      "frame": 71,
+      "timestamp_s": 2.2720000000000002,
+      "laser_range_m": 60.201225103283946,
+      "target_pos_world": [
+        60.0,
+        -0.911999999999999,
+        5.6816
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639914493676487,
+      "aim_point_px": [
+        320.5654280167629,
+        157.4478393775579
+      ],
+      "time_of_flight_s": 0.07086340213186425,
+      "miss_distance_m": 0.04478631587768454,
+      "is_hit": true
+    },
+    {
+      "frame": 72,
+      "timestamp_s": 2.3040000000000003,
+      "laser_range_m": 60.175893801711815,
+      "target_pos_world": [
+        60.0,
+        -0.7839999999999989,
+        5.6912
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639939355105038,
+      "aim_point_px": [
+        322.3370099970462,
+        157.98296672752144
+      ],
+      "time_of_flight_s": 0.07086378775304404,
+      "miss_distance_m": 0.04555869084363797,
+      "is_hit": true
+    },
+    {
+      "frame": 73,
+      "timestamp_s": 2.336,
+      "laser_range_m": 60.14932845780025,
+      "target_pos_world": [
+        60.0,
+        -0.6560000000000006,
+        5.7008
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639932722949923,
+      "aim_point_px": [
+        323.4477150307449,
+        158.02821864852194
+      ],
+      "time_of_flight_s": 0.07085403675556762,
+      "miss_distance_m": 0.037443562904707454,
+      "is_hit": true
+    },
+    {
+      "frame": 74,
+      "timestamp_s": 2.368,
+      "laser_range_m": 60.17827454137106,
+      "target_pos_world": [
+        60.0,
+        -0.5280000000000005,
+        5.7104
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639961672210963,
+      "aim_point_px": [
+        323.75401878747556,
+        157.554343220632
+      ],
+      "time_of_flight_s": 0.07085642653201944,
+      "miss_distance_m": 0.03937240295555504,
+      "is_hit": true
+    },
+    {
+      "frame": 75,
+      "timestamp_s": 2.4,
+      "laser_range_m": 60.17604313058426,
+      "target_pos_world": [
+        60.0,
+        -0.40000000000000036,
+        5.72
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963996419380479,
+      "aim_point_px": [
+        323.2113036759176,
+        156.58330053469558
+      ],
+      "time_of_flight_s": 0.07085582328033067,
+      "miss_distance_m": 0.038484495473502724,
+      "is_hit": true
+    },
+    {
+      "frame": 76,
+      "timestamp_s": 2.432,
+      "laser_range_m": 60.18171954895343,
+      "target_pos_world": [
+        60.0,
+        -0.27200000000000024,
+        5.7296
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639977311833776,
+      "aim_point_px": [
+        321.8882462973966,
+        155.18933914394196
+      ],
+      "time_of_flight_s": 0.07086127007911484,
+      "miss_distance_m": 0.04246428363772711,
+      "is_hit": true
+    },
+    {
+      "frame": 77,
+      "timestamp_s": 2.464,
+      "laser_range_m": 60.20742339693799,
+      "target_pos_world": [
+        60.0,
+        -0.14400000000000013,
+        5.7392
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639953385795084,
+      "aim_point_px": [
+        319.94943812215416,
+        153.48967657006756
+      ],
+      "time_of_flight_s": 0.0708652117627717,
+      "miss_distance_m": 0.044892143638945246,
+      "is_hit": true
+    },
+    {
+      "frame": 78,
+      "timestamp_s": 2.496,
+      "laser_range_m": 60.196216799845175,
+      "target_pos_world": [
+        60.0,
+        -0.016000000000000014,
+        5.7488
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639955333352288,
+      "aim_point_px": [
+        317.65227336504506,
+        151.63038513895975
+      ],
+      "time_of_flight_s": 0.07087401657347221,
+      "miss_distance_m": 0.051178171194134175,
+      "is_hit": true
+    },
+    {
+      "frame": 79,
+      "timestamp_s": 2.528,
+      "laser_range_m": 60.22920511443175,
+      "target_pos_world": [
+        60.0,
+        0.1120000000000001,
+        5.7584
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639920057303322,
+      "aim_point_px": [
+        315.29639618324205,
+        149.7664607643515
+      ],
+      "time_of_flight_s": 0.07088444106751403,
+      "miss_distance_m": 0.058567900231030944,
+      "is_hit": true
+    },
+    {
+      "frame": 80,
+      "timestamp_s": 2.56,
+      "laser_range_m": 60.19600040841924,
+      "target_pos_world": [
+        60.0,
+        0.2400000000000002,
+        5.768
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639920012683354,
+      "aim_point_px": [
+        313.2009156179175,
+        148.046600257489
+      ],
+      "time_of_flight_s": 0.07088325778083376,
+      "miss_distance_m": 0.055818252931733564,
+      "is_hit": true
+    },
+    {
+      "frame": 81,
+      "timestamp_s": 2.592,
+      "laser_range_m": 60.1473152131438,
+      "target_pos_world": [
+        60.0,
+        0.3680000000000003,
+        5.7776
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639951118225311,
+      "aim_point_px": [
+        311.6563867711975,
+        146.60102533566078
+      ],
+      "time_of_flight_s": 0.0708784358371853,
+      "miss_distance_m": 0.04970169945674282,
+      "is_hit": true
+    },
+    {
+      "frame": 82,
+      "timestamp_s": 2.624,
+      "laser_range_m": 60.20509517324551,
+      "target_pos_world": [
+        60.0,
+        0.49600000000000044,
+        5.7872
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639932158063124,
+      "aim_point_px": [
+        310.8750333243182,
+        145.53417283001215
+      ],
+      "time_of_flight_s": 0.0708909819249317,
+      "miss_distance_m": 0.05807363180950018,
+      "is_hit": true
+    },
+    {
+      "frame": 83,
+      "timestamp_s": 2.656,
+      "laser_range_m": 60.24361319760991,
+      "target_pos_world": [
+        60.0,
+        0.6240000000000006,
+        5.7968
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639880404845874,
+      "aim_point_px": [
+        310.96440657685594,
+        144.92119595086066
+      ],
+      "time_of_flight_s": 0.07090672163213406,
+      "miss_distance_m": 0.06888572606792984,
+      "is_hit": true
+    },
+    {
+      "frame": 84,
+      "timestamp_s": 2.688,
+      "laser_range_m": 60.18517637863208,
+      "target_pos_world": [
+        60.0,
+        0.7520000000000007,
+        5.8064
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963990814684341,
+      "aim_point_px": [
+        311.91279250530624,
+        144.80418864715992
+      ],
+      "time_of_flight_s": 0.07090093995268336,
+      "miss_distance_m": 0.0611329103115072,
+      "is_hit": true
+    },
+    {
+      "frame": 85,
+      "timestamp_s": 2.72,
+      "laser_range_m": 60.26902138181758,
+      "target_pos_world": [
+        60.0,
+        0.8800000000000008,
+        5.816
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639832017105097,
+      "aim_point_px": [
+        313.58881723691474,
+        145.18681415608796
+      ],
+      "time_of_flight_s": 0.07091618642853934,
+      "miss_distance_m": 0.07097755559411073,
+      "is_hit": true
+    },
+    {
+      "frame": 86,
+      "timestamp_s": 2.7520000000000002,
+      "laser_range_m": 60.18393736470641,
+      "target_pos_world": [
+        60.0,
+        1.008000000000001,
+        5.8256
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639876815516575,
+      "aim_point_px": [
+        315.76107017637844,
+        146.02897412056188
+      ],
+      "time_of_flight_s": 0.07091193103984375,
+      "miss_distance_m": 0.06397481603700843,
+      "is_hit": true
+    },
+    {
+      "frame": 87,
+      "timestamp_s": 2.7840000000000003,
+      "laser_range_m": 60.217376029388156,
+      "target_pos_world": [
+        60.0,
+        1.136000000000001,
+        5.8352
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639867846648944,
+      "aim_point_px": [
+        318.1294035991008,
+        147.24446003897032
+      ],
+      "time_of_flight_s": 0.0709167876697074,
+      "miss_distance_m": 0.06444288282751134,
+      "is_hit": true
+    },
+    {
+      "frame": 88,
+      "timestamp_s": 2.816,
+      "laser_range_m": 60.224054138432614,
+      "target_pos_world": [
+        60.0,
+        1.2639999999999993,
+        5.8448
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639851941046947,
+      "aim_point_px": [
+        320.37439770025605,
+        148.70597833999506
+      ],
+      "time_of_flight_s": 0.07092564091670593,
+      "miss_distance_m": 0.0680337714217741,
+      "is_hit": true
+    },
+    {
+      "frame": 89,
+      "timestamp_s": 2.848,
+      "laser_range_m": 60.22189770460055,
+      "target_pos_world": [
+        60.0,
+        1.3919999999999995,
+        5.8544
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639842565974841,
+      "aim_point_px": [
+        322.1983749882387,
+        150.2575067773932
+      ],
+      "time_of_flight_s": 0.07093505490889727,
+      "miss_distance_m": 0.07182833792786618,
+      "is_hit": true
+    },
+    {
+      "frame": 90,
+      "timestamp_s": 2.88,
+      "laser_range_m": 60.19651688736815,
+      "target_pos_world": [
+        60.0,
+        1.5199999999999996,
+        5.864
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639867167664459,
+      "aim_point_px": [
+        323.3635773063497,
+        151.73303544679646
+      ],
+      "time_of_flight_s": 0.07093227975398907,
+      "miss_distance_m": 0.06499085881697103,
+      "is_hit": true
+    },
+    {
+      "frame": 91,
+      "timestamp_s": 2.912,
+      "laser_range_m": 60.20669323188213,
+      "target_pos_world": [
+        60.0,
+        1.6479999999999997,
+        5.8736
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639878214412798,
+      "aim_point_px": [
+        323.72723113498887,
+        152.9777274313774
+      ],
+      "time_of_flight_s": 0.07093451231189613,
+      "miss_distance_m": 0.062135819361762025,
+      "is_hit": true
+    },
+    {
+      "frame": 92,
+      "timestamp_s": 2.944,
+      "laser_range_m": 60.22824997027909,
+      "target_pos_world": [
+        60.0,
+        1.7759999999999998,
+        5.8832
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639870657256925,
+      "aim_point_px": [
+        323.2480910124524,
+        153.86453510301294
+      ],
+      "time_of_flight_s": 0.0709381301833362,
+      "miss_distance_m": 0.06018432172304624,
+      "is_hit": true
+    },
+    {
+      "frame": 93,
+      "timestamp_s": 2.976,
+      "laser_range_m": 60.23751494524229,
+      "target_pos_world": [
+        60.0,
+        1.904,
+        5.8928
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963986391703521,
+      "aim_point_px": [
+        321.99499812908823,
+        154.30541102587983
+      ],
+      "time_of_flight_s": 0.070938819764575,
+      "miss_distance_m": 0.05547068528482807,
+      "is_hit": true
+    },
+    {
+      "frame": 94,
+      "timestamp_s": 3.008,
+      "laser_range_m": 60.23889391368787,
+      "target_pos_world": [
+        60.0,
+        2.032,
+        5.9024
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639859631117019,
+      "aim_point_px": [
+        320.13795027323556,
+        154.2548474507347
+      ],
+      "time_of_flight_s": 0.0709426291553888,
+      "miss_distance_m": 0.053135389938559645,
+      "is_hit": true
+    },
+    {
+      "frame": 95,
+      "timestamp_s": 3.04,
+      "laser_range_m": 60.20124203714287,
+      "target_pos_world": [
+        60.0,
+        2.16,
+        5.912
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963988132232489,
+      "aim_point_px": [
+        317.9199753022474,
+        153.7077574491574
+      ],
+      "time_of_flight_s": 0.07093519308583766,
+      "miss_distance_m": 0.04097180808208695,
+      "is_hit": true
+    },
+    {
+      "frame": 96,
+      "timestamp_s": 3.072,
+      "laser_range_m": 60.276517211155216,
+      "target_pos_world": [
+        60.0,
+        2.2880000000000003,
+        5.9216
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639839542672934,
+      "aim_point_px": [
+        315.6328219884441,
+        152.69658824306106
+      ],
+      "time_of_flight_s": 0.07094738634515498,
+      "miss_distance_m": 0.0452157149798381,
+      "is_hit": true
+    },
+    {
+      "frame": 97,
+      "timestamp_s": 3.104,
+      "laser_range_m": 60.2495552896945,
+      "target_pos_world": [
+        60.0,
+        2.4160000000000004,
+        5.9312000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963984838855028,
+      "aim_point_px": [
+        313.5800957746548,
+        151.2886167839045
+      ],
+      "time_of_flight_s": 0.0709547891519903,
+      "miss_distance_m": 0.045115090140531826,
+      "is_hit": true
+    },
+    {
+      "frame": 98,
+      "timestamp_s": 3.136,
+      "laser_range_m": 60.27403179050015,
+      "target_pos_world": [
+        60.0,
+        2.5440000000000005,
+        5.9408
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639817206968605,
+      "aim_point_px": [
+        312.03364418704524,
+        149.58388164927948
+      ],
+      "time_of_flight_s": 0.07096579096810962,
+      "miss_distance_m": 0.047800535683554586,
+      "is_hit": true
+    },
+    {
+      "frame": 99,
+      "timestamp_s": 3.168,
+      "laser_range_m": 60.266070384919914,
+      "target_pos_world": [
+        60.0,
+        2.6720000000000006,
+        5.9504
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639800350680099,
+      "aim_point_px": [
+        311.2038561599854,
+        147.71263545618444
+      ],
+      "time_of_flight_s": 0.07097836864385965,
+      "miss_distance_m": 0.051551163057135,
+      "is_hit": true
+    },
+    {
+      "frame": 100,
+      "timestamp_s": 3.2,
+      "laser_range_m": 60.272766986431606,
+      "target_pos_world": [
+        60.0,
+        2.8000000000000007,
+        5.96
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639797659755458,
+      "aim_point_px": [
+        311.1998137490942,
+        145.82742857208427
+      ],
+      "time_of_flight_s": 0.07098661270894162,
+      "miss_distance_m": 0.05134796149147337,
+      "is_hit": true
+    },
+    {
+      "frame": 101,
+      "timestamp_s": 3.232,
+      "laser_range_m": 60.27916554084789,
+      "target_pos_world": [
+        60.0,
+        2.928000000000001,
+        5.9696
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963980299071444,
+      "aim_point_px": [
+        312.0194295868536,
+        144.09020507162626
+      ],
+      "time_of_flight_s": 0.07098716474640655,
+      "miss_distance_m": 0.044338020167795325,
+      "is_hit": true
+    },
+    {
+      "frame": 102,
+      "timestamp_s": 3.2640000000000002,
+      "laser_range_m": 60.2638377772868,
+      "target_pos_world": [
+        60.0,
+        3.056000000000001,
+        5.9792000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639817632595299,
+      "aim_point_px": [
+        313.5523463874597,
+        142.65410452602777
+      ],
+      "time_of_flight_s": 0.07099022858575012,
+      "miss_distance_m": 0.03918805462562461,
+      "is_hit": true
+    },
+    {
+      "frame": 103,
+      "timestamp_s": 3.2960000000000003,
+      "laser_range_m": 60.29300263682836,
+      "target_pos_world": [
+        60.0,
+        3.184000000000001,
+        5.9888
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639770384500472,
+      "aim_point_px": [
+        315.58407519676445,
+        141.64276816098203
+      ],
+      "time_of_flight_s": 0.0710056462066203,
+      "miss_distance_m": 0.04426048187600021,
+      "is_hit": true
+    },
+    {
+      "frame": 104,
+      "timestamp_s": 3.3280000000000003,
+      "laser_range_m": 60.27632612175733,
+      "target_pos_world": [
+        60.0,
+        3.312000000000001,
+        5.9984
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639809425900863,
+      "aim_point_px": [
+        317.82931873123835,
+        141.13431978454483
+      ],
+      "time_of_flight_s": 0.07100649308578917,
+      "miss_distance_m": 0.03668407094206931,
+      "is_hit": true
+    },
+    {
+      "frame": 105,
+      "timestamp_s": 3.36,
+      "laser_range_m": 60.292754267064566,
+      "target_pos_world": [
+        60.0,
+        3.4399999999999995,
+        6.008
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639762609740895,
+      "aim_point_px": [
+        319.9893114592193,
+        141.15451849783062
+      ],
+      "time_of_flight_s": 0.07102296807843474,
+      "miss_distance_m": 0.042109965618378355,
+      "is_hit": true
+    },
+    {
+      "frame": 106,
+      "timestamp_s": 3.392,
+      "laser_range_m": 60.277024847561215,
+      "target_pos_world": [
+        60.0,
+        3.5679999999999996,
+        6.0176
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639817415369786,
+      "aim_point_px": [
+        321.76907435028227,
+        141.67568543222814
+      ],
+      "time_of_flight_s": 0.07102141992862591,
+      "miss_distance_m": 0.03195407388161774,
+      "is_hit": true
+    },
+    {
+      "frame": 107,
+      "timestamp_s": 3.424,
+      "laser_range_m": 60.37033567973581,
+      "target_pos_world": [
+        60.0,
+        3.6959999999999997,
+        6.0272
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639663221353192,
+      "aim_point_px": [
+        322.9452965705684,
+        142.62711955037332
+      ],
+      "time_of_flight_s": 0.07104713683505043,
+      "miss_distance_m": 0.044690373501913065,
+      "is_hit": true
+    },
+    {
+      "frame": 108,
+      "timestamp_s": 3.456,
+      "laser_range_m": 60.34671844678873,
+      "target_pos_world": [
+        60.0,
+        3.824,
+        6.0367999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639663558448283,
+      "aim_point_px": [
+        323.37508427752766,
+        143.9047167038379
+      ],
+      "time_of_flight_s": 0.07106470855485218,
+      "miss_distance_m": 0.05023439661909285,
+      "is_hit": true
+    },
+    {
+      "frame": 109,
+      "timestamp_s": 3.488,
+      "laser_range_m": 60.330946028435086,
+      "target_pos_world": [
+        60.0,
+        3.952,
+        6.0464
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963967688278834,
+      "aim_point_px": [
+        323.0172517152694,
+        145.3821773496535
+      ],
+      "time_of_flight_s": 0.0710753673493779,
+      "miss_distance_m": 0.049633579109878256,
+      "is_hit": true
+    },
+    {
+      "frame": 110,
+      "timestamp_s": 3.52,
+      "laser_range_m": 60.33244144842543,
+      "target_pos_world": [
+        60.0,
+        4.08,
+        6.056
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639700420979953,
+      "aim_point_px": [
+        321.93207131766735,
+        146.91953922103858
+      ],
+      "time_of_flight_s": 0.07108012646483546,
+      "miss_distance_m": 0.04374889271775258,
+      "is_hit": true
+    },
+    {
+      "frame": 111,
+      "timestamp_s": 3.552,
+      "laser_range_m": 60.37220376493508,
+      "target_pos_world": [
+        60.0,
+        4.208,
+        6.0656
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639653206158787,
+      "aim_point_px": [
+        320.27322200486196,
+        148.37086062855496
+      ],
+      "time_of_flight_s": 0.07109386935800044,
+      "miss_distance_m": 0.04522550983468037,
+      "is_hit": true
+    },
+    {
+      "frame": 112,
+      "timestamp_s": 3.584,
+      "laser_range_m": 60.41038048221491,
+      "target_pos_world": [
+        60.0,
+        4.336,
+        6.0752
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963953702746621,
+      "aim_point_px": [
+        318.2623653470432,
+        149.59249223849093
+      ],
+      "time_of_flight_s": 0.0711173828268139,
+      "miss_distance_m": 0.054731530303562335,
+      "is_hit": true
+    },
+    {
+      "frame": 113,
+      "timestamp_s": 3.616,
+      "laser_range_m": 60.38200230944001,
+      "target_pos_world": [
+        60.0,
+        4.464,
+        6.0847999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639557953753699,
+      "aim_point_px": [
+        316.1605287148681,
+        150.454562928423
+      ],
+      "time_of_flight_s": 0.07113133200008256,
+      "miss_distance_m": 0.05584052177230605,
+      "is_hit": true
+    },
+    {
+      "frame": 114,
+      "timestamp_s": 3.648,
+      "laser_range_m": 60.3649550300213,
+      "target_pos_world": [
+        60.0,
+        4.5920000000000005,
+        6.0944
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639593206316485,
+      "aim_point_px": [
+        314.2372915811578,
+        150.85522519920707
+      ],
+      "time_of_flight_s": 0.07113814129398115,
+      "miss_distance_m": 0.05061271038059865,
+      "is_hit": true
+    },
+    {
+      "frame": 115,
+      "timestamp_s": 3.68,
+      "laser_range_m": 60.39112082059865,
+      "target_pos_world": [
+        60.0,
+        4.720000000000001,
+        6.104
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639614387114035,
+      "aim_point_px": [
+        312.7366261777558,
+        150.7347494419953
+      ],
+      "time_of_flight_s": 0.07114305094668531,
+      "miss_distance_m": 0.04350120183656012,
+      "is_hit": true
+    },
+    {
+      "frame": 116,
+      "timestamp_s": 3.712,
+      "laser_range_m": 60.4430941609296,
+      "target_pos_world": [
+        60.0,
+        4.848000000000001,
+        6.1136
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639455727160587,
+      "aim_point_px": [
+        311.8558182705483,
+        150.08625904632717
+      ],
+      "time_of_flight_s": 0.07116928224356452,
+      "miss_distance_m": 0.054231201543215084,
+      "is_hit": true
+    },
+    {
+      "frame": 117,
+      "timestamp_s": 3.744,
+      "laser_range_m": 60.41866945176758,
+      "target_pos_world": [
+        60.0,
+        4.976000000000001,
+        6.1232
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639508568205041,
+      "aim_point_px": [
+        311.7020374306887,
+        148.9571207049212
+      ],
+      "time_of_flight_s": 0.07118151403546868,
+      "miss_distance_m": 0.052798318086622074,
+      "is_hit": true
+    },
+    {
+      "frame": 118,
+      "timestamp_s": 3.7760000000000002,
+      "laser_range_m": 60.4524223507504,
+      "target_pos_world": [
+        60.0,
+        5.104000000000001,
+        6.1328
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639413541628342,
+      "aim_point_px": [
+        312.2933574942834,
+        147.44358858591673
+      ],
+      "time_of_flight_s": 0.07120275909759237,
+      "miss_distance_m": 0.05875212048679589,
+      "is_hit": true
+    },
+    {
+      "frame": 119,
+      "timestamp_s": 3.8080000000000003,
+      "laser_range_m": 60.43877856002681,
+      "target_pos_world": [
+        60.0,
+        5.232000000000001,
+        6.1424
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639439694849581,
+      "aim_point_px": [
+        313.5445518364596,
+        145.67649256141692
+      ],
+      "time_of_flight_s": 0.07121553417570897,
+      "miss_distance_m": 0.0572400724653271,
+      "is_hit": true
+    },
+    {
+      "frame": 120,
+      "timestamp_s": 3.84,
+      "laser_range_m": 60.48743404980877,
+      "target_pos_world": [
+        60.0,
+        5.359999999999999,
+        6.152
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639328260423522,
+      "aim_point_px": [
+        315.2835378960585,
+        143.80480816366622
+      ],
+      "time_of_flight_s": 0.07123823682555354,
+      "miss_distance_m": 0.06389192184071694,
+      "is_hit": true
+    },
+    {
+      "frame": 121,
+      "timestamp_s": 3.872,
+      "laser_range_m": 60.551965312635986,
+      "target_pos_world": [
+        60.0,
+        5.4879999999999995,
+        6.1616
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639081933969244,
+      "aim_point_px": [
+        317.2732069978607,
+        141.9798241701477
+      ],
+      "time_of_flight_s": 0.07127401650546382,
+      "miss_distance_m": 0.08138321442118082,
+      "is_hit": true
+    },
+    {
+      "frame": 122,
+      "timestamp_s": 3.904,
+      "laser_range_m": 60.48797443686535,
+      "target_pos_world": [
+        60.0,
+        5.616,
+        6.1712
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639228632612453,
+      "aim_point_px": [
+        319.24480411990504,
+        140.34323515138686
+      ],
+      "time_of_flight_s": 0.07128530276531414,
+      "miss_distance_m": 0.07779613283002763,
+      "is_hit": true
+    },
+    {
+      "frame": 123,
+      "timestamp_s": 3.936,
+      "laser_range_m": 60.472409323536255,
+      "target_pos_world": [
+        60.0,
+        5.744,
+        6.1808
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639281298157509,
+      "aim_point_px": [
+        320.9400672447493,
+        139.0194368731962
+      ],
+      "time_of_flight_s": 0.07129258044632274,
+      "miss_distance_m": 0.07053435029325579,
+      "is_hit": true
+    },
+    {
+      "frame": 124,
+      "timestamp_s": 3.968,
+      "laser_range_m": 60.49189275713516,
+      "target_pos_world": [
+        60.0,
+        5.872,
+        6.1904
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639333451560052,
+      "aim_point_px": [
+        322.1403802365009,
+        138.10880516057017
+      ],
+      "time_of_flight_s": 0.07129846827727704,
+      "miss_distance_m": 0.06182224463454061,
+      "is_hit": true
+    },
+    {
+      "frame": 125,
+      "timestamp_s": 4.0,
+      "laser_range_m": 60.48869506106755,
+      "target_pos_world": [
+        60.0,
+        6.0,
+        6.2
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963940470899487,
+      "aim_point_px": [
+        322.7028971474177,
+        137.68162738836395
+      ],
+      "time_of_flight_s": 0.07130167469250588,
+      "miss_distance_m": 0.050562991356793686,
+      "is_hit": true
+    },
+    {
+      "frame": 126,
+      "timestamp_s": 4.032,
+      "laser_range_m": 60.55061626278078,
+      "target_pos_world": [
+        60.0,
+        6.128,
+        6.2096
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639389183362587,
+      "aim_point_px": [
+        322.56956493742365,
+        137.76967809985908
+      ],
+      "time_of_flight_s": 0.07131417387531518,
+      "miss_distance_m": 0.04692985325200591,
+      "is_hit": true
+    },
+    {
+      "frame": 127,
+      "timestamp_s": 4.064,
+      "laser_range_m": 60.56636632248147,
+      "target_pos_world": [
+        60.0,
+        6.256,
+        6.2192
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639255626149541,
+      "aim_point_px": [
+        321.7806723531944,
+        138.35943837891762
+      ],
+      "time_of_flight_s": 0.07133987033966638,
+      "miss_distance_m": 0.05423722280691175,
+      "is_hit": true
+    },
+    {
+      "frame": 128,
+      "timestamp_s": 4.096,
+      "laser_range_m": 60.537716108127874,
+      "target_pos_world": [
+        60.0,
+        6.384,
+        6.2288
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639340435325926,
+      "aim_point_px": [
+        320.446860359299,
+        139.38717795463396
+      ],
+      "time_of_flight_s": 0.07135041232561756,
+      "miss_distance_m": 0.048403801231280005,
+      "is_hit": true
+    },
+    {
+      "frame": 129,
+      "timestamp_s": 4.128,
+      "laser_range_m": 60.612581965889994,
+      "target_pos_world": [
+        60.0,
+        6.5120000000000005,
+        6.2384
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963922387466476,
+      "aim_point_px": [
+        318.74703116943215,
+        140.743129867787
+      ],
+      "time_of_flight_s": 0.07137366681905255,
+      "miss_distance_m": 0.05310079955624893,
+      "is_hit": true
+    },
+    {
+      "frame": 130,
+      "timestamp_s": 4.16,
+      "laser_range_m": 60.589640686273114,
+      "target_pos_world": [
+        60.0,
+        6.640000000000001,
+        6.248
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639291345801261,
+      "aim_point_px": [
+        316.89985815383017,
+        142.28234360079017
+      ],
+      "time_of_flight_s": 0.0713854486203402,
+      "miss_distance_m": 0.04778380849315799,
+      "is_hit": true
+    },
+    {
+      "frame": 131,
+      "timestamp_s": 4.192,
+      "laser_range_m": 60.674729069814724,
+      "target_pos_world": [
+        60.0,
+        6.768000000000001,
+        6.2576
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639028781505522,
+      "aim_point_px": [
+        315.13727206793584,
+        143.8422082383169
+      ],
+      "time_of_flight_s": 0.07142002111129472,
+      "miss_distance_m": 0.06155769295990507,
+      "is_hit": true
+    },
+    {
+      "frame": 132,
+      "timestamp_s": 4.224,
+      "laser_range_m": 60.64500365085385,
+      "target_pos_world": [
+        60.0,
+        6.896000000000001,
+        6.2672
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963899578948531,
+      "aim_point_px": [
+        313.6760628850517,
+        145.26224839564617
+      ],
+      "time_of_flight_s": 0.07144678084305867,
+      "miss_distance_m": 0.06842697847778141,
+      "is_hit": true
+    },
+    {
+      "frame": 133,
+      "timestamp_s": 4.256,
+      "laser_range_m": 60.62104278210249,
+      "target_pos_world": [
+        60.0,
+        7.024000000000001,
+        6.2768
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639097531848116,
+      "aim_point_px": [
+        312.69080967591685,
+        146.4016034320752
+      ],
+      "time_of_flight_s": 0.07145802240207177,
+      "miss_distance_m": 0.061847503187363345,
+      "is_hit": true
+    },
+    {
+      "frame": 134,
+      "timestamp_s": 4.288,
+      "laser_range_m": 60.660297594072425,
+      "target_pos_world": [
+        60.0,
+        7.152000000000001,
+        6.2864
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963910958343296,
+      "aim_point_px": [
+        312.3004631924706,
+        147.15156364995218
+      ],
+      "time_of_flight_s": 0.07147165017712226,
+      "miss_distance_m": 0.05702746815873128,
+      "is_hit": true
+    },
+    {
+      "frame": 135,
+      "timestamp_s": 4.32,
+      "laser_range_m": 60.65237205868734,
+      "target_pos_world": [
+        60.0,
+        7.280000000000001,
+        6.296
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639172612831843,
+      "aim_point_px": [
+        312.5517756395797,
+        147.44119832459637
+      ],
+      "time_of_flight_s": 0.07148127987417573,
+      "miss_distance_m": 0.04854418323305877,
+      "is_hit": true
+    },
+    {
+      "frame": 136,
+      "timestamp_s": 4.352,
+      "laser_range_m": 60.70412157160751,
+      "target_pos_world": [
+        60.0,
+        7.408000000000001,
+        6.3056
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639033558866966,
+      "aim_point_px": [
+        313.4097784467731,
+        147.23807321110237
+      ],
+      "time_of_flight_s": 0.07150701065424654,
+      "miss_distance_m": 0.05346938146061544,
+      "is_hit": true
+    },
+    {
+      "frame": 137,
+      "timestamp_s": 4.384,
+      "laser_range_m": 60.69802850624207,
+      "target_pos_world": [
+        60.0,
+        7.536000000000001,
+        6.3152
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639097229820301,
+      "aim_point_px": [
+        314.7571041226624,
+        146.54689267523955
+      ],
+      "time_of_flight_s": 0.07152186853191465,
+      "miss_distance_m": 0.04889350001693,
+      "is_hit": true
+    },
+    {
+      "frame": 138,
+      "timestamp_s": 4.416,
+      "laser_range_m": 60.75826078167309,
+      "target_pos_world": [
+        60.0,
+        7.6640000000000015,
+        6.3248
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638916979496286,
+      "aim_point_px": [
+        316.419239124094,
+        145.40962205764487
+      ],
+      "time_of_flight_s": 0.071551722766704,
+      "miss_distance_m": 0.05678786829090447,
+      "is_hit": true
+    },
+    {
+      "frame": 139,
+      "timestamp_s": 4.448,
+      "laser_range_m": 60.70048213190419,
+      "target_pos_world": [
+        60.0,
+        7.792000000000002,
+        6.3344000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963910124438045,
+      "aim_point_px": [
+        318.17733498993306,
+        143.90447830839935
+      ],
+      "time_of_flight_s": 0.07155823855616891,
+      "miss_distance_m": 0.04459367867156871,
+      "is_hit": true
+    },
+    {
+      "frame": 140,
+      "timestamp_s": 4.48,
+      "laser_range_m": 60.74601255992055,
+      "target_pos_world": [
+        60.0,
+        7.920000000000002,
+        6.344
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9639029950167765,
+      "aim_point_px": [
+        319.80750405555267,
+        142.14502288726527
+      ],
+      "time_of_flight_s": 0.07157871871500426,
+      "miss_distance_m": 0.04399300451879179,
+      "is_hit": true
+    },
+    {
+      "frame": 141,
+      "timestamp_s": 4.5120000000000005,
+      "laser_range_m": 60.78995031222899,
+      "target_pos_world": [
+        60.0,
+        8.048000000000002,
+        6.3536
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638758711052633,
+      "aim_point_px": [
+        321.10563288778945,
+        140.27383431729413
+      ],
+      "time_of_flight_s": 0.07161534768359692,
+      "miss_distance_m": 0.05684278932886395,
+      "is_hit": true
+    },
+    {
+      "frame": 142,
+      "timestamp_s": 4.5440000000000005,
+      "laser_range_m": 60.80745580142299,
+      "target_pos_world": [
+        60.0,
+        8.176000000000002,
+        6.3632
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638760379363146,
+      "aim_point_px": [
+        321.9085530619458,
+        138.45029254696635
+      ],
+      "time_of_flight_s": 0.07164132141201256,
+      "miss_distance_m": 0.06037788625714973,
+      "is_hit": true
+    },
+    {
+      "frame": 143,
+      "timestamp_s": 4.5760000000000005,
+      "laser_range_m": 60.80149113535825,
+      "target_pos_world": [
+        60.0,
+        8.304000000000002,
+        6.3728
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638845911650966,
+      "aim_point_px": [
+        322.1284559748312,
+        136.83426866952965
+      ],
+      "time_of_flight_s": 0.07165664169152205,
+      "miss_distance_m": 0.05459784684449758,
+      "is_hit": true
+    },
+    {
+      "frame": 144,
+      "timestamp_s": 4.6080000000000005,
+      "laser_range_m": 60.86602639482267,
+      "target_pos_world": [
+        60.0,
+        8.432000000000002,
+        6.3824000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963870733634832,
+      "aim_point_px": [
+        321.7529176493826,
+        135.56606765978074
+      ],
+      "time_of_flight_s": 0.07168476229846374,
+      "miss_distance_m": 0.05942450812641808,
+      "is_hit": true
+    },
+    {
+      "frame": 145,
+      "timestamp_s": 4.64,
+      "laser_range_m": 60.89449491390265,
+      "target_pos_world": [
+        60.0,
+        8.559999999999999,
+        6.3919999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.96386549781637,
+      "aim_point_px": [
+        320.8404274607345,
+        134.7492698449922
+      ],
+      "time_of_flight_s": 0.07171189432392881,
+      "miss_distance_m": 0.06314677751576901,
+      "is_hit": true
+    },
+    {
+      "frame": 146,
+      "timestamp_s": 4.672,
+      "laser_range_m": 60.83925270953835,
+      "target_pos_world": [
+        60.0,
+        8.687999999999999,
+        6.4016
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638765481700365,
+      "aim_point_px": [
+        319.51576556295237,
+        134.44035782500092
+      ],
+      "time_of_flight_s": 0.07172629336092996,
+      "miss_distance_m": 0.05578917322159833,
+      "is_hit": true
+    },
+    {
+      "frame": 147,
+      "timestamp_s": 4.704,
+      "laser_range_m": 60.88992516178354,
+      "target_pos_world": [
+        60.0,
+        8.815999999999999,
+        6.4112
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638682866852518,
+      "aim_point_px": [
+        317.9430554985327,
+        134.64542695355377
+      ],
+      "time_of_flight_s": 0.07175019567082763,
+      "miss_distance_m": 0.056238989971308,
+      "is_hit": true
+    },
+    {
+      "frame": 148,
+      "timestamp_s": 4.736,
+      "laser_range_m": 60.879799670809895,
+      "target_pos_world": [
+        60.0,
+        8.943999999999999,
+        6.4208
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638832122387649,
+      "aim_point_px": [
+        316.3112360877023,
+        135.32457122206029
+      ],
+      "time_of_flight_s": 0.07176022083559558,
+      "miss_distance_m": 0.04463995599191768,
+      "is_hit": true
+    },
+    {
+      "frame": 149,
+      "timestamp_s": 4.768,
+      "laser_range_m": 60.960876855728344,
+      "target_pos_world": [
+        60.0,
+        9.072,
+        6.4304
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638557296442424,
+      "aim_point_px": [
+        314.81985598150237,
+        136.40036312083583
+      ],
+      "time_of_flight_s": 0.07179585807957616,
+      "miss_distance_m": 0.05452682017746433,
+      "is_hit": true
+    },
+    {
+      "frame": 150,
+      "timestamp_s": 4.8,
+      "laser_range_m": 60.94367760840965,
+      "target_pos_world": [
+        60.0,
+        9.2,
+        6.4399999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638656940765189,
+      "aim_point_px": [
+        313.6421300468329,
+        137.7656891326822
+      ],
+      "time_of_flight_s": 0.07181620168418724,
+      "miss_distance_m": 0.0511629154993485,
+      "is_hit": true
+    },
+    {
+      "frame": 151,
+      "timestamp_s": 4.832,
+      "laser_range_m": 60.954214225075546,
+      "target_pos_world": [
+        60.0,
+        9.328,
+        6.4496
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638513794177346,
+      "aim_point_px": [
+        312.9244430799707,
+        139.29278868640665
+      ],
+      "time_of_flight_s": 0.071845455492561,
+      "miss_distance_m": 0.05510112408834687,
+      "is_hit": true
+    },
+    {
+      "frame": 152,
+      "timestamp_s": 4.864,
+      "laser_range_m": 61.00541048888784,
+      "target_pos_world": [
+        60.0,
+        9.456,
+        6.4592
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638384479938084,
+      "aim_point_px": [
+        312.750116690935,
+        140.83902690008375
+      ],
+      "time_of_flight_s": 0.07187730159604028,
+      "miss_distance_m": 0.06097949670531145,
+      "is_hit": true
+    },
+    {
+      "frame": 153,
+      "timestamp_s": 4.896,
+      "laser_range_m": 61.02158986060029,
+      "target_pos_world": [
+        60.0,
+        9.584,
+        6.4688
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963840720359415,
+      "aim_point_px": [
+        313.1435412860341,
+        142.2561684379191
+      ],
+      "time_of_flight_s": 0.07190199541501194,
+      "miss_distance_m": 0.06052003855340733,
+      "is_hit": true
+    },
+    {
+      "frame": 154,
+      "timestamp_s": 4.928,
+      "laser_range_m": 61.0089982080302,
+      "target_pos_world": [
+        60.0,
+        9.712,
+        6.4784
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638461904370887,
+      "aim_point_px": [
+        314.0624808199805,
+        143.40123601297057
+      ],
+      "time_of_flight_s": 0.07192139531419013,
+      "miss_distance_m": 0.05530172824214548,
+      "is_hit": true
+    },
+    {
+      "frame": 155,
+      "timestamp_s": 4.96,
+      "laser_range_m": 61.01504785147992,
+      "target_pos_world": [
+        60.0,
+        9.84,
+        6.4879999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638588321906942,
+      "aim_point_px": [
+        315.3932161532171,
+        144.1500591214712
+      ],
+      "time_of_flight_s": 0.07193383683722439,
+      "miss_distance_m": 0.043912134048688635,
+      "is_hit": true
+    },
+    {
+      "frame": 156,
+      "timestamp_s": 4.992,
+      "laser_range_m": 61.06783433358113,
+      "target_pos_world": [
+        60.0,
+        9.968,
+        6.4976
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638478950540419,
+      "aim_point_px": [
+        316.9735186433347,
+        144.41334488604497
+      ],
+      "time_of_flight_s": 0.07196052653006191,
+      "miss_distance_m": 0.04436025849207589,
+      "is_hit": true
+    },
+    {
+      "frame": 157,
+      "timestamp_s": 5.024,
+      "laser_range_m": 61.09268629881308,
+      "target_pos_world": [
+        60.0,
+        10.096,
+        6.5072
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638474325465097,
+      "aim_point_px": [
+        318.60293003945037,
+        144.14878404369074
+      ],
+      "time_of_flight_s": 0.07198505377363902,
+      "miss_distance_m": 0.04271074892286867,
+      "is_hit": true
+    },
+    {
+      "frame": 158,
+      "timestamp_s": 5.056,
+      "laser_range_m": 61.05755206574655,
+      "target_pos_world": [
+        60.0,
+        10.224,
+        6.5168
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638557826422466,
+      "aim_point_px": [
+        320.0801944831566,
+        143.36829553579355
+      ],
+      "time_of_flight_s": 0.07200195802047242,
+      "miss_distance_m": 0.03432524004217346,
+      "is_hit": true
+    },
+    {
+      "frame": 159,
+      "timestamp_s": 5.088,
+      "laser_range_m": 61.16354165796985,
+      "target_pos_world": [
+        60.0,
+        10.352,
+        6.5264
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963844898615873,
+      "aim_point_px": [
+        321.2157290608464,
+        142.135300136147
+      ],
+      "time_of_flight_s": 0.07203060607265821,
+      "miss_distance_m": 0.03565385541428046,
+      "is_hit": true
+    },
+    {
+      "frame": 160,
+      "timestamp_s": 5.12,
+      "laser_range_m": 61.15813699640915,
+      "target_pos_world": [
+        60.0,
+        10.48,
+        6.536
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638463581488212,
+      "aim_point_px": [
+        321.8755633614877,
+        140.55626827927705
+      ],
+      "time_of_flight_s": 0.07205548742254646,
+      "miss_distance_m": 0.03352211517182111,
+      "is_hit": true
+    },
+    {
+      "frame": 161,
+      "timestamp_s": 5.152,
+      "laser_range_m": 61.17265884999427,
+      "target_pos_world": [
+        60.0,
+        10.608,
+        6.5456
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638412363931657,
+      "aim_point_px": [
+        321.9820363761792,
+        138.76563185923015
+      ],
+      "time_of_flight_s": 0.07208251688752798,
+      "miss_distance_m": 0.03295265570849554,
+      "is_hit": true
+    },
+    {
+      "frame": 162,
+      "timestamp_s": 5.184,
+      "laser_range_m": 61.17175045884687,
+      "target_pos_world": [
+        60.0,
+        10.736,
+        6.5552
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963845706716148,
+      "aim_point_px": [
+        321.5250876373695,
+        136.91108281629568
+      ],
+      "time_of_flight_s": 0.07210413162002173,
+      "miss_distance_m": 0.02752548086490741,
+      "is_hit": true
+    },
+    {
+      "frame": 163,
+      "timestamp_s": 5.216,
+      "laser_range_m": 61.23660532039242,
+      "target_pos_world": [
+        60.0,
+        10.864,
+        6.5648
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638353788613498,
+      "aim_point_px": [
+        320.56184669093574,
+        135.14088327817092
+      ],
+      "time_of_flight_s": 0.07213384620733707,
+      "miss_distance_m": 0.02871794949783295,
+      "is_hit": true
+    },
+    {
+      "frame": 164,
+      "timestamp_s": 5.248,
+      "laser_range_m": 61.22660541199942,
+      "target_pos_world": [
+        60.0,
+        10.992,
+        6.5744
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638308499827409,
+      "aim_point_px": [
+        319.2127291024067,
+        133.59443580738966
+      ],
+      "time_of_flight_s": 0.07216222803948064,
+      "miss_distance_m": 0.028514485889707585,
+      "is_hit": true
+    },
+    {
+      "frame": 165,
+      "timestamp_s": 5.28,
+      "laser_range_m": 61.2520708670784,
+      "target_pos_world": [
+        60.0,
+        11.120000000000001,
+        6.584
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638185570047753,
+      "aim_point_px": [
+        317.6370376132978,
+        132.39386720004828
+      ],
+      "time_of_flight_s": 0.07219417694398655,
+      "miss_distance_m": 0.031081023853355,
+      "is_hit": true
+    },
+    {
+      "frame": 166,
+      "timestamp_s": 5.312,
+      "laser_range_m": 61.3211612869994,
+      "target_pos_world": [
+        60.0,
+        11.248000000000001,
+        6.5936
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638091266988068,
+      "aim_point_px": [
+        316.01772504163546,
+        131.63615951977704
+      ],
+      "time_of_flight_s": 0.07222759898058943,
+      "miss_distance_m": 0.03464274751263037,
+      "is_hit": true
+    },
+    {
+      "frame": 167,
+      "timestamp_s": 5.344,
+      "laser_range_m": 61.2870411250899,
+      "target_pos_world": [
+        60.0,
+        11.376000000000001,
+        6.6032
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9638185585731985,
+      "aim_point_px": [
+        314.55341888354116,
+        131.38489571120448
+      ],
+      "time_of_flight_s": 0.07225032149568383,
+      "miss_distance_m": 0.028858558573498408,
+      "is_hit": true
+    },
+    {
+      "frame": 168,
+      "timestamp_s": 5.376,
+      "laser_range_m": 61.40161714518865,
+      "target_pos_world": [
+        60.0,
+        11.504000000000001,
+        6.6128
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637876659247012,
+      "aim_point_px": [
+        313.42055460585885,
+        131.65984235349666
+      ],
+      "time_of_flight_s": 0.07229257634172484,
+      "miss_distance_m": 0.03940259178496199,
+      "is_hit": true
+    },
+    {
+      "frame": 169,
+      "timestamp_s": 5.408,
+      "laser_range_m": 61.41582345131362,
+      "target_pos_world": [
+        60.0,
+        11.632000000000001,
+        6.6224
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637562971062273,
+      "aim_point_px": [
+        312.76882080139717,
+        132.43115653740534
+      ],
+      "time_of_flight_s": 0.07234056820915341,
+      "miss_distance_m": 0.05455657178528102,
+      "is_hit": true
+    },
+    {
+      "frame": 170,
+      "timestamp_s": 5.44,
+      "laser_range_m": 61.40355646746358,
+      "target_pos_world": [
+        60.0,
+        11.760000000000002,
+        6.632
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637620229405965,
+      "aim_point_px": [
+        312.6852779792354,
+        133.61707996525087
+      ],
+      "time_of_flight_s": 0.07237320260845004,
+      "miss_distance_m": 0.056414443504500505,
+      "is_hit": true
+    },
+    {
+      "frame": 171,
+      "timestamp_s": 5.472,
+      "laser_range_m": 61.36222594018067,
+      "target_pos_world": [
+        60.0,
+        11.888000000000002,
+        6.6416
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637871265049859,
+      "aim_point_px": [
+        313.1947958660115,
+        135.09186676366593
+      ],
+      "time_of_flight_s": 0.0723873422638733,
+      "miss_distance_m": 0.042310504003833065,
+      "is_hit": true
+    },
+    {
+      "frame": 172,
+      "timestamp_s": 5.5040000000000004,
+      "laser_range_m": 61.43007133381206,
+      "target_pos_world": [
+        60.0,
+        12.016000000000002,
+        6.6512
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637722897941425,
+      "aim_point_px": [
+        314.24823376304977,
+        136.70002567734477
+      ],
+      "time_of_flight_s": 0.07241859393439017,
+      "miss_distance_m": 0.042479065246662985,
+      "is_hit": true
+    },
+    {
+      "frame": 173,
+      "timestamp_s": 5.5360000000000005,
+      "laser_range_m": 61.484190834968715,
+      "target_pos_world": [
+        60.0,
+        12.144000000000002,
+        6.6608
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637517337172162,
+      "aim_point_px": [
+        315.72127019926194,
+        138.2754197008254
+      ],
+      "time_of_flight_s": 0.07245749517603148,
+      "miss_distance_m": 0.04888662971669646,
+      "is_hit": true
+    },
+    {
+      "frame": 174,
+      "timestamp_s": 5.5680000000000005,
+      "laser_range_m": 61.52548157136629,
+      "target_pos_world": [
+        60.0,
+        12.272000000000002,
+        6.6704
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963741213221785,
+      "aim_point_px": [
+        317.4309278294785,
+        139.66099353998047
+      ],
+      "time_of_flight_s": 0.07249536489922195,
+      "miss_distance_m": 0.05416139916492755,
+      "is_hit": true
+    },
+    {
+      "frame": 175,
+      "timestamp_s": 5.6000000000000005,
+      "laser_range_m": 61.60003353279781,
+      "target_pos_world": [
+        60.0,
+        12.400000000000002,
+        6.68
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637118858574661,
+      "aim_point_px": [
+        319.16085089729864,
+        140.72432949553132
+      ],
+      "time_of_flight_s": 0.07254260019153894,
+      "miss_distance_m": 0.06713161055632376,
+      "is_hit": true
+    },
+    {
+      "frame": 176,
+      "timestamp_s": 5.632,
+      "laser_range_m": 61.54111848655499,
+      "target_pos_world": [
+        60.0,
+        12.527999999999999,
+        6.6895999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637279025776493,
+      "aim_point_px": [
+        320.69015800511914,
+        141.36689344210265
+      ],
+      "time_of_flight_s": 0.07257095427344318,
+      "miss_distance_m": 0.06381397553461947,
+      "is_hit": true
+    },
+    {
+      "frame": 177,
+      "timestamp_s": 5.664,
+      "laser_range_m": 61.59332022931153,
+      "target_pos_world": [
+        60.0,
+        12.655999999999999,
+        6.699199999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637139574093128,
+      "aim_point_px": [
+        321.81835896996887,
+        141.52752709687974
+      ],
+      "time_of_flight_s": 0.07260682945827228,
+      "miss_distance_m": 0.06662734983349439,
+      "is_hit": true
+    },
+    {
+      "frame": 178,
+      "timestamp_s": 5.696,
+      "laser_range_m": 61.66116009230168,
+      "target_pos_world": [
+        60.0,
+        12.783999999999999,
+        6.7088
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9637069018259097,
+      "aim_point_px": [
+        322.3946591019184,
+        141.18325060142652
+      ],
+      "time_of_flight_s": 0.0726440839826042,
+      "miss_distance_m": 0.07035585280192005,
+      "is_hit": true
+    },
+    {
+      "frame": 179,
+      "timestamp_s": 5.728,
+      "laser_range_m": 61.64619802668764,
+      "target_pos_world": [
+        60.0,
+        12.911999999999999,
+        6.7184
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636951156155847,
+      "aim_point_px": [
+        322.34810658535855,
+        140.3500096580891
+      ],
+      "time_of_flight_s": 0.07268185421992764,
+      "miss_distance_m": 0.07426734069460458,
+      "is_hit": true
+    },
+    {
+      "frame": 180,
+      "timestamp_s": 5.76,
+      "laser_range_m": 61.68754633388931,
+      "target_pos_world": [
+        60.0,
+        13.04,
+        6.728
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636858761648179,
+      "aim_point_px": [
+        321.67503329086406,
+        139.08229256642403
+      ],
+      "time_of_flight_s": 0.07271931670639663,
+      "miss_distance_m": 0.07766365540995081,
+      "is_hit": true
+    },
+    {
+      "frame": 181,
+      "timestamp_s": 5.792,
+      "laser_range_m": 61.766376648616934,
+      "target_pos_world": [
+        60.0,
+        13.168,
+        6.7376
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636522725722985,
+      "aim_point_px": [
+        320.4554149715593,
+        137.47394016635928
+      ],
+      "time_of_flight_s": 0.07276831596098118,
+      "miss_distance_m": 0.09060049011146747,
+      "is_hit": true
+    },
+    {
+      "frame": 182,
+      "timestamp_s": 5.824,
+      "laser_range_m": 61.718943999445926,
+      "target_pos_world": [
+        60.0,
+        13.296,
+        6.747199999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636835521496971,
+      "aim_point_px": [
+        318.8349419786148,
+        135.65428671672947
+      ],
+      "time_of_flight_s": 0.07279258975242649,
+      "miss_distance_m": 0.0822898270887085,
+      "is_hit": true
+    },
+    {
+      "frame": 183,
+      "timestamp_s": 5.856,
+      "laser_range_m": 61.75051338151064,
+      "target_pos_world": [
+        60.0,
+        13.424,
+        6.7568
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636792316758243,
+      "aim_point_px": [
+        317.01253452426954,
+        133.77917927049162
+      ],
+      "time_of_flight_s": 0.07282393090743203,
+      "miss_distance_m": 0.07972671193433123,
+      "is_hit": true
+    },
+    {
+      "frame": 184,
+      "timestamp_s": 5.888,
+      "laser_range_m": 61.84283993968011,
+      "target_pos_world": [
+        60.0,
+        13.552,
+        6.7664
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636578510223953,
+      "aim_point_px": [
+        315.208632396316,
+        132.01480516021513
+      ],
+      "time_of_flight_s": 0.07286667816919162,
+      "miss_distance_m": 0.08659403177616262,
+      "is_hit": true
+    },
+    {
+      "frame": 185,
+      "timestamp_s": 5.92,
+      "laser_range_m": 61.85309427888108,
+      "target_pos_world": [
+        60.0,
+        13.68,
+        6.776
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963659632261534,
+      "aim_point_px": [
+        313.65154724174124,
+        130.5188239083563
+      ],
+      "time_of_flight_s": 0.07290327708892282,
+      "miss_distance_m": 0.08798810308283171,
+      "is_hit": true
+    },
+    {
+      "frame": 186,
+      "timestamp_s": 5.952,
+      "laser_range_m": 61.87857933243415,
+      "target_pos_world": [
+        60.0,
+        13.808,
+        6.7856
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636422439051248,
+      "aim_point_px": [
+        312.54641998114437,
+        129.42059738293216
+      ],
+      "time_of_flight_s": 0.07294494353872666,
+      "miss_distance_m": 0.09343258650775144,
+      "is_hit": true
+    },
+    {
+      "frame": 187,
+      "timestamp_s": 5.984,
+      "laser_range_m": 61.918910571105144,
+      "target_pos_world": [
+        60.0,
+        13.936,
+        6.7951999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636485647111019,
+      "aim_point_px": [
+        312.04215683868296,
+        128.80599569967984
+      ],
+      "time_of_flight_s": 0.07297988899923834,
+      "miss_distance_m": 0.09291854687212762,
+      "is_hit": true
+    },
+    {
+      "frame": 188,
+      "timestamp_s": 6.016,
+      "laser_range_m": 61.92856142522125,
+      "target_pos_world": [
+        60.0,
+        14.064,
+        6.8048
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636263972005258,
+      "aim_point_px": [
+        312.22783678189336,
+        128.71155943342282
+      ],
+      "time_of_flight_s": 0.07302247779741834,
+      "miss_distance_m": 0.09864220770592097,
+      "is_hit": true
+    },
+    {
+      "frame": 189,
+      "timestamp_s": 6.048,
+      "laser_range_m": 61.963384792979866,
+      "target_pos_world": [
+        60.0,
+        14.192,
+        6.8144
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636100559458933,
+      "aim_point_px": [
+        313.09431074634244,
+        129.12406555501374
+      ],
+      "time_of_flight_s": 0.07306530746423312,
+      "miss_distance_m": 0.10432020210234237,
+      "is_hit": true
+    },
+    {
+      "frame": 190,
+      "timestamp_s": 6.08,
+      "laser_range_m": 62.01164242657745,
+      "target_pos_world": [
+        60.0,
+        14.32,
+        6.824
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.96359994364754,
+      "aim_point_px": [
+        314.5440203782678,
+        129.9880054485383
+      ],
+      "time_of_flight_s": 0.07310716777186416,
+      "miss_distance_m": 0.10892332204137486,
+      "is_hit": true
+    },
+    {
+      "frame": 191,
+      "timestamp_s": 6.112,
+      "laser_range_m": 62.01399915528717,
+      "target_pos_world": [
+        60.0,
+        14.448,
+        6.8336
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636357109799025,
+      "aim_point_px": [
+        316.3963581701591,
+        131.21398255842752
+      ],
+      "time_of_flight_s": 0.07313033515360834,
+      "miss_distance_m": 0.09740407103911304,
+      "is_hit": true
+    },
+    {
+      "frame": 192,
+      "timestamp_s": 6.144,
+      "laser_range_m": 62.02798564127711,
+      "target_pos_world": [
+        60.0,
+        14.576,
+        6.8431999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636534834959283,
+      "aim_point_px": [
+        318.4162108647959,
+        132.68686793990577
+      ],
+      "time_of_flight_s": 0.07315437642085516,
+      "miss_distance_m": 0.08637708055809681,
+      "is_hit": true
+    },
+    {
+      "frame": 193,
+      "timestamp_s": 6.176,
+      "laser_range_m": 62.05102243045461,
+      "target_pos_world": [
+        60.0,
+        14.704,
+        6.8528
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636647835153112,
+      "aim_point_px": [
+        320.3345780601932,
+        134.2718337989844
+      ],
+      "time_of_flight_s": 0.07318054436240369,
+      "miss_distance_m": 0.07690642301399052,
+      "is_hit": true
+    },
+    {
+      "frame": 194,
+      "timestamp_s": 6.208,
+      "laser_range_m": 62.07212752712561,
+      "target_pos_world": [
+        60.0,
+        14.832,
+        6.8624
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963675293679555,
+      "aim_point_px": [
+        321.89148024029225,
+        135.82147864813953
+      ],
+      "time_of_flight_s": 0.07320693514067998,
+      "miss_distance_m": 0.06737588288190163,
+      "is_hit": true
+    },
+    {
+      "frame": 195,
+      "timestamp_s": 6.24,
+      "laser_range_m": 62.136690710747054,
+      "target_pos_world": [
+        60.0,
+        14.96,
+        6.872
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636461265239891,
+      "aim_point_px": [
+        322.87531047660764,
+        137.18552146133874
+      ],
+      "time_of_flight_s": 0.07325047794680332,
+      "miss_distance_m": 0.07215729494115224,
+      "is_hit": true
+    },
+    {
+      "frame": 196,
+      "timestamp_s": 6.272,
+      "laser_range_m": 62.179795133995775,
+      "target_pos_world": [
+        60.0,
+        15.088000000000001,
+        6.8816
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636571879020517,
+      "aim_point_px": [
+        323.1431258962428,
+        138.22381565730592
+      ],
+      "time_of_flight_s": 0.0732844743635528,
+      "miss_distance_m": 0.06858616974625924,
+      "is_hit": true
+    },
+    {
+      "frame": 197,
+      "timestamp_s": 6.304,
+      "laser_range_m": 62.15733382854307,
+      "target_pos_world": [
+        60.0,
+        15.216000000000001,
+        6.8911999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636807781142884,
+      "aim_point_px": [
+        322.6579895653639,
+        138.82355112860614
+      ],
+      "time_of_flight_s": 0.0733077271814002,
+      "miss_distance_m": 0.05564619742376929,
+      "is_hit": true
+    },
+    {
+      "frame": 198,
+      "timestamp_s": 6.336,
+      "laser_range_m": 62.215867605270276,
+      "target_pos_world": [
+        60.0,
+        15.344000000000001,
+        6.9008
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636658382046461,
+      "aim_point_px": [
+        321.4786832191715,
+        138.91384435863654
+      ],
+      "time_of_flight_s": 0.07334513765884343,
+      "miss_distance_m": 0.0544763562778876,
+      "is_hit": true
+    },
+    {
+      "frame": 199,
+      "timestamp_s": 6.368,
+      "laser_range_m": 62.22765418097753,
+      "target_pos_world": [
+        60.0,
+        15.472000000000001,
+        6.9104
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963685574060228,
+      "aim_point_px": [
+        319.75034472215646,
+        138.47571453734653
+      ],
+      "time_of_flight_s": 0.07337159686165637,
+      "miss_distance_m": 0.04376443279478252,
+      "is_hit": true
+    },
+    {
+      "frame": 200,
+      "timestamp_s": 6.4,
+      "laser_range_m": 62.2448919202138,
+      "target_pos_world": [
+        60.0,
+        15.600000000000001,
+        6.92
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636989709643412,
+      "aim_point_px": [
+        317.69473798502753,
+        137.5445090720462
+      ],
+      "time_of_flight_s": 0.0733969718244155,
+      "miss_distance_m": 0.031886259702740435,
+      "is_hit": true
+    },
+    {
+      "frame": 201,
+      "timestamp_s": 6.432,
+      "laser_range_m": 62.36104702111772,
+      "target_pos_world": [
+        60.0,
+        15.728000000000002,
+        6.9296
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636412303540391,
+      "aim_point_px": [
+        315.57619590662847,
+        136.20277553729233
+      ],
+      "time_of_flight_s": 0.0734532302071942,
+      "miss_distance_m": 0.04597168467159013,
+      "is_hit": true
+    },
+    {
+      "frame": 202,
+      "timestamp_s": 6.464,
+      "laser_range_m": 62.331096564198745,
+      "target_pos_world": [
+        60.0,
+        15.856000000000002,
+        6.9392
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636756357572777,
+      "aim_point_px": [
+        313.6628336870654,
+        134.5671661751292
+      ],
+      "time_of_flight_s": 0.0734817432375516,
+      "miss_distance_m": 0.03626547679211763,
+      "is_hit": true
+    },
+    {
+      "frame": 203,
+      "timestamp_s": 6.496,
+      "laser_range_m": 62.41993568980821,
+      "target_pos_world": [
+        60.0,
+        15.984000000000002,
+        6.9488
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636553808251026,
+      "aim_point_px": [
+        312.20936964526425,
+        132.77490577966455
+      ],
+      "time_of_flight_s": 0.07352538794663512,
+      "miss_distance_m": 0.03915779209211399,
+      "is_hit": true
+    },
+    {
+      "frame": 204,
+      "timestamp_s": 6.5280000000000005,
+      "laser_range_m": 62.40752600842782,
+      "target_pos_world": [
+        60.0,
+        16.112000000000002,
+        6.9584
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636469060050217,
+      "aim_point_px": [
+        311.4175387443081,
+        130.97044424222713
+      ],
+      "time_of_flight_s": 0.07356665077197011,
+      "miss_distance_m": 0.039776365832262274,
+      "is_hit": true
+    },
+    {
+      "frame": 205,
+      "timestamp_s": 6.5600000000000005,
+      "laser_range_m": 62.4563491741069,
+      "target_pos_world": [
+        60.0,
+        16.240000000000002,
+        6.968
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636320507207911,
+      "aim_point_px": [
+        311.40222071224866,
+        129.29555308172502
+      ],
+      "time_of_flight_s": 0.07361031902600304,
+      "miss_distance_m": 0.042193455987587135,
+      "is_hit": true
+    },
+    {
+      "frame": 206,
+      "timestamp_s": 6.5920000000000005,
+      "laser_range_m": 62.495532196459514,
+      "target_pos_world": [
+        60.0,
+        16.368000000000002,
+        6.9776
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636163124178733,
+      "aim_point_px": [
+        312.18395465419184,
+        127.88266747257923
+      ],
+      "time_of_flight_s": 0.07365555203847567,
+      "miss_distance_m": 0.04569375956310553,
+      "is_hit": true
+    },
+    {
+      "frame": 207,
+      "timestamp_s": 6.6240000000000006,
+      "laser_range_m": 62.53511766844751,
+      "target_pos_world": [
+        60.0,
+        16.496000000000002,
+        6.9872
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.96359219982529,
+      "aim_point_px": [
+        313.6773463263945,
+        126.84728078577439
+      ],
+      "time_of_flight_s": 0.07370455325486851,
+      "miss_distance_m": 0.052147290888909584,
+      "is_hit": true
+    },
+    {
+      "frame": 208,
+      "timestamp_s": 6.656000000000001,
+      "laser_range_m": 62.5184538220973,
+      "target_pos_world": [
+        60.0,
+        16.624000000000002,
+        6.9968
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636091892253473,
+      "aim_point_px": [
+        315.695514730879,
+        126.2784771863642
+      ],
+      "time_of_flight_s": 0.07373792991652792,
+      "miss_distance_m": 0.045096359673545375,
+      "is_hit": true
+    },
+    {
+      "frame": 209,
+      "timestamp_s": 6.688,
+      "laser_range_m": 62.55979956867128,
+      "target_pos_world": [
+        60.0,
+        16.752,
+        7.006399999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9636044621742175,
+      "aim_point_px": [
+        317.97586244836054,
+        126.22786999305589
+      ],
+      "time_of_flight_s": 0.07377521595945277,
+      "miss_distance_m": 0.0411197898961233,
+      "is_hit": true
+    },
+    {
+      "frame": 210,
+      "timestamp_s": 6.72,
+      "laser_range_m": 62.61353197782972,
+      "target_pos_world": [
+        60.0,
+        16.88,
+        7.016
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635798014567627,
+      "aim_point_px": [
+        320.21219479582,
+        126.69909476669814
+      ],
+      "time_of_flight_s": 0.07382162747149582,
+      "miss_distance_m": 0.04464499680199075,
+      "is_hit": true
+    },
+    {
+      "frame": 211,
+      "timestamp_s": 6.752,
+      "laser_range_m": 62.645525970822,
+      "target_pos_world": [
+        60.0,
+        17.008,
+        7.0256
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635747937653963,
+      "aim_point_px": [
+        322.09529819671417,
+        127.64225077225208
+      ],
+      "time_of_flight_s": 0.07386408313593758,
+      "miss_distance_m": 0.04457098847519749,
+      "is_hit": true
+    },
+    {
+      "frame": 212,
+      "timestamp_s": 6.784,
+      "laser_range_m": 62.73883054270261,
+      "target_pos_world": [
+        60.0,
+        17.136,
+        7.0352
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963536432755044,
+      "aim_point_px": [
+        323.363066946065,
+        128.95706684044052
+      ],
+      "time_of_flight_s": 0.07391963012109298,
+      "miss_distance_m": 0.05536652267631616,
+      "is_hit": true
+    },
+    {
+      "frame": 213,
+      "timestamp_s": 6.816,
+      "laser_range_m": 62.696428981927426,
+      "target_pos_world": [
+        60.0,
+        17.264,
+        7.0448
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963564831379098,
+      "aim_point_px": [
+        323.8374376814882,
+        130.504783876854
+      ],
+      "time_of_flight_s": 0.07395309697353064,
+      "miss_distance_m": 0.04717853027993773,
+      "is_hit": true
+    },
+    {
+      "frame": 214,
+      "timestamp_s": 6.848,
+      "laser_range_m": 62.80965920980306,
+      "target_pos_world": [
+        60.0,
+        17.392,
+        7.054399999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635300024771932,
+      "aim_point_px": [
+        323.44941242613686,
+        132.12637211314535
+      ],
+      "time_of_flight_s": 0.0740056456784206,
+      "miss_distance_m": 0.05494567955733033,
+      "is_hit": true
+    },
+    {
+      "frame": 215,
+      "timestamp_s": 6.88,
+      "laser_range_m": 62.824815255941566,
+      "target_pos_world": [
+        60.0,
+        17.52,
+        7.064
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635112071774605,
+      "aim_point_px": [
+        322.25187289929255,
+        133.66242828306292
+      ],
+      "time_of_flight_s": 0.07405705963936944,
+      "miss_distance_m": 0.06150770584316226,
+      "is_hit": true
+    },
+    {
+      "frame": 216,
+      "timestamp_s": 6.912,
+      "laser_range_m": 62.810864293377456,
+      "target_pos_world": [
+        60.0,
+        17.648,
+        7.0736
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635173341572474,
+      "aim_point_px": [
+        320.40491222684943,
+        134.9691034802142
+      ],
+      "time_of_flight_s": 0.07409741696523371,
+      "miss_distance_m": 0.0584451135657037,
+      "is_hit": true
+    },
+    {
+      "frame": 217,
+      "timestamp_s": 6.944,
+      "laser_range_m": 62.86798998246017,
+      "target_pos_world": [
+        60.0,
+        17.776,
+        7.0832
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635249017903211,
+      "aim_point_px": [
+        318.15267824825224,
+        135.92851166491425
+      ],
+      "time_of_flight_s": 0.07413568880220488,
+      "miss_distance_m": 0.05337247423470185,
+      "is_hit": true
+    },
+    {
+      "frame": 218,
+      "timestamp_s": 6.976,
+      "laser_range_m": 62.86620027760764,
+      "target_pos_world": [
+        60.0,
+        17.904,
+        7.0928
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635423008663861,
+      "aim_point_px": [
+        315.7980394853873,
+        136.45424732810028
+      ],
+      "time_of_flight_s": 0.07416804022038735,
+      "miss_distance_m": 0.04303464111802587,
+      "is_hit": true
+    },
+    {
+      "frame": 219,
+      "timestamp_s": 7.008,
+      "laser_range_m": 62.95333490917769,
+      "target_pos_world": [
+        60.0,
+        18.032,
+        7.102399999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635323944020152,
+      "aim_point_px": [
+        313.65042529600487,
+        136.49293904878198
+      ],
+      "time_of_flight_s": 0.07421113857449387,
+      "miss_distance_m": 0.041579629176263413,
+      "is_hit": true
+    },
+    {
+      "frame": 220,
+      "timestamp_s": 7.04,
+      "laser_range_m": 62.986444761063126,
+      "target_pos_world": [
+        60.0,
+        18.16,
+        7.112
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9635423420073062,
+      "aim_point_px": [
+        311.9942395125524,
+        136.02713702317232
+      ],
+      "time_of_flight_s": 0.0742503516706594,
+      "miss_distance_m": 0.03658956293813827,
+      "is_hit": true
+    },
+    {
+      "frame": 221,
+      "timestamp_s": 7.072,
+      "laser_range_m": 63.067352644636465,
+      "target_pos_world": [
+        60.0,
+        18.288,
+        7.1216
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634797162259033,
+      "aim_point_px": [
+        311.0552642051597,
+        135.0789844184473
+      ],
+      "time_of_flight_s": 0.07431358202505321,
+      "miss_distance_m": 0.05174067345715357,
+      "is_hit": true
+    },
+    {
+      "frame": 222,
+      "timestamp_s": 7.104,
+      "laser_range_m": 63.094369410415524,
+      "target_pos_world": [
+        60.0,
+        18.416,
+        7.1312
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634795246780017,
+      "aim_point_px": [
+        310.9578574600056,
+        133.71297586724558
+      ],
+      "time_of_flight_s": 0.07436416398096377,
+      "miss_distance_m": 0.05592170056854619,
+      "is_hit": true
+    },
+    {
+      "frame": 223,
+      "timestamp_s": 7.136,
+      "laser_range_m": 63.079592305463194,
+      "target_pos_world": [
+        60.0,
+        18.544,
+        7.1408000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634750475111297,
+      "aim_point_px": [
+        311.7294676626274,
+        132.03689012184475
+      ],
+      "time_of_flight_s": 0.07440923556769986,
+      "miss_distance_m": 0.05518683343366809,
+      "is_hit": true
+    },
+    {
+      "frame": 224,
+      "timestamp_s": 7.168,
+      "laser_range_m": 63.134691682210374,
+      "target_pos_world": [
+        60.0,
+        18.672,
+        7.150399999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634749220582748,
+      "aim_point_px": [
+        313.27446084374066,
+        130.19429181972143
+      ],
+      "time_of_flight_s": 0.07445269330034994,
+      "miss_distance_m": 0.05284635518148368,
+      "is_hit": true
+    },
+    {
+      "frame": 225,
+      "timestamp_s": 7.2,
+      "laser_range_m": 63.13373530333166,
+      "target_pos_world": [
+        60.0,
+        18.8,
+        7.16
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634909404928206,
+      "aim_point_px": [
+        315.3993523264616,
+        128.3509652826193
+      ],
+      "time_of_flight_s": 0.07448851880119758,
+      "miss_distance_m": 0.043791145747359345,
+      "is_hit": true
+    },
+    {
+      "frame": 226,
+      "timestamp_s": 7.232,
+      "laser_range_m": 63.268890427483974,
+      "target_pos_world": [
+        60.0,
+        18.928,
+        7.1696
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634310365036552,
+      "aim_point_px": [
+        317.82492722962013,
+        126.67460915189145
+      ],
+      "time_of_flight_s": 0.07455132262846072,
+      "miss_distance_m": 0.05739609506050835,
+      "is_hit": true
+    },
+    {
+      "frame": 227,
+      "timestamp_s": 7.264,
+      "laser_range_m": 63.25683680546347,
+      "target_pos_world": [
+        60.0,
+        19.056,
+        7.1792
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634300035147702,
+      "aim_point_px": [
+        320.2254299873197,
+        125.31399247691233
+      ],
+      "time_of_flight_s": 0.07460117996830685,
+      "miss_distance_m": 0.05977761819070718,
+      "is_hit": true
+    },
+    {
+      "frame": 228,
+      "timestamp_s": 7.296,
+      "laser_range_m": 63.32297640506028,
+      "target_pos_world": [
+        60.0,
+        19.184,
+        7.1888000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634249800876887,
+      "aim_point_px": [
+        322.26879235549734,
+        124.3817821453561
+      ],
+      "time_of_flight_s": 0.07465029163556948,
+      "miss_distance_m": 0.06129073680528512,
+      "is_hit": true
+    },
+    {
+      "frame": 229,
+      "timestamp_s": 7.328,
+      "laser_range_m": 63.348669545205084,
+      "target_pos_world": [
+        60.0,
+        19.312,
+        7.1983999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634290117914588,
+      "aim_point_px": [
+        323.6725663880277,
+        123.94554237256507
+      ],
+      "time_of_flight_s": 0.07469583176657695,
+      "miss_distance_m": 0.0595374933295383,
+      "is_hit": true
+    },
+    {
+      "frame": 230,
+      "timestamp_s": 7.36,
+      "laser_range_m": 63.424667269910834,
+      "target_pos_world": [
+        60.0,
+        19.44,
+        7.208
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633969456601197,
+      "aim_point_px": [
+        324.2394846460831,
+        124.02587134257907
+      ],
+      "time_of_flight_s": 0.07475311349954342,
+      "miss_distance_m": 0.06751431455848565,
+      "is_hit": true
+    },
+    {
+      "frame": 231,
+      "timestamp_s": 7.392,
+      "laser_range_m": 63.41253622549193,
+      "target_pos_world": [
+        60.0,
+        19.568,
+        7.2176
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634165346030767,
+      "aim_point_px": [
+        323.88823283052704,
+        124.60023597238033
+      ],
+      "time_of_flight_s": 0.07479541988020502,
+      "miss_distance_m": 0.06254823204428399,
+      "is_hit": true
+    },
+    {
+      "frame": 232,
+      "timestamp_s": 7.424,
+      "laser_range_m": 63.46136779298588,
+      "target_pos_world": [
+        60.0,
+        19.696,
+        7.2272
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633847198400686,
+      "aim_point_px": [
+        322.67043059996416,
+        125.60875314147903
+      ],
+      "time_of_flight_s": 0.07484930067158208,
+      "miss_distance_m": 0.06717073694727707,
+      "is_hit": true
+    },
+    {
+      "frame": 233,
+      "timestamp_s": 7.456,
+      "laser_range_m": 63.4550691901717,
+      "target_pos_world": [
+        60.0,
+        19.824,
+        7.236800000000001
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634336345798585,
+      "aim_point_px": [
+        320.7507483171934,
+        126.95822076438174
+      ],
+      "time_of_flight_s": 0.07487957614037323,
+      "miss_distance_m": 0.0515284431150204,
+      "is_hit": true
+    },
+    {
+      "frame": 234,
+      "timestamp_s": 7.488,
+      "laser_range_m": 63.54727665724162,
+      "target_pos_world": [
+        60.0,
+        19.952,
+        7.2463999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633869677609443,
+      "aim_point_px": [
+        318.40160589515483,
+        128.52718148104856
+      ],
+      "time_of_flight_s": 0.07493602243126163,
+      "miss_distance_m": 0.05786212677853864,
+      "is_hit": true
+    },
+    {
+      "frame": 235,
+      "timestamp_s": 7.5200000000000005,
+      "laser_range_m": 63.524264155899594,
+      "target_pos_world": [
+        60.0,
+        20.080000000000002,
+        7.256
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634138833986596,
+      "aim_point_px": [
+        315.940940355146,
+        130.1701408250033
+      ],
+      "time_of_flight_s": 0.07497350897073361,
+      "miss_distance_m": 0.04787463132699434,
+      "is_hit": true
+    },
+    {
+      "frame": 236,
+      "timestamp_s": 7.5520000000000005,
+      "laser_range_m": 63.645465765022806,
+      "target_pos_world": [
+        60.0,
+        20.208000000000002,
+        7.2656
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633938484559308,
+      "aim_point_px": [
+        313.698760004123,
+        131.7279853957914
+      ],
+      "time_of_flight_s": 0.07502538658395434,
+      "miss_distance_m": 0.04986729848350843,
+      "is_hit": true
+    },
+    {
+      "frame": 237,
+      "timestamp_s": 7.5840000000000005,
+      "laser_range_m": 63.65985730018845,
+      "target_pos_world": [
+        60.0,
+        20.336000000000002,
+        7.2752
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633965537732762,
+      "aim_point_px": [
+        311.975305607844,
+        133.04314219171397
+      ],
+      "time_of_flight_s": 0.07507269624116236,
+      "miss_distance_m": 0.04775180976562366,
+      "is_hit": true
+    },
+    {
+      "frame": 238,
+      "timestamp_s": 7.6160000000000005,
+      "laser_range_m": 63.71805791161125,
+      "target_pos_world": [
+        60.0,
+        20.464000000000002,
+        7.284800000000001
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9634055532690606,
+      "aim_point_px": [
+        310.99238405059015,
+        133.9777833481066
+      ],
+      "time_of_flight_s": 0.07511814071161046,
+      "miss_distance_m": 0.04382363345528599,
+      "is_hit": true
+    },
+    {
+      "frame": 239,
+      "timestamp_s": 7.648000000000001,
+      "laser_range_m": 63.765075593069334,
+      "target_pos_world": [
+        60.0,
+        20.592000000000002,
+        7.2943999999999996
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633851275685538,
+      "aim_point_px": [
+        310.87904923314073,
+        134.43236628405927
+      ],
+      "time_of_flight_s": 0.07517192054095312,
+      "miss_distance_m": 0.04673732357106082,
+      "is_hit": true
+    },
+    {
+      "frame": 240,
+      "timestamp_s": 7.68,
+      "laser_range_m": 63.82123308317673,
+      "target_pos_world": [
+        60.0,
+        20.72,
+        7.304
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633652752853223,
+      "aim_point_px": [
+        311.645109665093,
+        134.35778123629984
+      ],
+      "time_of_flight_s": 0.07522851703353656,
+      "miss_distance_m": 0.05181153334069245,
+      "is_hit": true
+    },
+    {
+      "frame": 241,
+      "timestamp_s": 7.712,
+      "laser_range_m": 63.816697658012764,
+      "target_pos_world": [
+        60.0,
+        20.848,
+        7.313599999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633580634754233,
+      "aim_point_px": [
+        313.1909081990998,
+        133.75976789581074
+      ],
+      "time_of_flight_s": 0.07527947609909055,
+      "miss_distance_m": 0.05187124003801292,
+      "is_hit": true
+    },
+    {
+      "frame": 242,
+      "timestamp_s": 7.744,
+      "laser_range_m": 63.83340746565799,
+      "target_pos_world": [
+        60.0,
+        20.976,
+        7.3232
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963365584117388,
+      "aim_point_px": [
+        315.31097519231787,
+        132.6938189543112
+      ],
+      "time_of_flight_s": 0.07532337471279772,
+      "miss_distance_m": 0.04571156872913246,
+      "is_hit": true
+    },
+    {
+      "frame": 243,
+      "timestamp_s": 7.776,
+      "laser_range_m": 63.93695719613209,
+      "target_pos_world": [
+        60.0,
+        21.104,
+        7.3328
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633508987200637,
+      "aim_point_px": [
+        317.7234144021571,
+        131.25457401907005
+      ],
+      "time_of_flight_s": 0.07537612245459074,
+      "miss_distance_m": 0.04683284795046233,
+      "is_hit": true
+    },
+    {
+      "frame": 244,
+      "timestamp_s": 7.808,
+      "laser_range_m": 64.00015184173861,
+      "target_pos_world": [
+        60.0,
+        21.232,
+        7.3424
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633227275978262,
+      "aim_point_px": [
+        320.10960637588124,
+        129.56347217948098
+      ],
+      "time_of_flight_s": 0.07543609088474487,
+      "miss_distance_m": 0.05385238386802319,
+      "is_hit": true
+    },
+    {
+      "frame": 245,
+      "timestamp_s": 7.84,
+      "laser_range_m": 63.9938288930518,
+      "target_pos_world": [
+        60.0,
+        21.36,
+        7.352
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633621610439368,
+      "aim_point_px": [
+        322.1454151531282,
+        127.75726623031412
+      ],
+      "time_of_flight_s": 0.07547607687524809,
+      "miss_distance_m": 0.043690247504937975,
+      "is_hit": true
+    },
+    {
+      "frame": 246,
+      "timestamp_s": 7.872,
+      "laser_range_m": 64.08803391232034,
+      "target_pos_world": [
+        60.0,
+        21.488,
+        7.361599999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632930507692083,
+      "aim_point_px": [
+        323.55863289099864,
+        125.98040256087253
+      ],
+      "time_of_flight_s": 0.07554418338413778,
+      "miss_distance_m": 0.05715794075230389,
+      "is_hit": true
+    },
+    {
+      "frame": 247,
+      "timestamp_s": 7.904,
+      "laser_range_m": 64.09741253791505,
+      "target_pos_world": [
+        60.0,
+        21.616,
+        7.3712
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9633048746567752,
+      "aim_point_px": [
+        324.14908054724657,
+        124.37688347532448
+      ],
+      "time_of_flight_s": 0.07559554491946664,
+      "miss_distance_m": 0.056192730489484546,
+      "is_hit": true
+    },
+    {
+      "frame": 248,
+      "timestamp_s": 7.936,
+      "laser_range_m": 64.16134365379614,
+      "target_pos_world": [
+        60.0,
+        21.744,
+        7.3808
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632698048295195,
+      "aim_point_px": [
+        323.8384312285926,
+        123.08274674998286
+      ],
+      "time_of_flight_s": 0.07565646313780502,
+      "miss_distance_m": 0.06310948526336824,
+      "is_hit": true
+    },
+    {
+      "frame": 249,
+      "timestamp_s": 7.968,
+      "laser_range_m": 64.21569274159219,
+      "target_pos_world": [
+        60.0,
+        21.872,
+        7.3904
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632444946160198,
+      "aim_point_px": [
+        322.67004386508785,
+        122.21343133663068
+      ],
+      "time_of_flight_s": 0.07571797059502548,
+      "miss_distance_m": 0.07030078463118827,
+      "is_hit": true
+    },
+    {
+      "frame": 250,
+      "timestamp_s": 8.0,
+      "laser_range_m": 64.25488258566347,
+      "target_pos_world": [
+        60.0,
+        22.0,
+        7.4
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632020565056156,
+      "aim_point_px": [
+        320.8115413365932,
+        121.84976286012376
+      ],
+      "time_of_flight_s": 0.07578368537202886,
+      "miss_distance_m": 0.08083699454221967,
+      "is_hit": true
+    },
+    {
+      "frame": 251,
+      "timestamp_s": 8.032,
+      "laser_range_m": 64.18081245281391,
+      "target_pos_world": [
+        60.0,
+        22.128,
+        7.409599999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632790723852814,
+      "aim_point_px": [
+        318.52032639886454,
+        122.02408090390277
+      ],
+      "time_of_flight_s": 0.0758108157900998,
+      "miss_distance_m": 0.05840905848462592,
+      "is_hit": true
+    },
+    {
+      "frame": 252,
+      "timestamp_s": 8.064,
+      "laser_range_m": 64.25733717055037,
+      "target_pos_world": [
+        60.0,
+        22.256,
+        7.4192
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632923351870168,
+      "aim_point_px": [
+        316.1159479448863,
+        122.71308774337633
+      ],
+      "time_of_flight_s": 0.07584949920476185,
+      "miss_distance_m": 0.045559608462114064,
+      "is_hit": true
+    },
+    {
+      "frame": 253,
+      "timestamp_s": 8.096,
+      "laser_range_m": 64.40548111220656,
+      "target_pos_world": [
+        60.0,
+        22.384,
+        7.4288
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632633782612617,
+      "aim_point_px": [
+        313.9231993757324,
+        123.83888355613136
+      ],
+      "time_of_flight_s": 0.07590876993898532,
+      "miss_distance_m": 0.04995362405548597,
+      "is_hit": true
+    },
+    {
+      "frame": 254,
+      "timestamp_s": 8.128,
+      "laser_range_m": 64.39355047414517,
+      "target_pos_world": [
+        60.0,
+        22.512,
+        7.4384
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632688916715287,
+      "aim_point_px": [
+        312.23691767428403,
+        125.28024695238364
+      ],
+      "time_of_flight_s": 0.0759599007176997,
+      "miss_distance_m": 0.047217609208311674,
+      "is_hit": true
+    },
+    {
+      "frame": 255,
+      "timestamp_s": 8.16,
+      "laser_range_m": 64.48542179816438,
+      "target_pos_world": [
+        60.0,
+        22.64,
+        7.448
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632703394707604,
+      "aim_point_px": [
+        311.26736740567424,
+        126.88920626098776
+      ],
+      "time_of_flight_s": 0.07601329435369945,
+      "miss_distance_m": 0.046179778512888486,
+      "is_hit": true
+    },
+    {
+      "frame": 256,
+      "timestamp_s": 8.192,
+      "laser_range_m": 64.50101800240185,
+      "target_pos_world": [
+        60.0,
+        22.768,
+        7.457599999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632530544830891,
+      "aim_point_px": [
+        311.13541902714127,
+        128.51019809126475
+      ],
+      "time_of_flight_s": 0.07607014323066613,
+      "miss_distance_m": 0.04784949790104576,
+      "is_hit": true
+    },
+    {
+      "frame": 257,
+      "timestamp_s": 8.224,
+      "laser_range_m": 64.54630666349962,
+      "target_pos_world": [
+        60.0,
+        22.896,
+        7.4672
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632542256369945,
+      "aim_point_px": [
+        311.8399614159057,
+        129.99461777030896
+      ],
+      "time_of_flight_s": 0.07612305555837076,
+      "miss_distance_m": 0.04595844270479202,
+      "is_hit": true
+    },
+    {
+      "frame": 258,
+      "timestamp_s": 8.256,
+      "laser_range_m": 64.62867302204388,
+      "target_pos_world": [
+        60.0,
+        23.024,
+        7.4768
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632147166924706,
+      "aim_point_px": [
+        313.2780671321308,
+        131.21157655367278
+      ],
+      "time_of_flight_s": 0.0761880778885291,
+      "miss_distance_m": 0.05411987969115347,
+      "is_hit": true
+    },
+    {
+      "frame": 259,
+      "timestamp_s": 8.288,
+      "laser_range_m": 64.63115126489262,
+      "target_pos_world": [
+        60.0,
+        23.152,
+        7.4864
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632184526482648,
+      "aim_point_px": [
+        315.25301333671854,
+        132.0535588726538
+      ],
+      "time_of_flight_s": 0.07624219943869226,
+      "miss_distance_m": 0.05281145258696674,
+      "is_hit": true
+    },
+    {
+      "frame": 260,
+      "timestamp_s": 8.32,
+      "laser_range_m": 64.64760483213998,
+      "target_pos_world": [
+        60.0,
+        23.28,
+        7.496
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632233307229904,
+      "aim_point_px": [
+        317.5029062824237,
+        132.44088471452187
+      ],
+      "time_of_flight_s": 0.07629145226749771,
+      "miss_distance_m": 0.047151673310462584,
+      "is_hit": true
+    },
+    {
+      "frame": 261,
+      "timestamp_s": 8.352,
+      "laser_range_m": 64.74673036947432,
+      "target_pos_world": [
+        60.0,
+        23.408,
+        7.505599999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632098789361166,
+      "aim_point_px": [
+        319.7301029231674,
+        132.32675468849823
+      ],
+      "time_of_flight_s": 0.07634824398250091,
+      "miss_distance_m": 0.0476687031181102,
+      "is_hit": true
+    },
+    {
+      "frame": 262,
+      "timestamp_s": 8.384,
+      "laser_range_m": 64.77617617270357,
+      "target_pos_world": [
+        60.0,
+        23.536,
+        7.5152
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632350130559223,
+      "aim_point_px": [
+        321.64427836800513,
+        131.70415276849255
+      ],
+      "time_of_flight_s": 0.07639578172495727,
+      "miss_distance_m": 0.040115963768603755,
+      "is_hit": true
+    },
+    {
+      "frame": 263,
+      "timestamp_s": 8.416,
+      "laser_range_m": 64.841554416489,
+      "target_pos_world": [
+        60.0,
+        23.664,
+        7.5248
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632029329729408,
+      "aim_point_px": [
+        322.99856672242913,
+        130.6117912948178
+      ],
+      "time_of_flight_s": 0.07645718545083102,
+      "miss_distance_m": 0.044105817172309325,
+      "is_hit": true
+    },
+    {
+      "frame": 264,
+      "timestamp_s": 8.448,
+      "laser_range_m": 64.86155142371616,
+      "target_pos_world": [
+        60.0,
+        23.792,
+        7.5344
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631908463795583,
+      "aim_point_px": [
+        323.61488996367905,
+        129.13555716933286
+      ],
+      "time_of_flight_s": 0.07651495506722276,
+      "miss_distance_m": 0.04479355251103813,
+      "is_hit": true
+    },
+    {
+      "frame": 265,
+      "timestamp_s": 8.48,
+      "laser_range_m": 64.90361037709062,
+      "target_pos_world": [
+        60.0,
+        23.92,
+        7.5440000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9632073884069745,
+      "aim_point_px": [
+        323.41188067379153,
+        127.40334508818864
+      ],
+      "time_of_flight_s": 0.07656443616254799,
+      "miss_distance_m": 0.03823323415370237,
+      "is_hit": true
+    },
+    {
+      "frame": 266,
+      "timestamp_s": 8.512,
+      "laser_range_m": 64.97960278791521,
+      "target_pos_world": [
+        60.0,
+        24.048000000000002,
+        7.553599999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631624097575266,
+      "aim_point_px": [
+        322.42603470425354,
+        125.57207944180459
+      ],
+      "time_of_flight_s": 0.07662971689510405,
+      "miss_distance_m": 0.04485719911441174,
+      "is_hit": true
+    },
+    {
+      "frame": 267,
+      "timestamp_s": 8.544,
+      "laser_range_m": 64.9730001371032,
+      "target_pos_world": [
+        60.0,
+        24.176000000000002,
+        7.5632
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631934829662466,
+      "aim_point_px": [
+        320.793967681333,
+        123.80799267041048
+      ],
+      "time_of_flight_s": 0.07667600518819398,
+      "miss_distance_m": 0.035152496206368566,
+      "is_hit": true
+    },
+    {
+      "frame": 268,
+      "timestamp_s": 8.576,
+      "laser_range_m": 65.07145468966957,
+      "target_pos_world": [
+        60.0,
+        24.304000000000002,
+        7.5728
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631529957210261,
+      "aim_point_px": [
+        318.745432406992,
+        122.2669296047102
+      ],
+      "time_of_flight_s": 0.07673972928801284,
+      "miss_distance_m": 0.04002272258869388,
+      "is_hit": true
+    },
+    {
+      "frame": 269,
+      "timestamp_s": 8.608,
+      "laser_range_m": 65.07976960856202,
+      "target_pos_world": [
+        60.0,
+        24.432000000000002,
+        7.5824
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631512727507512,
+      "aim_point_px": [
+        316.5627932000797,
+        121.07751764842445
+      ],
+      "time_of_flight_s": 0.07679524038333196,
+      "miss_distance_m": 0.03770932125690173,
+      "is_hit": true
+    },
+    {
+      "frame": 270,
+      "timestamp_s": 8.64,
+      "laser_range_m": 65.1229171157109,
+      "target_pos_world": [
+        60.0,
+        24.560000000000002,
+        7.5920000000000005
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631443171321714,
+      "aim_point_px": [
+        314.54108022616606,
+        120.3312799316628
+      ],
+      "time_of_flight_s": 0.07685008089854733,
+      "miss_distance_m": 0.034612236493717724,
+      "is_hit": true
+    },
+    {
+      "frame": 271,
+      "timestamp_s": 8.672,
+      "laser_range_m": 65.21992471160726,
+      "target_pos_world": [
+        60.0,
+        24.688000000000002,
+        7.6015999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963172610236051,
+      "aim_point_px": [
+        312.941939384497,
+        120.07904067854129
+      ],
+      "time_of_flight_s": 0.0768997394922619,
+      "miss_distance_m": 0.026903109900391155,
+      "is_hit": true
+    },
+    {
+      "frame": 272,
+      "timestamp_s": 8.704,
+      "laser_range_m": 65.27764383305824,
+      "target_pos_world": [
+        60.0,
+        24.816000000000003,
+        7.6112
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631766938066454,
+      "aim_point_px": [
+        311.972529501431,
+        120.33192801974732
+      ],
+      "time_of_flight_s": 0.07695488871347778,
+      "miss_distance_m": 0.023641750524179123,
+      "is_hit": true
+    },
+    {
+      "frame": 273,
+      "timestamp_s": 8.736,
+      "laser_range_m": 65.31171762727146,
+      "target_pos_world": [
+        60.0,
+        24.944000000000003,
+        7.6208
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631346786756529,
+      "aim_point_px": [
+        311.7472588107965,
+        121.0625733563288
+      ],
+      "time_of_flight_s": 0.07702143627407285,
+      "miss_distance_m": 0.029826723226942815,
+      "is_hit": true
+    },
+    {
+      "frame": 274,
+      "timestamp_s": 8.768,
+      "laser_range_m": 65.3746348817589,
+      "target_pos_world": [
+        60.0,
+        25.072000000000003,
+        7.6304
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9631272098315974,
+      "aim_point_px": [
+        312.2700969372984,
+        122.2058190100725
+      ],
+      "time_of_flight_s": 0.07708325839247099,
+      "miss_distance_m": 0.0317947779466455,
+      "is_hit": true
+    },
+    {
+      "frame": 275,
+      "timestamp_s": 8.8,
+      "laser_range_m": 65.42731317425711,
+      "target_pos_world": [
+        60.0,
+        25.200000000000003,
+        7.640000000000001
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9630836439865287,
+      "aim_point_px": [
+        313.4585966428435,
+        123.66073224201288
+      ],
+      "time_of_flight_s": 0.07715299810985611,
+      "miss_distance_m": 0.04026259910369639,
+      "is_hit": true
+    },
+    {
+      "frame": 276,
+      "timestamp_s": 8.832,
+      "laser_range_m": 65.44516838779356,
+      "target_pos_world": [
+        60.0,
+        25.328000000000003,
+        7.6495999999999995
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963092117486681,
+      "aim_point_px": [
+        315.1423527680209,
+        125.29392818553855
+      ],
+      "time_of_flight_s": 0.077210042121238,
+      "miss_distance_m": 0.03774984617970775,
+      "is_hit": true
+    },
+    {
+      "frame": 277,
+      "timestamp_s": 8.864,
+      "laser_range_m": 65.51858363168562,
+      "target_pos_world": [
+        60.0,
+        25.456000000000003,
+        7.6592
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9630690840390053,
+      "aim_point_px": [
+        317.09852964718704,
+        126.9492596571388
+      ],
+      "time_of_flight_s": 0.07727359004966769,
+      "miss_distance_m": 0.04054189381907489,
+      "is_hit": true
+    },
+    {
+      "frame": 278,
+      "timestamp_s": 8.896,
+      "laser_range_m": 65.58953828398964,
+      "target_pos_world": [
+        60.0,
+        25.584000000000003,
+        7.6688
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9630105151059669,
+      "aim_point_px": [
+        319.0776121857708,
+        128.46280053255498
+      ],
+      "time_of_flight_s": 0.07734844414271452,
+      "miss_distance_m": 0.05271256849068639,
+      "is_hit": true
+    },
+    {
+      "frame": 279,
+      "timestamp_s": 8.928,
+      "laser_range_m": 65.58765154927379,
+      "target_pos_world": [
+        60.0,
+        25.712000000000003,
+        7.6784
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9630351701204678,
+      "aim_point_px": [
+        320.82805212191573,
+        129.68158983936235
+      ],
+      "time_of_flight_s": 0.0774029291768823,
+      "miss_distance_m": 0.047393584520472834,
+      "is_hit": true
+    },
+    {
+      "frame": 280,
+      "timestamp_s": 8.96,
+      "laser_range_m": 65.695257283455,
+      "target_pos_world": [
+        60.0,
+        25.840000000000003,
+        7.688000000000001
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9630141591380124,
+      "aim_point_px": [
+        322.13318024653387,
+        130.48289454594072
+      ],
+      "time_of_flight_s": 0.0774678356474605,
+      "miss_distance_m": 0.05070441184932479,
+      "is_hit": true
+    },
+    {
+      "frame": 281,
+      "timestamp_s": 8.992,
+      "laser_range_m": 65.68328542838859,
+      "target_pos_world": [
+        60.0,
+        25.968000000000004,
+        7.6975999999999996
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.963022444385925,
+      "aim_point_px": [
+        322.8369121891748,
+        130.78836957649324
+      ],
+      "time_of_flight_s": 0.07752364289744294,
+      "miss_distance_m": 0.04608521547227342,
+      "is_hit": true
+    },
+    {
+      "frame": 282,
+      "timestamp_s": 9.024000000000001,
+      "laser_range_m": 65.75242904586374,
+      "target_pos_world": [
+        60.0,
+        26.096000000000004,
+        7.7072
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9630160853766502,
+      "aim_point_px": [
+        322.8537644623143,
+        130.5701529740463
+      ],
+      "time_of_flight_s": 0.0775824123356447,
+      "miss_distance_m": 0.043769689679391405,
+      "is_hit": true
+    },
+    {
+      "frame": 283,
+      "timestamp_s": 9.056000000000001,
+      "laser_range_m": 65.84755216742712,
+      "target_pos_world": [
+        60.0,
+        26.224000000000004,
+        7.7168
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9629630920425075,
+      "aim_point_px": [
+        322.19072973608274,
+        129.84982920330435
+      ],
+      "time_of_flight_s": 0.07765590661179544,
+      "miss_distance_m": 0.0537357544622986,
+      "is_hit": true
+    },
+    {
+      "frame": 284,
+      "timestamp_s": 9.088000000000001,
+      "laser_range_m": 65.93299482781538,
+      "target_pos_world": [
+        60.0,
+        26.352000000000004,
+        7.7264
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.96291665804272,
+      "aim_point_px": [
+        320.9400671948232,
+        128.69101289979693
+      ],
+      "time_of_flight_s": 0.07773358932495512,
+      "miss_distance_m": 0.06704579574522973,
+      "is_hit": true
+    },
+    {
+      "frame": 285,
+      "timestamp_s": 9.120000000000001,
+      "laser_range_m": 65.95518149496718,
+      "target_pos_world": [
+        60.0,
+        26.480000000000004,
+        7.736000000000001
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9629096260679979,
+      "aim_point_px": [
+        319.272997200004,
+        127.19031894730202
+      ],
+      "time_of_flight_s": 0.07780123194207599,
+      "miss_distance_m": 0.07163027724662817,
+      "is_hit": true
+    },
+    {
+      "frame": 286,
+      "timestamp_s": 9.152000000000001,
+      "laser_range_m": 66.02302043063023,
+      "target_pos_world": [
+        60.0,
+        26.608000000000004,
+        7.7456
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9628622285222425,
+      "aim_point_px": [
+        317.41447478880076,
+        125.46885422007442
+      ],
+      "time_of_flight_s": 0.07787664843287853,
+      "miss_distance_m": 0.08260166625172818,
+      "is_hit": true
+    },
+    {
+      "frame": 287,
+      "timestamp_s": 9.184000000000001,
+      "laser_range_m": 65.99816401899022,
+      "target_pos_world": [
+        60.0,
+        26.736000000000004,
+        7.7552
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9629288825687288,
+      "aim_point_px": [
+        315.60695523936647,
+        123.66513579257098
+      ],
+      "time_of_flight_s": 0.07792244365573787,
+      "miss_distance_m": 0.0682381169788622,
+      "is_hit": true
+    },
+    {
+      "frame": 288,
+      "timestamp_s": 9.216000000000001,
+      "laser_range_m": 66.08832907874375,
+      "target_pos_world": [
+        60.0,
+        26.864000000000004,
+        7.7648
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9629030215562585,
+      "aim_point_px": [
+        314.08765871318144,
+        121.92841586579176
+      ],
+      "time_of_flight_s": 0.0779860382834647,
+      "miss_distance_m": 0.06876677312734954,
+      "is_hit": true
+    },
+    {
+      "frame": 289,
+      "timestamp_s": 9.248,
+      "laser_range_m": 66.16635942059494,
+      "target_pos_world": [
+        60.0,
+        26.991999999999997,
+        7.7744
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9629009686021756,
+      "aim_point_px": [
+        313.04253375374213,
+        120.40880500527797
+      ],
+      "time_of_flight_s": 0.07804975223070863,
+      "miss_distance_m": 0.06918976765577092,
+      "is_hit": true
+    },
+    {
+      "frame": 290,
+      "timestamp_s": 9.28,
+      "laser_range_m": 66.18946280115405,
+      "target_pos_world": [
+        60.0,
+        27.119999999999997,
+        7.784
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.962932891698479,
+      "aim_point_px": [
+        312.59379703825834,
+        119.24428958327015
+      ],
+      "time_of_flight_s": 0.07810351343841013,
+      "miss_distance_m": 0.060964447744866354,
+      "is_hit": true
+    },
+    {
+      "frame": 291,
+      "timestamp_s": 9.312,
+      "laser_range_m": 66.2984878072845,
+      "target_pos_world": [
+        60.0,
+        27.247999999999998,
+        7.7936
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9628779253281263,
+      "aim_point_px": [
+        312.7832891393976,
+        118.54449718964082
+      ],
+      "time_of_flight_s": 0.07817888579362627,
+      "miss_distance_m": 0.07086534725025911,
+      "is_hit": true
+    },
+    {
+      "frame": 292,
+      "timestamp_s": 9.344,
+      "laser_range_m": 66.31792120536578,
+      "target_pos_world": [
+        60.0,
+        27.375999999999998,
+        7.8032
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9628696869912448,
+      "aim_point_px": [
+        313.5677683235496,
+        118.37498072346042
+      ],
+      "time_of_flight_s": 0.07824590800461986,
+      "miss_distance_m": 0.07347867777601612,
+      "is_hit": true
+    },
+    {
+      "frame": 293,
+      "timestamp_s": 9.376,
+      "laser_range_m": 66.28363287897984,
+      "target_pos_world": [
+        60.0,
+        27.503999999999998,
+        7.812799999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.962935700134932,
+      "aim_point_px": [
+        314.83263248040896,
+        118.74687096764572
+      ],
+      "time_of_flight_s": 0.07828755359389071,
+      "miss_distance_m": 0.05436264347078837,
+      "is_hit": true
+    },
+    {
+      "frame": 294,
+      "timestamp_s": 9.408,
+      "laser_range_m": 66.42817247223972,
+      "target_pos_world": [
+        60.0,
+        27.631999999999998,
+        7.8224
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9628918177257153,
+      "aim_point_px": [
+        316.41190632852255,
+        119.61491217124339
+      ],
+      "time_of_flight_s": 0.07835650626414657,
+      "miss_distance_m": 0.05820531299251291,
+      "is_hit": true
+    },
+    {
+      "frame": 295,
+      "timestamp_s": 9.44,
+      "laser_range_m": 66.47922188765052,
+      "target_pos_world": [
+        60.0,
+        27.759999999999998,
+        7.832
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9628730468490942,
+      "aim_point_px": [
+        318.10779444901726,
+        120.88434285682682
+      ],
+      "time_of_flight_s": 0.07842504907497037,
+      "miss_distance_m": 0.06149685425697979,
+      "is_hit": true
+    },
+    {
+      "frame": 296,
+      "timestamp_s": 9.472,
+      "laser_range_m": 66.52262190455814,
+      "target_pos_world": [
+        60.0,
+        27.887999999999998,
+        7.8416
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9628869585967116,
+      "aim_point_px": [
+        319.71342882152476,
+        122.42469939923191
+      ],
+      "time_of_flight_s": 0.07848553534111612,
+      "miss_distance_m": 0.057751775465055125,
+      "is_hit": true
+    },
+    {
+      "frame": 297,
+      "timestamp_s": 9.504,
+      "laser_range_m": 66.49175476753847,
+      "target_pos_world": [
+        60.0,
+        28.016,
+        7.8512
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9629470955806685,
+      "aim_point_px": [
+        321.04018356200066,
+        124.08659041922557
+      ],
+      "time_of_flight_s": 0.07852717288797133,
+      "miss_distance_m": 0.03781688171130433,
+      "is_hit": true
+    },
+    {
+      "frame": 298,
+      "timestamp_s": 9.536,
+      "laser_range_m": 66.61374870790326,
+      "target_pos_world": [
+        60.0,
+        28.144,
+        7.860799999999999
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9629166678429163,
+      "aim_point_px": [
+        321.9321900238984,
+        125.71678570246516
+      ],
+      "time_of_flight_s": 0.07859155363512932,
+      "miss_distance_m": 0.036971055342997036,
+      "is_hit": true
+    },
+    {
+      "frame": 299,
+      "timestamp_s": 9.568,
+      "laser_range_m": 66.69428183063538,
+      "target_pos_world": [
+        60.0,
+        28.272,
+        7.8704
+      ],
+      "aim_state": "READY",
+      "aim_ready": true,
+      "hit_probability": 0.9629196061444427,
+      "aim_point_px": [
+        322.2831452531756,
+        127.17007796706316
+      ],
+      "time_of_flight_s": 0.07865489693363809,
+      "miss_distance_m": 0.035044632677789136,
+      "is_hit": true
+    }
+  ]
+}
