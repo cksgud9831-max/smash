@@ -42,13 +42,11 @@ smash/
 ├── bridge/               카메라·트래커·센서를 aiming_engine 입력으로 변환하는 접착 계층
 ├── jun_reliability/      트래킹 신뢰도 진단 레이어 (STABLE/HOLD/LOST, 발사 권한 아님)
 ├── detector+tracker/     YOLO 학습(GA 튜닝) + 검증된 최종 추적 알고리즘의 원본(reference) 소스
-├── simulation/           Gazebo Harmonic + ROS 2 Jazzy 3D 포탑 시뮬레이터 (SMASH FCS)
-├── gazebo/               Gazebo 시뮬레이션 기반 Level-2 통합 테스트
+├── simulation/           Gazebo Harmonic + ROS 2 Jazzy 3D 포탑 시뮬레이터 (SMASH FCS · 유일한 시뮬레이터)
 ├── config/               YAML 설정 (aiming_engine.yaml, bridge*.yaml)
 ├── examples/             end-to-end 데모 스크립트
-├── scripts/              시뮬레이터·검증·패키징 스크립트 (04/06 시뮬레이터, 07/08 검증, wsl_setup)
+├── scripts/              검증·패키징·환경설정 (07/08 오라클 검증, wsl_setup_smash_fcs.sh)
 ├── tests/                pytest 단위 테스트 (모듈별 1:1 대응)
-├── test/                 검증용 정답 데이터 (visible.json 등) — tests/ 와 다른 폴더
 ├── docs/
 │   ├── reports/          단계별 검증 보고서 (stage1/stage2, level1_level2, aim_oracle)
 │   ├── analysis/         분석 문서 (known_issues, sensor_integration_gap_analysis, ...)
@@ -56,8 +54,7 @@ smash/
 │   ├── interim_reports/  중간 보고서
 │   └── pdfs/             참고 논문 텍스트
 ├── results/              실행 산출물 (stage2_lead_accuracy_results.json, intermediate_results/)
-├── run_smash_fcs.bat     Gazebo/ROS 2 시뮬레이터 런처 (WSL2)
-├── run_pipeline.bat/.py  Windows 네이티브 파이프라인 런처
+├── run_smash_fcs.bat     SMASH FCS 시뮬레이터 런처 (WSL2 · 유일한 실행 진입점)
 ├── requirements.txt / requirements-bridge-hardware.txt
 └── pytest.ini
 ```
@@ -147,7 +144,7 @@ Tracker.update() 결과
 | `aiming_engine.yaml` | 탄도/솔버/명중확률/상태기계 파라미터. 현재 100m 이내 소총 사거리 기준 중력전용(gravity-only) 프로파일이 기본값 |
 | `bridge.yaml` | 데스크톱 개발 기본 설정. `tracker.backend: legacy`, 센서는 전부 `mock` |
 | `bridge.final_v20.yaml` | Jetson 배포용. `tracker.backend: final_v20`(TensorRT 엔진), 센서는 여전히 `mock`(실장비 미연결) |
-| `bridge.test_video.yaml` | `test/visible.mp4`(1920×1080) 검증용으로 카메라 내부파라미터만 해상도에 맞게 조정한 설정 |
+| `bridge.test_video.yaml` | 1920×1080 영상 검증용으로 카메라 내부파라미터만 해상도에 맞게 조정한 설정 |
 
 카메라 내부파라미터(fx/fy/cx/cy)와 레이저 마운트 오프셋은 전부 플레이스홀더이며, 실장비 캘리브레이션이 필요하다고 각 YAML에 명시돼 있다.
 
@@ -166,11 +163,34 @@ python examples/run_bridge_pipeline_demo.py --source video.mp4   # Tracker→Bri
 python -m jun_reliability.integration_smoke --video video.mp4    # 신뢰도 레이어만 별도 스모크 테스트
 ```
 
-`gazebo/`는 실장비 없이 파이프라인을 더 강하게 검증하기 위한 **Level-2 통합 테스트**다: 실제 비디오(`test/visible.mp4`)의 2D 추적 결과에 Gazebo가 시뮬레이션한 IMU 자세와 거리(ground-truth)를 합성해 `Bridge → AimingManager`까지 실제로 흘려보고, `AimingManager`가 재계산한 거리와 시뮬레이션 ground-truth 거리가 일치하는지로 파이프라인 정합성만 검증한다(비디오 자체의 3D 정답이 없어 실측 정확도 검증은 아님).
+### 3D 시뮬레이터 (SMASH FCS)
+
+3차원 물리 시뮬레이션은 **`run_smash_fcs.bat` 하나로만** 실행한다. ROS 2 Jazzy + Gazebo
+Harmonic 위에서 CIWS 포탑(`turret_world.sdf`)을 띄우고, 카메라 픽셀 영상만으로 탐지·추적하여
+3차원 뉴턴 탄도 리드각을 산출하고 격발/격추까지 판정한다. 상세는 `simulation/README.md` 참고.
+
+```
+run_smash_fcs.bat
+  1 환경 진단  2 워크스페이스 연결  3 colcon 빌드
+  4 조준만     5 수동 격발          6 자동 격발
+  7 격발/판정 오라클 검증 (ROS 2·Gazebo 불필요)
+  8 대화형 스코프 뷰어 (마우스 좌클릭 / 스페이스바 격발)
+```
+
+ROS 2 나 Gazebo 없이 조준·탄도 계산만 따로 검증하려면 오프라인 오라클 스크립트를 쓴다.
+
+```bash
+python scripts/08_stage1_fcs_offline_validation.py   # 좌표변환·거리추정·종단조준 (→ results/intermediate_results/)
+python scripts/07_stage2_lead_accuracy_validation.py # 리드각 정확도            (→ results/stage2_lead_accuracy_results.json)
+```
+
+> 2026-09-07 이전에는 Webots(1세대), `gz.transport` 직접 통신(2세대) 기반 시뮬레이터가
+> 함께 있었으나 ROS 2 기반으로 일원화하면서 모두 제거했다. 개발 경과는
+> `docs/interim_reports/` 에 기록돼 있다.
 
 ### 문서 위치 (2026-09-07 정리)
 
-`bridge/frame_builder.py`, `bridge/optical_flow_tracker.py`, `config/aiming_engine.yaml`, `gazebo/scripts/02_e2e_simulation_runner.py` 등 여러 코드 주석이 `known_issues.md`를 참조하고, `aiming_project_summary.md`(구버전 학습 정리본)는 `paper_text.txt`와 `aiming_engine_report.html`도 언급한다. 이 문서들은 모두 저장소에 있으며, 2026-09-07 루트 정리로 `docs/` 아래로 이동했다. 주석 본문의 참조 문자열은 옛 이름 그대로이므로 아래 표로 위치를 찾는다.
+`bridge/frame_builder.py`, `bridge/optical_flow_tracker.py`, `config/aiming_engine.yaml` 등 여러 코드 주석이 `known_issues.md`를 참조하고, `aiming_project_summary.md`(구버전 학습 정리본)는 `paper_text.txt`와 `aiming_engine_report.html`도 언급한다. 이 문서들은 모두 저장소에 있으며, 2026-09-07 루트 정리로 `docs/` 아래로 이동했다. 주석 본문의 참조 문자열은 옛 이름 그대로이므로 아래 표로 위치를 찾는다.
 
 | 주석에 적힌 이름 | 실제 위치 |
 |---|---|

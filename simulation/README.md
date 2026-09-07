@@ -14,7 +14,6 @@
 2. **실행 진입점 (저장소 루트 및 scripts/ 에 위치):**
    * **../run_smash_fcs.bat:** Windows CMD 환경에서 환경 진단, 빌드, 조준, 수동/자동 격발, 대화형 스코프 뷰어를 원클릭으로 구동하는 마스터 배치 파일.
    * **../scripts/wsl_setup_smash_fcs.sh:** WSL2 Ubuntu_24.04 환경 내부에서 ROS 2 Jazzy, Gazebo Harmonic, 심볼릭 링크 및 가상환경 경로를 자동 관리하는 스크립트. run_smash_fcs.bat 이 이 경로를 직접 호출한다.
-   * **../scripts/06_gazebo_interactive_shooter.py:** Windows 네이티브 대화형 시뮬레이터. 사수 1인칭 마우스 조준, 100% 순수 비전 추적 및 마우스 좌클릭/스페이스바 격발 드론 격추 시뮬레이터. ../run_pipeline.py 4번 메뉴가 이 경로를 호출한다.
 
 ============================================================
 
@@ -30,5 +29,6 @@
      * 6번: READY 정렬 시 자동 격발 모드 실행 (auto)
      * 8번: 대화형 스마트 스코프 뷰어 창 실행 (마우스 좌클릭 / 스페이스바 즉시 격발)
 
-2. **Windows 네이티브 대화형 시뮬레이터 실행:**
-   * run_pipeline.bat 실행 후 4번 선택 또는 python scripts/06_gazebo_interactive_shooter.py 실행.
+2. **ROS 2 / Gazebo 없이 격발·판정 로직만 검증:**
+   * run_smash_fcs.bat 7번(오라클 검증) 또는
+     python scripts/08_stage1_fcs_offline_validation.py 실행.

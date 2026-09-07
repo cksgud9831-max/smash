@@ -44,7 +44,7 @@ def generate_launch_description():
             description='aiming_engine / bridge 를 담고 있는 SMASH 코어 저장소 루트'),
         DeclareLaunchArgument(
             'model_path', default_value='',
-            description='YOLO11s 파인튜닝 가중치(.pt) 경로. 예: <core>/models/best_finetuned.pt'),
+            description='추적기 가중치(.pt) 경로. 기본: <core>/detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt'),
         DeclareLaunchArgument('device', default_value='cpu'),
         DeclareLaunchArgument('muzzle_velocity', default_value='920.0'),
         DeclareLaunchArgument('enable_drag', default_value='true'),
