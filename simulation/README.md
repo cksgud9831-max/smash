@@ -16,9 +16,8 @@
 
 ### 깃허브 협업 개발 워크플로우
 
-1. **저장소 클론**: 팀원이 깃허브 저장소를 로컬에 클론합니다.
-2. **WSL2 환경 구성**: `environment_setup_guide.md` 문서를 참고하여 필수 패키지를 설치합니다.
-3. **루트 런처 실행**: 프로젝트 루트의 `run_smash_fcs.bat`을 실행합니다.
+1. **WSL2 환경 구성**: `environment_setup_guide.md` 문서를 참고하여 필수 패키지를 설치합니다.
+2. **루트 런처 실행**: 프로젝트 루트의 `run_smash_fcs.bat`을 실행합니다.
    * 1번 (check): 환경 설치 상태 진단
    * 2번 (link): WSL2 워크스페이스와 `simulation` 내부 패키지 심볼릭 링크 자동 생성
    * 3번 (build): colcon build 수행
