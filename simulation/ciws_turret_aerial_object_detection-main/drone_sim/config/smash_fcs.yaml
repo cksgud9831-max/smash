@@ -19,7 +19,8 @@ smash_fcs:
     use_sim_time: true
 
     # ── 조준 코어 위치 ────────────────────────────────────────────────
-    # aiming_engine / bridge 패키지를 담고 있는 SMASH 코어 저장소 루트.
+    # SMASH 코어 저장소 루트. 파이썬 패키지는 <core_path>/smash_core/ 아래에 있다
+    # (aiming_engine, bridge, jun_reliability).
     # 비워 두면 환경변수 SMASH_CORE_PATH 를 사용한다.
     # WSL2 에서 D 드라이브를 쓰는 경우 예: /mnt/d/Aiming
     core_path: ""
@@ -56,12 +57,9 @@ smash_fcs:
     tf_timeout_s: 0.05
 
     # ── 탄도 (5.56 x 45mm M855, 62 gr) ────────────────────────────────
-    # 포구초속은 총열 길이에 크게 좌우된다. 아래 920 m/s 는 20인치 총열 기준값에
-    # 가깝다. 14.5인치 M4 계열에서는 약 880 m/s 수준으로 떨어지므로, 실제 사용
-    # 총기에 맞춰 반드시 조정할 것. 포구초속 오차는 비행시간에 그대로 들어가고
-    # 비행시간 오차는 리드각 오차로 이어진다.
-    #   참고: M193(55 gr)을 쓴다면 990.0 / 0.00356 으로 바꾼다.
-    muzzle_velocity_mps: 920.0
+    # 가장 범용적인 14.5인치 M4 카빈 총열 기준 총구초속 약 880 m/s 적용.
+    # (참고: 20인치 총열은 약 920 m/s, M193 55 gr 탄약은 약 990 m/s 수준)
+    muzzle_velocity_mps: 880.0
     enable_drag: true
     # M855 탄두 질량 62 gr = 4.02 g.
     projectile_mass_kg: 0.00402
@@ -139,7 +137,7 @@ smash_fcs:
     tilt_min_rad: 0.0
     tilt_max_rad: 1.4835298641951802
     search_pan_rad: 0.0
-    search_tilt_rad: 0.35
+    search_tilt_rad: 0.0
     # 지향 목표각 속도 피드포워드 [초]. 0.0 = 비활성(기본값).
     #
     # 조준해는 프레임 k 의 영상으로 계산되지만 명령은 그 뒤에 적용되므로, 명령이

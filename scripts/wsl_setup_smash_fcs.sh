@@ -21,6 +21,7 @@
 #   SMASH_DEVICE           기본값 cpu  (CUDA 가 WSL 에서 동작하면 0)
 #   SMASH_ENABLE_FIRE_CONTROL  기본값 false (로드맵 3단계: 가상 탄환 격발/판정)
 #   SMASH_FIRE_MODE            기본값 manual ("manual" 또는 "auto")
+#   SMASH_HEADLESS             기본값 false. true 면 Gazebo GUI 없이 서버만 실행
 #   SMASH_GT_POSE_TOPIC        기본값 /model/drone/pose (Gazebo 실측 위치 gz 토픽.
 #                              `gz topic -l` 로 확인 후 다르면 이 값을 바꿀 것)
 
@@ -49,9 +50,15 @@ done
 
 SMASH_CORE_PATH="${SMASH_CORE_PATH:-/mnt/d/Aiming}"
 ROS2_WS="${ROS2_WS:-$HOME/ros2_ws}"
-SMASH_DEVICE="${SMASH_DEVICE:-cpu}"
+SMASH_DEVICE="${SMASH_DEVICE:-cuda:0}"
 SMASH_ENABLE_FIRE_CONTROL="${SMASH_ENABLE_FIRE_CONTROL:-false}"
 SMASH_FIRE_MODE="${SMASH_FIRE_MODE:-manual}"
+# 헤더 주석에 기본값이 적혀 있었으나 실제로는 설정되지 않아, 빈 문자열이
+# ground_truth_pose_topic:= 로 넘어가 런치가 거부되던 문제를 바로잡는다.
+SMASH_GT_POSE_TOPIC="${SMASH_GT_POSE_TOPIC:-/model/drone/pose}"
+# true 면 Gazebo GUI 없이 서버만 띄운다. WSLg 처럼 GUI 렌더링이 안 되는 환경에서는
+# 화면을 8번 스코프 뷰어(OpenCV 창)로 확인한다.
+SMASH_HEADLESS="${SMASH_HEADLESS:-false}"
 if [ -d "$SMASH_CORE_PATH/simulation/ciws_turret_aerial_object_detection-main" ]; then
     REPO_DIR="$SMASH_CORE_PATH/simulation/ciws_turret_aerial_object_detection-main"
 else
@@ -271,7 +278,13 @@ build() {
 }
 
 run() {
+    export QT_X11_NO_MITSHM=1
+    export LIBGL_ALWAYS_SOFTWARE=1
     head_ "실행"
+    # 이전 잔류 프로세스 자동 청소 (충돌 방지)
+    killall -9 gz_sim smash_scope_viewer 2>/dev/null || true
+    pkill -9 -f 'python3.*smash_fcs' 2>/dev/null || true
+    sleep 0.5
     if [ ! -f "$ROS2_WS/install/setup.bash" ]; then
         bad "$ROS2_WS/install/setup.bash 가 없다. 먼저 build 를 실행할 것."
         return 1
@@ -284,7 +297,7 @@ run() {
     export LD_LIBRARY_PATH="/opt/ros/jazzy/lib:${LD_LIBRARY_PATH:-}"
     echo "  SMASH_CORE_PATH=$SMASH_CORE_PATH"
     echo "  model_path=$SMASH_MODEL_PATH"
-    echo "  device=$SMASH_DEVICE"
+    echo "  device=$SMASH_DEVICE   headless=$SMASH_HEADLESS"
     echo "  enable_fire_control=$SMASH_ENABLE_FIRE_CONTROL  fire_mode=$SMASH_FIRE_MODE"
     if [ "$SMASH_ENABLE_FIRE_CONTROL" = "true" ]; then
         echo "  ground_truth_pose_topic=$SMASH_GT_POSE_TOPIC"
@@ -294,11 +307,13 @@ run() {
     echo
     ros2 launch drone_sim smash_scene.launch.py \
         core_path:="$SMASH_CORE_PATH" \
+        headless:="$SMASH_HEADLESS" \
         model_path:="$SMASH_MODEL_PATH" \
         device:="$SMASH_DEVICE" \
         enable_fire_control:="$SMASH_ENABLE_FIRE_CONTROL" \
         fire_mode:="$SMASH_FIRE_MODE" \
-        ground_truth_pose_topic:="$SMASH_GT_POSE_TOPIC"
+        ground_truth_pose_topic:="$SMASH_GT_POSE_TOPIC" \
+        launch_viewer:="${SMASH_LAUNCH_VIEWER:-false}"
 }
 
 verify_fire_control() {

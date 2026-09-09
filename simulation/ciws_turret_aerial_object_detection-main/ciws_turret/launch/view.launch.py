@@ -3,10 +3,13 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
+    DeclareLaunchArgument,
     IncludeLaunchDescription,
     RegisterEventHandler,
     SetEnvironmentVariable,
 )
+from launch.conditions import IfCondition, UnlessCondition
+from launch.substitutions import LaunchConfiguration
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -43,11 +46,21 @@ def generate_launch_description():
 
     robot_description = ParameterValue(Command(['xacro ', xacro_file]), value_type=str)
 
-    gz_sim = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
-        ),
+    # headless:=true 면 Gazebo GUI 없이 서버만 띄운다(gz sim -s).
+    # WSLg 처럼 GUI 렌더링이 안 되는 환경에서도 카메라 센서는 정상 동작하므로,
+    # 화면은 smash_scope_viewer(OpenCV 창)로 확인하면 된다.
+    headless = LaunchConfiguration('headless')
+    gz_launch = os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
+
+    gz_sim_gui = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(gz_launch),
         launch_arguments={'gz_args': f'-r -v 3 {world_file}'}.items(),
+        condition=UnlessCondition(headless),
+    )
+    gz_sim_headless = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(gz_launch),
+        launch_arguments={'gz_args': f'-s -r -v 3 {world_file}'}.items(),
+        condition=IfCondition(headless),
     )
 
     rsp = Node(
@@ -88,7 +101,11 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        set_resource_path, set_plugin_path, gz_sim, rsp, bridge, spawn,
+        DeclareLaunchArgument(
+            'headless', default_value='false',
+            description='true 면 Gazebo GUI 없이 서버만 실행 (gz sim -s)'),
+        set_resource_path, set_plugin_path, gz_sim_gui, gz_sim_headless,
+        rsp, bridge, spawn,
         RegisterEventHandler(OnProcessExit(target_action=spawn, on_exit=[jsb])),
         RegisterEventHandler(OnProcessExit(target_action=jsb, on_exit=[turret])),
     ])

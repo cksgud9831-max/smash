@@ -154,14 +154,17 @@
   <!-- ===================== Gazebo colours ===================== -->
   <gazebo reference="base_link"><visual><material><ambient>0.80 0.72 0.52 1</ambient><diffuse>0.82 0.74 0.54 1</diffuse></material></visual></gazebo>
   <gazebo reference="turret_link"><visual><material><ambient>0.75 0.75 0.77 1</ambient><diffuse>0.75 0.75 0.77 1</diffuse></material></visual></gazebo>
-  <gazebo reference="gun_link"><visual><material><ambient>0.12 0.12 0.14 1</ambient><diffuse>0.12 0.12 0.14 1</diffuse></material></visual></gazebo>
-  <gazebo reference="radome_link"><visual><material><ambient>0.90 0.90 0.90 1</ambient><diffuse>0.95 0.95 0.94 1</diffuse></material></visual></gazebo>
-  <gazebo reference="rod_link"><visual><material><ambient>0.55 0.55 0.58 1</ambient><diffuse>0.55 0.55 0.58 1</diffuse></material></visual></gazebo>
-  <gazebo reference="camera_link"><visual><material><ambient>0.50 0.50 0.52 1</ambient><diffuse>0.50 0.50 0.52 1</diffuse></material></visual></gazebo>
+  <gazebo reference="gun_link"><gravity>false</gravity><visual><material><ambient>0.12 0.12 0.14 1</ambient><diffuse>0.12 0.12 0.14 1</diffuse></material></visual></gazebo>
+  <gazebo reference="radome_link"><gravity>false</gravity><visual><material><ambient>0.90 0.90 0.90 1</ambient><diffuse>0.95 0.95 0.94 1</diffuse></material></visual></gazebo>
+  <gazebo reference="rod_link"><gravity>false</gravity><visual><material><ambient>0.55 0.55 0.58 1</ambient><diffuse>0.55 0.55 0.58 1</diffuse></material></visual></gazebo>
+  <gazebo reference="camera_link"><gravity>false</gravity><visual><material><ambient>0.50 0.50 0.52 1</ambient><diffuse>0.50 0.50 0.52 1</diffuse></material></visual></gazebo>
 
   <!-- ===================== ros2_control ===================== -->
   <ros2_control name="GazeboSimSystem" type="system">
-    <hardware><plugin>gz_ros2_control/GazeboSimSystem</plugin></hardware>
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      <param name="position_proportional_gain">100.0</param>
+    </hardware>
     <joint name="turret_pan_joint">
       <command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/>
     </joint>

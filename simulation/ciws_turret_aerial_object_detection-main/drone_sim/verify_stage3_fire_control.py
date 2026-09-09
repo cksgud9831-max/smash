@@ -58,6 +58,8 @@ def _resolve_core_root() -> Path:
     for candidate in candidates:
         if (candidate / "aiming_engine" / "__init__.py").is_file():
             return candidate
+        if (candidate / "smash_core" / "aiming_engine" / "__init__.py").is_file():
+            return candidate / "smash_core"
     raise RuntimeError(
         "SMASH 코어 저장소(aiming_engine 을 담은 폴더)를 찾지 못했습니다. "
         "환경변수 SMASH_CORE_PATH 를 코어 루트로 지정하세요. 시도한 경로: "

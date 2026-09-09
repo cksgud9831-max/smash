@@ -33,8 +33,8 @@ def generate_launch_description():
     device = DeclareLaunchArgument(
         'device', default_value='cpu', description='"cpu" 또는 GPU 인덱스 문자열(예: "0")')
     muzzle_velocity = DeclareLaunchArgument(
-        'muzzle_velocity', default_value='920.0',
-        description='포구초속 [m/s]. 기본값은 5.56x45mm M855 20인치 총열 기준')
+        'muzzle_velocity', default_value='880.0',
+        description='포구초속 [m/s]. 기본값은 5.56x45mm M855 14.5인치 총열 기준')
     enable_drag = DeclareLaunchArgument(
         'enable_drag', default_value='true', description='공기저항 모델 사용 여부')
 

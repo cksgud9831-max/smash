@@ -188,7 +188,7 @@ class SmashFcsNode(Node):
         self.declare_parameter("tilt_min_rad", tk.TILT_MIN_RAD)
         self.declare_parameter("tilt_max_rad", tk.TILT_MAX_RAD)
         self.declare_parameter("search_pan_rad", 0.0)
-        self.declare_parameter("search_tilt_rad", 0.35)
+        self.declare_parameter("search_tilt_rad", 0.0)
         self.declare_parameter("command_feedforward_s", 0.0)
 
         self.declare_parameter("border_margin_px", 2)
@@ -294,12 +294,18 @@ class SmashFcsNode(Node):
         self._aiming_manager = AimingManager(config=self._aim_config)
 
         model_path = str(self.get_parameter("model_path").value)
-        if not model_path:
-            raise RuntimeError(
-                "model_path 파라미터가 비어 있습니다. GA 튜닝 학습 가중치"
-                "(예: <core>/detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt)"
-                " 경로를 지정하십시오."
+        if not model_path or model_path.strip() == "":
+            candidate = os.path.join(
+                self._core_path,
+                "detector+tracker", "ga_results", "yolo11s_ga_final" + chr(45) + "3", "weights", "best.pt"
             )
+            if os.path.exists(candidate):
+                model_path = candidate
+                self.get_logger().info(f"model_path 미지정으로 기본 GA 가중치 자동 채택: {model_path}")
+            else:
+                raise RuntimeError(
+                    "model_path 파라미터가 비어 있고 기본 가중치를 찾을 수 없습니다: " + candidate
+                )
         self.get_logger().info(f"추적기 가중치 로딩: {model_path}")
         self._tracker = OpticalFlowTracker(
             model_path=model_path,
@@ -371,8 +377,17 @@ class SmashFcsNode(Node):
         self._tilt_cmd = tk.clamp(
             float(self.get_parameter("search_tilt_rad").value), self._tilt_min, self._tilt_max
         )
-        self._pan_goal = self._pan_cmd
-        self._tilt_goal = self._tilt_cmd
+        self._user_pan = self._pan_cmd
+        self._user_tilt = self._tilt_cmd
+        self._pan_goal = self._user_pan
+        self._tilt_goal = self._user_tilt
+        self._search_pan = self._user_pan
+        self._search_tilt = self._user_tilt
+        self._manual_pan_offset = 0.0
+        self._manual_tilt_offset = 0.0
+        self._aim_aligned = False
+        self._align_err_px = 999.0
+        self._align_tolerance_px = 35.0
         self._feedforward = tk.GoalFeedForward(
             lead_time_s=float(self.get_parameter("command_feedforward_s").value),
             max_rate_rad_s=max(self._pan_max_rate, self._tilt_max_rate),
@@ -415,6 +430,9 @@ class SmashFcsNode(Node):
         )
         self.create_subscription(
             Image, str(self.get_parameter("image_topic").value), self._on_image, SENSOR_QOS
+        )
+        self.create_subscription(
+            Float64MultiArray, "/smash_fcs/manual_slew", self._on_manual_slew, 10
         )
 
         rate = max(1.0, float(self.get_parameter("command_rate_hz").value))
@@ -570,22 +588,30 @@ class SmashFcsNode(Node):
 
         aim_dir_base = self._aim_direction_in_base(output.aim_solution, scope_pose)
         self._last_aim_dir_base = aim_dir_base
-        if aim_dir_base is not None:
-            pan_raw, tilt_raw = tk.direction_to_pan_tilt(aim_dir_base)
-            pan_goal, tilt_goal = self._feedforward.apply(
-                tk.unwrap_pan(pan_raw, self._pan_cmd), tilt_raw, timestamp
-            )
-            self._pan_goal = pan_goal
-            self._tilt_goal = tk.clamp(tilt_goal, self._tilt_min, self._tilt_max)
-            if tilt_raw < self._tilt_min - 1e-9 or tilt_raw > self._tilt_max + 1e-9:
-                self.get_logger().warn(
-                    "요구 앙각 {:.2f}도가 포탑 한계({:.1f} ~ {:.1f}도)를 벗어나 클램프했습니다.".format(
-                        math.degrees(tilt_raw), math.degrees(self._tilt_min), math.degrees(self._tilt_max)
-                    ),
-                    throttle_duration_sec=2.0,
-                )
 
-        self._state_label = output.state.value
+        # 사수 수동 조준: 포탑은 드론을 자동 추종하지 않고, 오직 사수가 조작한 각도를 유지한다.
+        self._pan_goal = self._user_pan
+        self._tilt_goal = self._user_tilt
+
+        # 사수 조준선(보어사이트 십자선)과 탄착 리드각 레티클 간 정렬 오차 판정
+        cx = int(round(self._intrinsics[0, 2])) if self._intrinsics is not None else frame_bgr.shape[1] // 2
+        cy = int(round(self._intrinsics[1, 2])) if self._intrinsics is not None else frame_bgr.shape[0] // 2
+        lead_pixel = self._project_direction_to_pixel(aim_dir_base) if aim_dir_base is not None else None
+
+        if lead_pixel is not None:
+            self._align_err_px = math.hypot(lead_pixel[0] - cx, lead_pixel[1] - cy)
+            self._aim_aligned = (self._align_err_px <= self._align_tolerance_px)
+        else:
+            self._align_err_px = 999.0
+            self._aim_aligned = False
+
+        if output.aim_ready and self._aim_aligned:
+            self._state_label = "READY"
+        elif output.aim_solution is not None and output.aim_solution.solver_converged:
+            self._state_label = f"ALIGN({self._align_err_px:.0f}px)"
+        else:
+            self._state_label = output.state.value
+
         self._render(msg, frame_bgr)
 
     # ── 내부 로직 ───────────────────────────────────────────────────────
@@ -616,9 +642,11 @@ class SmashFcsNode(Node):
         self._last_bbox = None
         self._last_range = None
         self._last_aim_dir_base = None
-        # 포탑은 마지막 지향각을 유지한다(재진입 표적을 즉시 다시 잡기 위함).
-        self._pan_goal = self._pan_cmd
-        self._tilt_goal = self._tilt_cmd
+        # 사수가 조준하고 있는 현재 지향각을 그대로 유지
+        self._pan_goal = self._user_pan
+        self._tilt_goal = self._user_tilt
+        self._aim_aligned = False
+        self._align_err_px = 999.0
         if self._fire_control is not None:
             # 트리거 엣지 검출만 초기화한다. 이미 발사되어 비행 중인 탄환은
             # 취소하지 않는다 — 표적 추적 상실과 무관하게 물리적으로 계속
@@ -636,10 +664,20 @@ class SmashFcsNode(Node):
                 stamp,
                 timeout=rclpy.duration.Duration(seconds=self._tf_timeout_s),
             )
+        except tf2_ros.ExtrapolationException:
+            try:
+                tf = self._tf_buffer.lookup_transform(
+                    self._base_frame,
+                    self._camera_frame,
+                    rclpy.time.Time(),
+                    timeout=rclpy.duration.Duration(seconds=self._tf_timeout_s),
+                )
+            except Exception as exc:
+                self.get_logger().warn(f"TF 조회 실패: {exc}", throttle_duration_sec=2.0)
+                return None
         except (
             tf2_ros.LookupException,
             tf2_ros.ConnectivityException,
-            tf2_ros.ExtrapolationException,
         ) as exc:
             self.get_logger().warn(f"TF 조회 실패: {exc}", throttle_duration_sec=2.0)
             return None
@@ -713,6 +751,27 @@ class SmashFcsNode(Node):
         c, s = math.cos(yaw), math.sin(yaw)
         return np.array([c * rel[0] + s * rel[1], -s * rel[0] + c * rel[1], rel[2]], dtype=np.float64)
 
+    def _on_manual_slew(self, msg: Float64MultiArray) -> None:
+        if len(msg.data) >= 2:
+            d_pan = float(msg.data[0])
+            d_tilt = float(msg.data[1])
+            if abs(d_pan - 999.0) < 1e-3:
+                self._user_pan = 0.0
+                self._user_tilt = 0.0
+                self.get_logger().info("[MANUAL SLEW] 사수 조준 수평 정렬 초기화 (PAN 0.0deg, TILT 0.0deg)")
+            elif abs(d_pan - 888.0) < 1e-3:
+                self._user_pan = 0.0
+                self._user_tilt = 0.38
+                self.get_logger().info("[MANUAL SLEW] 대공 경계 자세 프리셋 가동 -> PAN 0.0deg, TILT 21.8deg (드론 정면 직시)")
+            else:
+                self._user_pan += d_pan
+                self._user_tilt = float(np.clip(self._user_tilt + d_tilt, self._tilt_min, self._tilt_max))
+                self.get_logger().info(
+                    f"[MANUAL SLEW] 사수 수동 조작 -> 지향각 PAN: {math.degrees(self._user_pan):+.1f}deg, TILT: {math.degrees(self._user_tilt):+.1f}deg"
+                )
+            self._pan_goal = self._user_pan
+            self._tilt_goal = self._user_tilt
+
     def _on_ground_truth_pose(self, msg: PoseStamped) -> None:
         p = msg.pose.position
         world_pos = np.array([p.x, p.y, p.z], dtype=np.float64)
@@ -737,13 +796,18 @@ class SmashFcsNode(Node):
             and self._last_output is not None
             and self._last_frame_timestamp is not None
         ):
+            actual_ready = bool(self._last_output.aim_ready and self._aim_aligned)
+            actual_bore_dir_base = np.asarray(self._last_scope_pose, dtype=np.float64)[:3, 0]
+            norm = float(np.linalg.norm(actual_bore_dir_base))
+            bore_dir = actual_bore_dir_base / norm if norm > 1e-6 else self._last_aim_dir_base
+
             shot = self._fire_control.maybe_fire(
                 now=self._last_frame_timestamp,
-                aim_ready=bool(self._last_output.aim_ready),
+                aim_ready=actual_ready,
                 trigger_pressed=self._trigger_pressed,
                 aim_solution=self._last_output.aim_solution,
                 launch_point_world=self._last_scope_pose[:3, 3],
-                direction_world=self._last_aim_dir_base,
+                direction_world=bore_dir,
             )
             if shot is not None:
                 self._publish_fire_event(shot)
@@ -867,28 +931,42 @@ class SmashFcsNode(Node):
         cx = int(round(self._intrinsics[0, 2])) if self._intrinsics is not None else width // 2
         cy = int(round(self._intrinsics[1, 2])) if self._intrinsics is not None else height // 2
 
-        # 보어사이트 십자선
-        cv2.line(canvas, (cx - 14, cy), (cx - 4, cy), (0, 255, 255), 1)
-        cv2.line(canvas, (cx + 4, cy), (cx + 14, cy), (0, 255, 255), 1)
-        cv2.line(canvas, (cx, cy - 14), (cx, cy - 4), (0, 255, 255), 1)
-        cv2.line(canvas, (cx, cy + 4), (cx, cy + 14), (0, 255, 255), 1)
 
-        ready = bool(self._last_output is not None and self._last_output.aim_ready)
+        ready = bool(self._last_output is not None and self._last_output.aim_ready and self._aim_aligned)
+        cross_color = (0, 255, 0) if ready else (0, 255, 255)
+        cross_thick = 2 if ready else 1
+
+        # 보어사이트 십자선 (총구 지향 중심)
+        cv2.line(canvas, (cx - 16, cy), (cx - 4, cy), cross_color, cross_thick)
+        cv2.line(canvas, (cx + 4, cy), (cx + 16, cy), cross_color, cross_thick)
+        cv2.line(canvas, (cx, cy - 16), (cx, cy - 4), cross_color, cross_thick)
+        cv2.line(canvas, (cx, cy + 4), (cx, cy + 16), cross_color, cross_thick)
+
         box_color = (0, 255, 0) if ready else (0, 165, 255)
 
         if self._last_bbox is not None:
             x1, y1, x2, y2 = (int(round(v)) for v in self._last_bbox)
             cv2.rectangle(canvas, (x1, y1), (x2, y2), box_color, 2)
 
-        # 탄도 보정이 포함된 지향점(포탑이 실제로 향해야 하는 방향)
+        # 탄도 보정이 포함된 지향점 (미래 탄착 리드각 레티클)
         if self._last_aim_dir_base is not None:
             pixel = self._project_direction_to_pixel(self._last_aim_dir_base)
             if pixel is not None:
-                cv2.circle(canvas, pixel, 7, (0, 0, 255), 2)
-                cv2.line(canvas, (pixel[0] - 10, pixel[1]), (pixel[0] + 10, pixel[1]), (0, 0, 255), 1)
-                cv2.line(canvas, (pixel[0], pixel[1] - 10), (pixel[0], pixel[1] + 10), (0, 0, 255), 1)
+                reticle_color = (0, 255, 0) if ready else (0, 165, 255)
+                # 리드각 조준원 및 십자선
+                cv2.circle(canvas, pixel, 8, reticle_color, 2)
+                cv2.line(canvas, (pixel[0] - 12, pixel[1]), (pixel[0] + 12, pixel[1]), reticle_color, 1)
+                cv2.line(canvas, (pixel[0], pixel[1] - 12), (pixel[0], pixel[1] + 12), reticle_color, 1)
+                # 정렬 유도선 (보어사이트 십자선 -> 리드각 레티클)
+                if not ready:
+                    cv2.line(canvas, (cx, cy), pixel, (0, 200, 255), 1, cv2.LINE_AA)
 
         lines = [f"STATE {self._state_label}"]
+        lines.append(
+            "AIM SLEW PAN {:+6.1f}deg TILT {:+5.1f}deg".format(
+                math.degrees(self._user_pan), math.degrees(self._user_tilt)
+            )
+        )
         if self._last_range is not None and self._last_range.valid:
             src = {SOURCE_LASER: "LSR", SOURCE_BBOX: "BOX"}.get(self._last_range.source, "---")
             lines.append(
@@ -907,8 +985,8 @@ class SmashFcsNode(Node):
                 )
             )
             lines.append(
-                "ERR {:5.2f}mrad  PHIT {:4.2f}".format(
-                    float(out.debug.get("aim_error_mrad", float("nan"))), out.hit_probability
+                "ALIGN ERR {:4.1f}px  PHIT {:4.2f}".format(
+                    self._align_err_px, out.hit_probability
                 )
             )
             lines.append(
@@ -968,10 +1046,26 @@ class SmashFcsNode(Node):
 
         if ready:
             cv2.putText(
-                canvas, "READY", (width - 90, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 4, cv2.LINE_AA
+                canvas, "[ FIRE READY ]", (width - 160, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 0), 4, cv2.LINE_AA
             )
             cv2.putText(
-                canvas, "READY", (width - 90, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2, cv2.LINE_AA
+                canvas, "[ FIRE READY ]", (width - 160, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 0), 2, cv2.LINE_AA
+            )
+        elif self._last_output is not None and self._last_aim_dir_base is not None:
+            cv2.putText(
+                canvas, "ALIGNING", (width - 110, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 0), 3, cv2.LINE_AA
+            )
+            cv2.putText(
+                canvas, "ALIGNING", (width - 110, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 165, 255), 1, cv2.LINE_AA
+            )
+        else:
+            # 시야 밖 표적 방향 안내 (Off-Boresight Air Cue)
+            cue_txt = "^ AIR CUE: PRESS [UP] OR [T] (TGT EL +22deg) ^"
+            cv2.putText(
+                canvas, cue_txt, (width // 2 - 190, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 3, cv2.LINE_AA
+            )
+            cv2.putText(
+                canvas, cue_txt, (width // 2 - 190, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1, cv2.LINE_AA
             )
 
         canvas = np.ascontiguousarray(canvas, dtype=np.uint8)

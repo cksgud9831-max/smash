@@ -1,4 +1,4 @@
-﻿# SMASH FCS 대드론 시뮬레이션 환경 구축 가이드
+# SMASH FCS 대드론 시뮬레이션 환경 구축 가이드
 
 본 문서는 SMASH 지능형 대드론 사격 통제 시스템(FCS) 3차원 물리 시뮬레이션을 재현하고 구동하기 위한 시스템 요구 사양, 의존성 패키지, 환경 변수 및 실행 절차를 상세히 정리한 가이드입니다.
 
@@ -59,7 +59,7 @@ Gazebo 3D 월드 상에서 2축(Pan/Tilt) 대공 포탑을 모터 구동하고 �
 
 ### 5. 통합 마스터 런처를 통한 원클릭 실행 절차
 
-Windows CMD 환경에서 `simulation/launchers/run_smash_fcs.bat` 를 실행하여 원하는 작업을 손쉽게 수행할 수 있습니다.
+Windows CMD 환경에서 `simulation/run_smash_fcs.bat` 를 실행하여 원하는 작업을 손쉽게 수행할 수 있습니다.
 
 * **메뉴 번호별 주요 기능:**
   * **1번 (check):** WSL2 환경, ROS 2 Jazzy, Gazebo Harmonic, 필수 패키지 설치 여부 종합 진단

@@ -44,13 +44,16 @@ def generate_launch_description():
             description='aiming_engine / bridge 를 담고 있는 SMASH 코어 저장소 루트'),
         DeclareLaunchArgument(
             'model_path', default_value='',
-            description='추적기 가중치(.pt) 경로. 기본: <core>/detector+tracker/ga_results/yolo11s_ga_final-3/weights/best.pt'),
-        DeclareLaunchArgument('device', default_value='cpu'),
-        DeclareLaunchArgument('muzzle_velocity', default_value='920.0'),
+            description='YOLO11s 파인튜닝 가중치(.pt) 경로. 예: <core>/models/best_finetuned.pt'),
+        DeclareLaunchArgument(
+            'headless', default_value='true',
+            description='true 면 Gazebo GUI 없이 서버만 실행. 화면은 smash_scope_viewer 로 확인'),
+        DeclareLaunchArgument('device', default_value='cuda:0'),
+        DeclareLaunchArgument('muzzle_velocity', default_value='880.0'),
         DeclareLaunchArgument('enable_drag', default_value='true'),
-        DeclareLaunchArgument('target_x', default_value='33.0'),
+        DeclareLaunchArgument('target_x', default_value='10.0'),
         DeclareLaunchArgument('target_y', default_value='0.0'),
-        DeclareLaunchArgument('target_z', default_value='12.5'),
+        DeclareLaunchArgument('target_z', default_value='4.2'),
         DeclareLaunchArgument(
             'target_sdf', default_value=os.path.join(pkg, 'models', 'drone', 'model.sdf'),
             description='스폰할 표적 모델 SDF'),
@@ -65,6 +68,9 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'fire_mode', default_value='manual',
             description='"manual"(트리거 상승 엣지 격발) 또는 "auto"(READY 자동 격발)'),
+        DeclareLaunchArgument(
+            'launch_viewer', default_value='false',
+            description='true 면 대화형 스코프 뷰어(smash_scope_viewer)를 자동으로 함께 기동'),
     ]
 
     share_parent = os.path.dirname(pkg)
@@ -74,7 +80,8 @@ def generate_launch_description():
 
     turret = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(turret_pkg, 'launch', 'view.launch.py')))
+            os.path.join(turret_pkg, 'launch', 'view.launch.py')),
+        launch_arguments={'headless': LaunchConfiguration('headless')}.items())
 
     drone = Node(
         package='ros_gz_sim', executable='create', output='screen',
@@ -133,6 +140,12 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}],
     )
 
-    delayed = TimerAction(period=6.0, actions=[drone] + extras + [fcs, ground_truth_bridge])
+    viewer_node = Node(
+        package='drone_sim', executable='smash_scope_viewer',
+        name='smash_scope_viewer', output='screen',
+        condition=IfCondition(LaunchConfiguration('launch_viewer')),
+    )
+
+    delayed = TimerAction(period=6.0, actions=[drone] + extras + [fcs, ground_truth_bridge, viewer_node])
 
     return LaunchDescription(args + [set_res, turret, delayed])

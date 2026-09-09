@@ -42,9 +42,13 @@ smash/
 ├── bridge/               카메라·트래커·센서를 aiming_engine 입력으로 변환하는 접착 계층
 ├── jun_reliability/      트래킹 신뢰도 진단 레이어 (STABLE/HOLD/LOST, 발사 권한 아님)
 ├── detector+tracker/     YOLO 학습(GA 튜닝) + 검증된 최종 추적 알고리즘의 원본(reference) 소스
-├── simulation/           Gazebo Harmonic + ROS 2 Jazzy 3D 포탑 시뮬레이터 (SMASH FCS · 유일한 시뮬레이터)
+├── simulation/           Gazebo Harmonic + ROS 2 Jazzy 3D 포탑 시뮬레이터 (SMASH FCS)
+│   ├── ciws_turret_aerial_object_detection_main/
+│   ├── run_smash_fcs.bat SMASH FCS 시뮬레이터 런처 (WSL2 실행 진입점)
+│   ├── environment_setup_guide.md
+│   └── README.md
 ├── config/               YAML 설정 (aiming_engine.yaml, bridge*.yaml)
-├── examples/             end-to-end 데모 스크립트
+├── examples/             end to end 데모 스크립트
 ├── scripts/              검증·패키징·환경설정 (07/08 오라클 검증, wsl_setup_smash_fcs.sh)
 ├── tests/                pytest 단위 테스트 (모듈별 1:1 대응)
 ├── docs/
@@ -54,8 +58,7 @@ smash/
 │   ├── interim_reports/  중간 보고서
 │   └── pdfs/             참고 논문 텍스트
 ├── results/              실행 산출물 (stage2_lead_accuracy_results.json, intermediate_results/)
-├── run_smash_fcs.bat     SMASH FCS 시뮬레이터 런처 (WSL2 · 유일한 실행 진입점)
-├── requirements.txt / requirements-bridge-hardware.txt
+├── requirements.txt / requirements_bridge_hardware.txt
 └── pytest.ini
 ```
 
@@ -87,7 +90,7 @@ smash/
 
 ---
 
-## 4. `jun_reliability/` — 트래킹 신뢰도 진단 레이어 (신규)
+## 4. `jun_reliability/` — 트래킹 신뢰도 진단 레이어
 
 트래커 출력이 "지금 얼마나 믿을 만한가"만 판단하는 완전히 독립적인 진단 모듈이다. 기존 `bridge`/`aiming_engine` 코드는 전혀 수정하지 않고 바깥에서 관찰만 한다.
 
@@ -165,16 +168,19 @@ python -m jun_reliability.integration_smoke --video video.mp4    # 신뢰도 레
 
 ### 3D 시뮬레이터 (SMASH FCS)
 
-3차원 물리 시뮬레이션은 **`run_smash_fcs.bat` 하나로만** 실행한다. ROS 2 Jazzy + Gazebo
-Harmonic 위에서 CIWS 포탑(`turret_world.sdf`)을 띄우고, 카메라 픽셀 영상만으로 탐지·추적하여
-3차원 뉴턴 탄도 리드각을 산출하고 격발/격추까지 판정한다. 상세는 `simulation/README.md` 참고.
+3차원 물리 시뮬레이션은 **`simulation/run_smash_fcs.bat`** 배치 스크립트로 실행합니다. ROS 2 Jazzy 및 Gazebo Harmonic 환경에서 CIWS 포탑(`turret_world.sdf`)을 띄우고, 카메라 영상 기반 탐지·추적을 통해 3차원 뉴턴 탄도 리드각을 산출하고 격발/격추까지 판정합니다. 상세 내용은 `simulation/README.md` 및 `simulation/environment_setup_guide.md`를 참고하십시오.
 
-```
-run_smash_fcs.bat
-  1 환경 진단  2 워크스페이스 연결  3 colcon 빌드
-  4 조준만     5 수동 격발          6 자동 격발
-  7 격발/판정 오라클 검증 (ROS 2·Gazebo 불필요)
-  8 대화형 스코프 뷰어 (마우스 좌클릭 / 스페이스바 격발)
+```cmd
+simulation\run_smash_fcs.bat
+  1 환경 진단 (check)
+  2 워크스페이스 링크 연결 (link)
+  3 colcon 빌드 (build)
+  4 비사격 조준 시뮬레이션
+  5 [수동] 격발 시뮬레이션 및 스코프 뷰어 연동
+  6 [자동] READY 상태 자동 격발 시뮬레이션 및 뷰어 연동
+  7 3단계 격발 판정 오프라인 검증 (ROS 2 및 Gazebo 불필요)
+  8 Windows 네이티브 스코프 뷰어 단독 실행
+  9 Gazebo 3D GUI 창 토글 (헤드리스/GUI 모드 전환)
 ```
 
 ROS 2 나 Gazebo 없이 조준·탄도 계산만 따로 검증하려면 오프라인 오라클 스크립트를 쓴다.

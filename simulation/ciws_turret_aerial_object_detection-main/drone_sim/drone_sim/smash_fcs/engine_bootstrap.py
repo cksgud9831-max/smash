@@ -1,8 +1,8 @@
 """SMASH 조준 코어(aiming_engine, bridge)를 ROS 2 패키지에서 임포트하기 위한 부트스트랩.
 
 aiming_engine 과 bridge 는 ciws_turret_aerial_object_detection 저장소 밖(SMASH 코어
-저장소 루트)에 있으므로 colcon 이 설치해 주지 않는다. 그래서 실행 시점에 sys.path 로
-붙인다. 경로는 다음 순서로 결정한다.
+저장소의 smash_core/ 폴더)에 있으므로 colcon 이 설치해 주지 않는다. 그래서 실행 시점에
+<core_root>/smash_core 를 sys.path 로 붙인다. core_root 는 다음 순서로 결정한다.
 
     1. 노드 파라미터 core_path
     2. 환경변수 SMASH_CORE_PATH
@@ -20,10 +20,21 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 _REQUIRED_PACKAGES = ("aiming_engine", "bridge")
+# 코어 파이썬 패키지들이 모여 있는 하위 폴더 (2026-09-07 구조 정리)
+_CORE_PACKAGE_DIR = "smash_core"
+
+
+def core_package_dir(root: Path) -> Path:
+    """core_root 아래에서 실제로 sys.path 에 올릴 폴더."""
+    candidate = root / _CORE_PACKAGE_DIR
+    if candidate.is_dir():
+        return candidate
+    return root
 
 
 def _looks_like_core_root(path: Path) -> bool:
-    return all((path / name / "__init__.py").is_file() for name in _REQUIRED_PACKAGES)
+    pkg = core_package_dir(path)
+    return all((pkg / name / "__init__.py").is_file() for name in _REQUIRED_PACKAGES)
 
 
 def _candidate_roots(explicit: Optional[str]) -> Iterable[Path]:
@@ -54,7 +65,7 @@ def resolve_core_root(explicit: Optional[str] = None) -> Path:
 
 def ensure_core_on_path(explicit: Optional[str] = None) -> Path:
     root = resolve_core_root(explicit)
-    text = str(root)
+    text = str(core_package_dir(root))
     if text not in sys.path:
         sys.path.insert(0, text)
     return root

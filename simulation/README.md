@@ -1,34 +1,25 @@
-# SMASH FCS 대드론 시뮬레이션 통합 모듈 (simulation)
+# SMASH Gazebo 및 ROS 2 시뮬레이션 환경
 
-본 폴더는 SMASH 지능형 대드론 사격 통제 시스템의 3차원 물리 시뮬레이션, 대화형 조준기, 비전 추적 및 격발/격추 판정 관련 모든 소스 코드와 실행 환경을 체계적으로 통합 관리하는 디렉토리입니다.
-
-============================================================
-
-### 1. 폴더 구조 및 구성 요소
-
-1. **ciws_turret_aerial_object_detection_main/ (참고 오픈소스 및 Gazebo/ROS 2 3D 물리 환경 전체):**
-   * **ciws_turret/:** 2축(Pan/Tilt) 대공 포탑 URDF/xacro 모델, Gazebo 센서 플러그인(카메라 및 레이저 LiDAR), 물리 월드(turret_world.sdf), 제어기 설정(controllers.yaml) 및 런치 파일.
-   * **drone_sim/:** SMASH FCS 핵심 노드(smash_fcs_node.py), 대화형 스마트 스코프 뷰어(smash_scope_viewer.py), 3차원 비행 타깃(드론, 비행기, 헬기, 조류) 모델 및 런치 파이프라인(smash_scene.launch.py).
-   * **assets/ 및 3D 모델 메쉬:** 비행체 및 포탑 3D 메쉬/텍스처 에셋 전체.
-
-2. **실행 진입점 (저장소 루트 및 scripts/ 에 위치):**
-   * **../run_smash_fcs.bat:** Windows CMD 환경에서 환경 진단, 빌드, 조준, 수동/자동 격발, 대화형 스코프 뷰어를 원클릭으로 구동하는 마스터 배치 파일.
-   * **../scripts/wsl_setup_smash_fcs.sh:** WSL2 Ubuntu_24.04 환경 내부에서 ROS 2 Jazzy, Gazebo Harmonic, 심볼릭 링크 및 가상환경 경로를 자동 관리하는 스크립트. run_smash_fcs.bat 이 이 경로를 직접 호출한다.
+본 디렉터리는 SMASH 대드론 사격 통제 알고리즘 검증을 위한 Gazebo 물리 시뮬레이션 및 ROS 2 패키지를 관리하는 공간입니다.
 
 ============================================================
 
-### 2. 주요 실행 방법
+### 디렉터리 구성
 
-1. **Gazebo Harmonic + ROS 2 3D 포탑 시뮬레이터 실행:**
-   * 저장소 루트의 run_smash_fcs.bat 실행 후 메뉴 선택:
-     * 1번: 환경 진단 (check)
-     * 2번: 워크스페이스 심볼릭 링크 연결 (link, 최초 1회)
-     * 3번: 패키지 빌드 (build)
-     * 4번: 조준 전용 시뮬레이션 실행 (run)
-     * 5번: 사수 수동 격발 모드 실행 (manual)
-     * 6번: READY 정렬 시 자동 격발 모드 실행 (auto)
-     * 8번: 대화형 스마트 스코프 뷰어 창 실행 (마우스 좌클릭 / 스페이스바 즉시 격발)
+1. **ciws_turret_aerial_object_detection_main**: 시뮬레이터 핵심 ROS 2 패키지 모음
+   * **ciws_turret**: 2축(Pan/Tilt) 대공 포탑 모델(URDF/Xacro), Gazebo 월드, RViz 설정 및 모터 제어기
+   * **drone_sim**: 가상 드론 비행 시나리오 생성, Gazebo 센서 브릿지 및 시뮬레이션 검증 노드
+   * **assets**: 3D 메쉬 및 시각화 리소스
+2. **environment_setup_guide.md**: 팀원을 위한 WSL2, ROS 2 Jazzy, Gazebo Harmonic 설치 및 환경 구축 상세 가이드
 
-2. **ROS 2 / Gazebo 없이 격발·판정 로직만 검증:**
-   * run_smash_fcs.bat 7번(오라클 검증) 또는
-     python scripts/08_stage1_fcs_offline_validation.py 실행.
+============================================================
+
+### 깃허브 협업 개발 워크플로우
+
+1. **저장소 클론**: 팀원이 깃허브 저장소를 로컬에 클론합니다.
+2. **WSL2 환경 구성**: `environment_setup_guide.md` 문서를 참고하여 필수 패키지를 설치합니다.
+3. **루트 런처 실행**: 프로젝트 루트의 `run_smash_fcs.bat`을 실행합니다.
+   * 1번 (check): 환경 설치 상태 진단
+   * 2번 (link): WSL2 워크스페이스와 `simulation` 내부 패키지 심볼릭 링크 자동 생성
+   * 3번 (build): colcon build 수행
+   * 4번~8번: 시뮬레이션 및 스마트 스코프 뷰어 실행
