@@ -148,6 +148,7 @@ class Tf02ProRangeSensor(RangeSensor):
 
     def _poll_loop(self) -> None:
         buffer = bytearray()
+        header = bytes([TF02_HEADER_BYTE, TF02_HEADER_BYTE])
         while not self._stop_event.is_set():
             chunk = self._serial.read(TF02_FRAME_LENGTH)
             if not chunk:
@@ -155,10 +156,18 @@ class Tf02ProRangeSensor(RangeSensor):
             buffer.extend(chunk)
 
             while len(buffer) >= TF02_FRAME_LENGTH:
-                if buffer[0] != TF02_HEADER_BYTE or buffer[1] != TF02_HEADER_BYTE:
-                    # Not aligned to a frame boundary -- drop one byte and resync.
-                    del buffer[0:1]
-                    continue
+                # Fast resync: find the first occurrence of 0x59 0x59
+                idx = buffer.find(header)
+                if idx == -1:
+                    # Keep the last byte in case it is the first 0x59 of a split header
+                    if len(buffer) > 1:
+                        del buffer[:-1]
+                    break
+                if idx > 0:
+                    del buffer[:idx]
+                    if len(buffer) < TF02_FRAME_LENGTH:
+                        break
+
                 frame = bytes(buffer[0:TF02_FRAME_LENGTH])
                 del buffer[0:TF02_FRAME_LENGTH]
 
@@ -166,6 +175,7 @@ class Tf02ProRangeSensor(RangeSensor):
                 if sample is not None:
                     with self._lock:
                         self._latest = sample
+
 
     def read(self, timestamp: float) -> Optional[RangeSample]:
         with self._lock:

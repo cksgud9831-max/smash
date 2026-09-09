@@ -1,6 +1,6 @@
 """Turns (camera frame, sensor readings) into aiming_engine.TrackerFrame.
 
-Owns OpticalFlowTracker plus the RangeSensor/PoseSource/LaserAligner it
+Owns a selected tracker plus the RangeSensor/PoseSource/LaserAligner it
 needs to fill in the fields the tracker alone can't provide
 (tracking_confidence, follower_state, camera_extrinsics, laser_range_m).
 One TrackerFrameBuilder per engagement; call build() once per camera frame.
@@ -16,6 +16,7 @@ from aiming_engine.types import TrackerFrame
 
 from .config import BridgeConfig
 from .confidence import compute_follower_state, compute_tracking_confidence
+from .final_tracker import FinalTracker
 from .laser_alignment import LaserAligner
 from .optical_flow_tracker import OpticalFlowTracker
 from .pose_source import PoseSource
@@ -37,15 +38,42 @@ class TrackerFrameBuilder:
         it and let this build the real OpticalFlowTracker from config."""
 
         self._config = config
-        self._tracker = tracker if tracker is not None else OpticalFlowTracker(
-            model_path=config.tracker.model_path,
-            device=config.tracker.device,
-            conf_thres=config.tracker.conf_thres,
-        )
+        if tracker is not None:
+            self._tracker = tracker
+        elif config.tracker.backend == "legacy":
+            self._tracker = OpticalFlowTracker(
+                model_path=config.tracker.model_path,
+                device=config.tracker.device,
+                conf_thres=config.tracker.conf_thres,
+            )
+        elif config.tracker.backend == "final_v20":
+            self._tracker = FinalTracker(
+                engine_path=config.tracker.model_path,
+                device=config.tracker.device,
+            )
+        else:
+            raise ValueError(f"Unsupported tracker backend: {config.tracker.backend}")
+        self._closed = False
         self._range_sensor = range_sensor
         self._pose_source = pose_source
         self._laser_aligner = LaserAligner(np.array(config.laser.mount_offset_m, dtype=np.float64))
         self._intrinsics = config.camera.intrinsics_matrix()
+
+        # Zero-order hold caches for sensor dropout robustness (~100ms tolerance)
+        self._last_valid_range: Optional[float] = None
+        self._last_valid_range_ts: float = -1.0
+        self._last_valid_extrinsic: Optional[np.ndarray] = None
+        self._last_valid_pose_ts: float = -1.0
+        self._sensor_hold_timeout_s: float = 0.1  # hold valid sample for up to 3 frames @ 30fps
+
+    def close(self) -> None:
+        """Release an owned tracker's optional resources; safe to repeat."""
+        if self._closed:
+            return
+        close = getattr(self._tracker, "close", None)
+        if callable(close):
+            close()
+        self._closed = True
 
     def build(self, frame_bgr: np.ndarray, timestamp: float) -> Optional[TrackerFrame]:
         """Returns None (no output this frame) if there's nothing to track,
@@ -65,17 +93,35 @@ class TrackerFrameBuilder:
         tracking_confidence = compute_tracking_confidence(result.score, result.is_recovery_event)
         follower_state = compute_follower_state(result.is_recovery_event)
 
+        # 1. Range sample retrieval with Zero-Order Hold (dropout tolerance)
         range_sample = self._range_sensor.read(timestamp)
-        if range_sample is None or not range_sample.valid:
+        effective_range_m: Optional[float] = None
+        if range_sample is not None and range_sample.valid:
+            self._last_valid_range = range_sample.distance_m
+            self._last_valid_range_ts = timestamp
+            effective_range_m = range_sample.distance_m
+        elif self._last_valid_range is not None and (timestamp - self._last_valid_range_ts) <= self._sensor_hold_timeout_s:
+            effective_range_m = self._last_valid_range
+
+        if effective_range_m is None:
             return None
 
         try:
-            laser_range_m = self._laser_aligner.correct(center_px, range_sample.distance_m, self._intrinsics)
+            laser_range_m = self._laser_aligner.correct(center_px, effective_range_m, self._intrinsics)
         except ValueError:
             return None
 
+        # 2. Pose sample retrieval with Zero-Order Hold (dropout tolerance)
         pose_sample = self._pose_source.read(timestamp)
-        if not pose_sample.valid:
+        effective_extrinsic: Optional[np.ndarray] = None
+        if pose_sample is not None and pose_sample.valid:
+            self._last_valid_extrinsic = pose_sample.extrinsic
+            self._last_valid_pose_ts = timestamp
+            effective_extrinsic = pose_sample.extrinsic
+        elif self._last_valid_extrinsic is not None and (timestamp - self._last_valid_pose_ts) <= self._sensor_hold_timeout_s:
+            effective_extrinsic = self._last_valid_extrinsic
+
+        if effective_extrinsic is None:
             return None
 
         return TrackerFrame(
@@ -91,6 +137,7 @@ class TrackerFrameBuilder:
             tracking_confidence=tracking_confidence,
             follower_state=follower_state,
             camera_intrinsics=self._intrinsics,
-            camera_extrinsics=pose_sample.extrinsic,
+            camera_extrinsics=effective_extrinsic,
             laser_range_m=laser_range_m,
         )
+

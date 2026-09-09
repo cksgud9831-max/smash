@@ -1,8 +1,8 @@
 projectile:
-  muzzle_velocity: 850.0        # m/s -- simulated projectile used only to compute the aim solution shown on the HUD
+  muzzle_velocity: 880.0        # m/s -- 14.5-inch barrel (M4 Carbine) 5.56x45mm M855 standard
   forces: [gravity]             # pluggable list; add "drag" once mass_kg/diameter_m below are set to real values (see forces.py:DragForce)
   gravity: 9.81                 # m/s^2
-  integrator_step: 0.01         # s, RK4 fixed step (gravity-only is exact at any step; with drag enabled,
+  integrator_step: 0.01         # s, RK4 fixed step
                                  # cross-checked against an independent adaptive integrator (scipy solve_ivp/RK45)
                                  # in tests/test_forces.py::test_production_integrator_step_converged_for_drag --
                                  # converged to <5mm at 800 m/s over t up to 1.0s. Re-check if muzzle_velocity or

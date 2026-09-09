@@ -34,8 +34,9 @@ import numpy as np
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+core_dir = os.path.join(project_root, "smash_core")
+if core_dir not in sys.path:
+    sys.path.insert(0, core_dir)
 
 from aiming_engine.config import load_config
 from aiming_engine.target_state import ConstantVelocityEstimator

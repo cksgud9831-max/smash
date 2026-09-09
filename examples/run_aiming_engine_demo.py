@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "smash_core"))
 
 from aiming_engine.aiming_manager import AimingManager
 from aiming_engine.types import TrackerFrame

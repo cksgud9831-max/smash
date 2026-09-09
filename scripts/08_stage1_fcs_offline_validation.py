@@ -34,8 +34,8 @@ from pathlib import Path
 import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-CIWS_ROOT = REPO_ROOT / "ciws_turret_aerial_object_detection-main"
-sys.path.insert(0, str(REPO_ROOT))
+CIWS_ROOT = REPO_ROOT / "simulation" / "ciws_turret_aerial_object_detection-main"
+sys.path.insert(0, str(REPO_ROOT / "smash_core"))
 sys.path.insert(0, str(CIWS_ROOT / "drone_sim"))
 
 from aiming_engine.aiming_manager import AimingManager  # noqa: E402

@@ -20,7 +20,7 @@ from pathlib import Path
 
 import cv2
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "smash_core"))
 
 from aiming_engine import AimingManager
 from bridge.config import load_bridge_config

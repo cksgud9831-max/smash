@@ -12,7 +12,9 @@ def pack_project(output_filename: str = "smart_scope_project.zip") -> None:
     include_folders = [
         "aiming_engine",
         "bridge",
+        "jun_reliability",
         "detector+tracker",
+        "simulation",
         "config",
         "examples",
         "tests",
