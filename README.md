@@ -63,7 +63,7 @@ smash/
 
 ## 3. `bridge/` — 하드웨어·트래커 접착 계층
 
-`detector+tracker/final/`에서 검증된 YOLO + Lucas-Kanade 옵티컬플로우 하이브리드 추적기를 실시간 `update(frame) -> FollowerResult` 형태로 이식한 계층이다. **과거의 칼만필터 기반 `SmartTracker`(`bridge/smart_tracking/`)는 제거되었고**, 지금은 이 방식이 유일한 추적기다.
+`detector+tracker/final/`에서 검증된 YOLO + Lucas-Kanade 옵티컬플로우 하이브리드 추적기를 실시간 `update(frame) -> FollowerResult` 형태로 이식한 계층이다. 
 
 ### 3.1 트래커 백엔드 두 가지
 
