@@ -43,13 +43,14 @@ smash/
 ├── jun_reliability/      트래킹 신뢰도 진단 레이어 (STABLE/HOLD/LOST, 발사 권한 아님)
 ├── detector+tracker/     YOLO 학습(GA 튜닝) + 검증된 최종 추적 알고리즘의 원본(reference) 소스
 ├── simulation/           Gazebo Harmonic + ROS 2 Jazzy 3D 포탑 시뮬레이터 (SMASH FCS)
-│   ├── ciws_turret_aerial_object_detection_main/
+│   ├── ciws_turret_aerial_object_detection-main/   ciws_turret(포탑·월드·런치) + drone_sim(FCS 노드·표적 모델)
 │   ├── run_smash_fcs.bat SMASH FCS 시뮬레이터 런처 (WSL2 실행 진입점)
 │   ├── environment_setup_guide.md
 │   └── README.md
+├── benchmarks/           평가 전용 벤치마크 (Anti-UAV 통합 벤치마크, WSL·Gazebo·영상 전송 진단)
 ├── config/               YAML 설정 (aiming_engine.yaml, bridge*.yaml)
 ├── examples/             end to end 데모 스크립트
-├── scripts/              검증·패키징·환경설정 (07/08 오라클 검증, wsl_setup_smash_fcs.sh)
+├── scripts/              검증·패키징·환경설정 (07/08 오라클 검증, wsl_setup_smash_fcs.sh, win_scope_viewer.py)
 ├── tests/                pytest 단위 테스트 (모듈별 1:1 대응)
 ├── docs/
 │   ├── reports/          단계별 검증 보고서 (stage1/stage2, level1_level2, aim_oracle)
@@ -58,7 +59,7 @@ smash/
 │   ├── interim_reports/  중간 보고서
 │   └── pdfs/             참고 논문 텍스트
 ├── results/              실행 산출물 (stage2_lead_accuracy_results.json, intermediate_results/)
-├── requirements.txt / requirements_bridge_hardware.txt
+├── requirements.txt / requirements-bridge-hardware.txt
 └── pytest.ini
 ```
 
@@ -182,6 +183,37 @@ simulation\run_smash_fcs.bat
   8 Windows 네이티브 스코프 뷰어 단독 실행
   9 Gazebo 3D GUI 창 토글 (헤드리스/GUI 모드 전환)
 ```
+
+#### GPU 렌더링 (2026-09-12 성능 개선)
+
+런처는 기본적으로 Mesa D3D12 드라이버로 NVIDIA GPU 렌더링을 쓴다(`scripts/wsl_setup_smash_fcs.sh`). 이전에는 `LIBGL_ALWAYS_SOFTWARE=1` 이 CPU 렌더링을 강제하고 있어 시뮬레이터가 실용적으로 쓸 수 없을 만큼 느렸다.
+
+| 환경변수 | 기본값 | 설명 |
+|---|---|---|
+| `SMASH_GL_BACKEND` | `d3d12` | `software` 로 두면 GPU 가 없는 PC 용 CPU 렌더링으로 되돌아간다 |
+| `MESA_D3D12_DEFAULT_ADAPTER_NAME` | `NVIDIA` | D3D12 가 사용할 GPU 어댑터 이름 |
+| `SMASH_HEADLESS` | `false` | `true` 면 Gazebo GUI 없이 서버만 실행 (런처 9번으로 전환) |
+
+WSL2 Ubuntu 24.04 / GTX 1050 Ti / 4코어 기준, 헤드리스 전체 파이프라인(FCS 포함) 실측값:
+
+| 항목 | CPU 렌더링 | GPU 렌더링 |
+|---|---|---|
+| 카메라 토픽 | 5.6 Hz | 13.1 Hz |
+| FCS 처리율 (`image_annotated`) | 3.8 Hz | **10.2 Hz (약 2.7배)** |
+| Gazebo 서버 CPU | 200% | 64% |
+
+- GPU 가 잡혔는지는 `glxinfo -B` 결과가 `D3D12 (NVIDIA ...)`, `Accelerated: yes` 인지로 확인한다 (`simulation/environment_setup_guide.md` 4절).
+- Gazebo 의 `real_time_factor` 는 CPU/GPU 모두 약 1.0 으로 보고되므로 성능 판단에 쓸 수 없다. **카메라·레이저 토픽 주기**를 봐야 한다.
+
+#### 시뮬레이터 검증 현황 및 알려진 이슈
+
+- **정지 호버링 표적 격발 검증**: 10.8 m 682/682, 35.3 m 492/492 명중 (궤적-표적 최근접 거리 판정, READY 허용오차는 거리 기반). 이동 표적(로드맵 4단계)은 아직 검증하지 않았다.
+- **포탑 tilt 무반응 우회**: pan 명령이 pan 관절 현재 위치와 정확히 같으면 tilt 가 명령을 따르지 않는 상류(gz_ros2_control) 문제가 있어, `smash_fcs_node.py` 가 pan 명령에 1픽셀 미만의 흔들림(`PAN_DITHER_RAD = 5e-4`)을 얹는다. `view.launch.py` 만 띄우고 `ros2 topic pub` 로 직접 조종할 때는 pan 을 0 이 아닌 값으로 먼저 지시해야 한다.
+- **기동 시 컨트롤러 활성화 실패**: `joint_state_broadcaster` 만 실패하면 HUD 가 `TRACK(NO TF)` 에 갇혀 격발이 거부된다. 두 컨트롤러를 한 번의 spawner 호출로 묶어 해결했으며(10회 반복 무결), 재발 시 실행 중에 아래로 복구할 수 있다.
+  ```bash
+  ros2 run controller_manager spawner joint_state_broadcaster -c /controller_manager --controller-manager-timeout 60 --switch-timeout 60
+  ```
+- 진단 과정, 기각된 원인, 남은 일(시뮬 레이저가 약 15 m 밖에서 반사를 못 받아 거리추정이 바운딩박스로 떨어지는 문제, 잔여 계통 빗나감 0.10 m 등)은 `docs/sessions/session_work_summary_2026-09-12.md` 에 정리돼 있다.
 
 ROS 2 나 Gazebo 없이 조준·탄도 계산만 따로 검증하려면 오프라인 오라클 스크립트를 쓴다.
 
