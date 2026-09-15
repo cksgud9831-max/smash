@@ -34,11 +34,11 @@ echo.
 echo   1. 환경 진단 (check)
 echo   2. 워크스페이스 링크 (link)
 echo   3. colcon 빌드 (build)
-echo   4. 시뮬레이션 실행 (비사격, 1/2단계)
-echo   5. [수동] 시뮬레이션 및 스마트 스코프 뷰어 연동 (수동 격발)
-echo   6. [자동] 시뮬레이션 및 스마트 스코프 뷰어 연동 (READY 자동 격발)
+echo   4. [비사격] 시뮬레이션 + 스코프 뷰어 (탐지·조준만, 격발 없음)
+echo   5. [수동 격발] 시뮬레이션 + 스코프 뷰어 (조준 수동, READY 에서 Space 격발)
+echo   6. [자동 격발] 시뮬레이션 + 스코프 뷰어 (조준 수동, READY 되면 격발만 자동)
 echo   7. 3단계 격발 판정 오프라인 검증 (ROS2/Gazebo 불필요)
-echo   8. 스마트 스코프 뷰어만 단독 실행 (Windows 네이티브)
+echo   8. 스코프 뷰어 창만 다시 열기 (4~6번 실행 중 창을 닫았을 때)
 echo   9. Gazebo 3D GUI 창 토글 (현재 헤드리스=%HEADLESS%)
 echo   0. 종료
 echo ============================================================
@@ -79,8 +79,15 @@ goto after
 goto after
 
 :do_run_plain
-echo   비사격 모드로 시뮬레이션을 구동합니다.
-%WSL_CMD% "%ENVPFX% SMASH_ENABLE_FIRE_CONTROL=false bash '%SETUP_SCRIPT%' run"
+echo.
+echo   ============================================================
+echo   [4번] 비사격 시뮬레이션 및 스마트 스코프 뷰어를 구동합니다.
+echo   탐지·조준 계산과 수동 조준만 동작하며 격발 제어는 꺼집니다.
+echo   웹 뷰어 주소: http://localhost:9999
+echo   ============================================================
+echo.
+start "" python "%VIEWER_SCRIPT%"
+%WSL_CMD% "%ENVPFX% SMASH_ENABLE_FIRE_CONTROL=false SMASH_LAUNCH_VIEWER=true bash '%SETUP_SCRIPT%' run"
 goto after
 
 :do_run_fire_manual
@@ -99,7 +106,7 @@ goto after
 echo.
 echo   ============================================================
 echo   [6번] 격발 제어 시뮬레이션 및 스마트 스코프 뷰어를 구동합니다.
-echo   READY 상태 충족 시 자동으로 격발 신호가 발생합니다.
+echo   조준은 사수가 직접 하고, READY 가 되면 격발만 자동으로 발생합니다.
 echo   웹 뷰어 주소: http://localhost:9999
 echo   ============================================================
 echo.
@@ -112,7 +119,8 @@ goto after
 goto after
 
 :do_viewer
-echo   SMASH Windows 네이티브 스코프 뷰어를 단독 실행합니다.
+echo   스코프 뷰어 창만 다시 엽니다. 시뮬레이터는 켜지 않습니다.
+echo   4~6번이 다른 런처 창에서 실행 중이어야 화면이 연결됩니다.
 python "%VIEWER_SCRIPT%"
 goto after
 

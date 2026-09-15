@@ -290,13 +290,16 @@ def test_hit_miss_boundary():
 
     shot_hit = FiredShot(3, 0.0, launch, az, el, 0.5, launch, 1.0, 920.0, "auto")
     fc._pending.append(shot_hit)  # noqa: SLF001 — 테스트 전용 내부 접근
-    exactly_on_boundary = shot_at + np.array([1.0, 0.0, 0.0])  # 정확히 반경만큼 이탈
+    # 판정은 최근접 거리(탄도에 수직인 성분)로 한다(fire_control.closest_approach).
+    # az=el=0 탄은 +X 로 날아가므로, 진행방향(X)으로 옮기면 이탈로 치지 않는다.
+    # 반드시 진행방향에 수직인 Y 로 옮겨야 경계를 시험할 수 있다.
+    exactly_on_boundary = shot_at + np.array([0.0, 1.0, 0.0])  # 정확히 반경만큼 이탈
     results = fc.update(now=0.5 + 1e-9, ground_truth_position_world=exactly_on_boundary, ground_truth_timestamp=0.5)
     check("반경과 정확히 같은 이탈 거리는 HIT (<=)", results[0].verdict == "HIT", f"{results[0].miss_distance_m}")
 
     shot_miss = FiredShot(4, 0.0, launch, az, el, 0.5, launch, 1.0, 920.0, "auto")
     fc._pending.append(shot_miss)  # noqa: SLF001
-    just_beyond = shot_at + np.array([1.0 + 1e-6, 0.0, 0.0])
+    just_beyond = shot_at + np.array([0.0, 1.0 + 1e-6, 0.0])
     results = fc.update(now=0.5 + 1e-9, ground_truth_position_world=just_beyond, ground_truth_timestamp=0.5)
     check("반경을 살짝 초과한 이탈 거리는 MISS", results[0].verdict == "MISS", f"{results[0].miss_distance_m}")
 
