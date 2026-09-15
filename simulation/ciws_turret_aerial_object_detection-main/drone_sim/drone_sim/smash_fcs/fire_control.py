@@ -84,7 +84,6 @@ from typing import Optional
 
 import numpy as np
 
-
 def direction_to_world_azimuth_elevation(direction_world: np.ndarray) -> tuple[float, float]:
     """세계(=base_footprint) 프레임 단위벡터를 (방위각, 앙각) 라디안으로 변환한다.
 
@@ -129,6 +128,9 @@ class ShotResult:
     miss_distance_m: Optional[float]
     ground_truth_available: bool
     ground_truth_age_s: Optional[float]
+    # 탄도 방향으로 표적이 얼마나 앞/뒤에 있었는지. 사거리 추정 오차가 그대로 실린다.
+    # 명중 판정에는 쓰지 않는다(최근접 거리로 판정한다). 진단용.
+    along_track_error_m: Optional[float] = None
 
 
 class FireController:
@@ -244,20 +246,61 @@ class FireController:
 
     # ── 탄도 재적분 ────────────────────────────────────────────────────
 
-    def projectile_position_at(self, shot: FiredShot, t_elapsed: float) -> np.ndarray:
-        """발사 후 t_elapsed 초 시점의 탄환 위치(base_footprint, m)."""
+    def projectile_state_at(self, shot: FiredShot, t_elapsed: float) -> tuple[np.ndarray, np.ndarray]:
+        """발사 후 t_elapsed 초 시점의 탄환 위치와 속도(base_footprint, m / m/s)."""
 
         from aiming_engine.types import Vector3
 
         t_cap = max(shot.predicted_tof_s * self._max_tof_multiple, 1e-3)
         t_eval = max(0.0, min(float(t_elapsed), t_cap))
-        pos, _vel = self._projectile_model.state_at(
+        pos, vel = self._projectile_model.state_at(
             t_eval,
             Vector3.from_array(shot.launch_point_world),
             shot.azimuth_world,
             shot.elevation_world,
         )
-        return pos.to_array()
+        return pos.to_array(), vel.to_array()
+
+    def projectile_position_at(self, shot: FiredShot, t_elapsed: float) -> np.ndarray:
+        """발사 후 t_elapsed 초 시점의 탄환 위치(base_footprint, m)."""
+
+        return self.projectile_state_at(shot, t_elapsed)[0]
+
+    @staticmethod
+    def closest_approach(
+        point_world: np.ndarray, velocity_world: np.ndarray, target_world: np.ndarray
+    ) -> tuple[float, float, np.ndarray]:
+        """탄도를 국소 직선으로 보고 표적과의 최근접 거리를 구한다.
+
+        반환: (수직거리 m, 항로방향 어긋남 m, 최근접점 world 좌표)
+        항로방향 어긋남이 양수면 표적이 탄보다 앞(더 먼 쪽)에 있다는 뜻이다.
+
+        왜 판정 시각의 거리가 아니라 최근접 거리인가 (2026-09-12).
+        이전에는 "예측 비행시간이 지난 순간의 탄 위치"와 표적을 비교했다. 그러면
+        사거리 추정이 빗나갔을 때 탄이 표적을 스쳐 지나가는데도 평가 시점이 어긋나
+        MISS 로 기록된다. 실제로 35 m 조건에서 사거리 추정 산포(표준편차 0.75 m)가
+        그대로 빗나감 거리에 실렸다. 명중은 "탄이 표적 부피를 통과했는가"이지
+        "정해진 시각에 표적 옆에 있었는가"가 아니므로 최근접 거리가 맞다.
+
+        직선 근사가 타당한 이유: 5.56mm 탄은 880 m/s 이고 35 m 교전의 비행시간은
+        약 40 ms 다. 그 사이 중력 낙하는 0.5*9.81*0.04^2 = 8 mm 에 불과하므로,
+        최근접점 부근의 짧은 구간에서 궤적은 사실상 직선이다.
+        """
+
+        p = np.asarray(point_world, dtype=np.float64)
+        v = np.asarray(velocity_world, dtype=np.float64)
+        q = np.asarray(target_world, dtype=np.float64)
+
+        speed = float(np.linalg.norm(v))
+        if speed < 1e-9:
+            return float(np.linalg.norm(q - p)), 0.0, p
+
+        vhat = v / speed
+        w = q - p
+        along = float(np.dot(w, vhat))
+        closest = p + along * vhat
+        perpendicular = float(np.linalg.norm(q - closest))
+        return perpendicular, along, closest
 
     # ── Hit/Kill 판정 ──────────────────────────────────────────────────
 
@@ -279,17 +322,38 @@ class FireController:
                 still_pending.append(shot)
                 continue
 
-            impact_point = self.projectile_position_at(shot, shot.predicted_tof_s)
+            impact_point, impact_velocity = self.projectile_state_at(shot, shot.predicted_tof_s)
 
             gt_available = ground_truth_position_world is not None and ground_truth_timestamp is not None
             gt_age: Optional[float] = None
             if gt_available:
                 gt_age = now - float(ground_truth_timestamp)
-                if gt_age > self._ground_truth_timeout_s or gt_age < 0.0:
+                # 판정 시각과 실측 스탬프가 timeout 안에 있으면 쓴다. 부호는 보지 않는다.
+                #
+                # 이전에는 gt_age < 0 이면 무조건 버렸다. 그런데 now 는 /clock 으로
+                # 받은 sim 시각이고 ground_truth_timestamp 는 같은 sim 시계로 찍힌
+                # PosePublisher 스탬프다. FCS 가 YOLO 로 바쁜 동안 /clock 처리가 밀리면
+                # 노드 시계가 GT 스탬프보다 뒤처져 gt_age 가 음수가 된다. 그 값은 더
+                # 오래된 것이 아니라 더 신선한 것이므로 버릴 이유가 없다.
+                #
+                # 실측(2026-09-12). 부하 없는 관찰자 노드에서는 시차가 -0.011 ~ +0.009 초
+                # 였지만, FCS 본체에서는 -0.051 ~ -0.106 초까지 벌어졌다. 이 때문에
+                # 판정의 20~57 %가 근거 없이 UNVERIFIED 로 남아 명중률 통계의 표본이
+                # 절반 이하로 깎였다(타임아웃 초과는 0 건이었다 — 오래되어서가 아니라
+                # 부호 때문에 버려진 것이다).
+                #
+                # 판정 기준을 "timeout 안의 값이면 쓴다"로 대칭화한다. 과거 쪽 0.5초를
+                # 이미 허용하고 있으므로 미래 쪽만 0 으로 막을 근거가 없다.
+                # 시차 자체는 /clock 을 영상 브리지에서 분리해 별도 프로세스로 옮겨
+                # 줄였다(view.launch.py 참고).
+                if abs(gt_age) > self._ground_truth_timeout_s:
                     gt_available = False
 
+            along_track: Optional[float] = None
             if gt_available:
-                miss_distance = float(np.linalg.norm(np.asarray(ground_truth_position_world) - impact_point))
+                miss_distance, along_track, impact_point = self.closest_approach(
+                    impact_point, impact_velocity, ground_truth_position_world
+                )
                 verdict = "HIT" if miss_distance <= shot.target_radius_m else "MISS"
                 if verdict == "HIT":
                     self.hits += 1
@@ -313,6 +377,7 @@ class FireController:
                 miss_distance_m=miss_distance,
                 ground_truth_available=gt_available,
                 ground_truth_age_s=gt_age,
+                along_track_error_m=along_track,
             )
             shot.judged = True
             shot.result = result

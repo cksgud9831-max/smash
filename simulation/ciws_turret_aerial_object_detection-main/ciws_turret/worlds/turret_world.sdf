@@ -17,11 +17,15 @@
       <ambient>0.6 0.6 0.6 1</ambient>
       <background>0.55 0.70 0.90 1</background>
       <sky></sky>
-      <shadows>true</shadows>
+      <!-- 그림자 끔. 주의: 4코어 WSL2 + GTX 1050 Ti 환경에서 측정했을 때 속도 향상은
+           확인되지 않았다(측정 편차가 효과보다 컸다). GPU 셰이딩이 아니라 CPU 경합이
+           병목이기 때문으로 보인다. 렌더링 부하를 줄이는 것 자체는 무해하므로 꺼 둔다.
+           참고: <sky> 제거도 함께 측정했으나 역시 향상이 없어 그대로 두었다. -->
+      <shadows>false</shadows>
     </scene>
 
     <light type="directional" name="sun">
-      <cast_shadows>true</cast_shadows>
+      <cast_shadows>false</cast_shadows>
       <pose>0 0 20 0 0 0</pose>
       <diffuse>0.9 0.9 0.9 1</diffuse>
       <specular>0.3 0.3 0.3 1</specular>

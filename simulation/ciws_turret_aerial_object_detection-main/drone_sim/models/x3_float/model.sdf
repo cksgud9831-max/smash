@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="x3_float">
+    <!-- static so it never falls; set_pose can still teleport it -->
+    <static>true</static>
+    <include>
+      <uri>model://x3 uav</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+  </model>
+</sdf>

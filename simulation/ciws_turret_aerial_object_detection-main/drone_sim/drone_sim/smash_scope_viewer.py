@@ -51,9 +51,15 @@ class ScopeHttpHandler(http.server.BaseHTTPRequestHandler):
             self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=frame")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
+            # 새로 렌더링된 프레임일 때만 압축해 내보낸다. 렌더 루프가 매번 새
+            # 배열을 만들므로 객체 동일성으로 판별할 수 있다. 이전 구현은 같은
+            # 프레임을 초당 30회 반복 압축해 CPU 를 낭비하고, 수신 측이 못 따라갈
+            # 만큼 밀어내 화면 지연을 키웠다.
+            last_sent = None
             while rclpy.ok():
                 frame = ScopeHttpHandler.viewer_instance._rendered_frame
-                if frame is not None:
+                if frame is not None and frame is not last_sent:
+                    last_sent = frame
                     ret, jpeg = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
                     if ret:
                         try:
@@ -65,7 +71,9 @@ class ScopeHttpHandler(http.server.BaseHTTPRequestHandler):
                             self.wfile.write(b"\r\n")
                         except Exception:
                             break
-                time.sleep(0.033)
+                # 변경된 프레임만 내보내므로 짧게 대기해도 낭비가 없다. 오히려
+                # 새 프레임이 준비된 뒤 나가기까지의 지연이 줄어든다.
+                time.sleep(0.005)
         elif path in ("/", "/index.html"):
             html = """<!DOCTYPE html>
 <html>
@@ -128,6 +136,12 @@ class SmashScopeViewer(Node):
         self._bridge = CvBridge()
         self._latest_frame = None
         self._rendered_frame = None
+        # 프레임 일련번호. 새 영상이 왔을 때만 다시 그리고, 새로 그려졌을 때만
+        # JPEG 로 압축해 내보내기 위한 것이다. 이전 구현은 영상이 초당 10장만
+        # 들어와도 렌더 루프를 초당 약 100회, JPEG 압축을 초당 30회 돌려
+        # 4코어 환경에서 CPU 를 크게 낭비했다.
+        self._frame_seq = 0
+        self._rendered_seq = -1
         self._bang_timer = 0.0
 
         self._trigger_pub = self.create_publisher(Bool, "/smash_fcs/trigger", 10)
@@ -202,6 +216,7 @@ class SmashScopeViewer(Node):
         try:
             frame = self._bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
             self._latest_frame = frame
+            self._frame_seq += 1
         except Exception as e:
             self.get_logger().warn(f"영상 디코딩 실패: {e}")
 
@@ -224,7 +239,16 @@ class SmashScopeViewer(Node):
         while rclpy.ok():
             rclpy.spin_once(self, timeout_sec=0.01)
 
+            # 새 영상이 없으면 다시 그리지 않는다. 이전 구현은 영상이 초당 10장만
+            # 들어와도 이 루프가 초당 약 100회 돌며 640x640 화면을 매번 새로
+            # 복사·렌더링했다. 격발 이펙트 표시 중에는 시간에 따라 화면이 변하므로
+            # 그때는 계속 그린다. 아래에서 건너뛰는 구간은 WSL 에서 비활성인
+            # GUI 키 입력 처리뿐이라 안전하다(_gui_available = False).
+            if self._frame_seq == self._rendered_seq and time.time() > self._bang_timer:
+                continue
+
             if self._latest_frame is not None:
+                self._rendered_seq = self._frame_seq
                 display = self._latest_frame.copy()
                 h, w = display.shape[:2]
 

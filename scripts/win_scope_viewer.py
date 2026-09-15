@@ -35,6 +35,15 @@ VK_R = 0x52
 VK_T = 0x54
 VK_Q = 0x51
 VK_ESCAPE = 0x1B
+VK_SHIFT = 0x10
+
+# 조준 스텝. 카메라 화각이 0.4 rad(약 23도)뿐이고 READY 정렬 허용오차가 35픽셀
+# (약 0.022 rad = 1.25도)이므로, 이전 기본값 0.070 rad(4.0도)로는 한 번 누를 때마다
+# 화면의 6분의 1이 통째로 움직여 허용오차 안에 들어가는 것이 구조적으로 불가능했다.
+# 실제로 표적이 화면 밖으로 밀려 추적이 초기화되는 일이 반복됐다.
+# 기본을 정밀 스텝으로 두고, 크게 돌릴 때만 Shift 를 누르도록 분리한다.
+STEP_FINE_RAD = 0.010   # 약 0.57도 (허용오차 1.25도의 절반 이하)
+STEP_COARSE_RAD = 0.070  # 약 4.0도 (Shift: 표적 탐색용 큰 이동)
 
 
 def is_key_down(vk):
@@ -91,7 +100,7 @@ def main():
     btn_reset = (0, 0, 0, 0)
     btn_air = (0, 0, 0, 0)
 
-    step_rad = 0.070  # 약 4.0도 (신속하고 시원한 조준경 회전)
+    step_rad = STEP_FINE_RAD  # 매 루프에서 Shift 여부로 갱신한다
     last_key_time = 0.0
 
     def on_mouse(event, x, y, flags, param):
@@ -121,38 +130,58 @@ def main():
 
     cv2.setMouseCallback(WINDOW_NAME, on_mouse)
 
-    stream = None
-    stream_bytes = b""
+    # ── 영상 수신 (별도 스레드) ────────────────────────────────────────
+    # 이전 구현은 메인 루프에서 4096바이트씩 읽으면서 매 반복 cv2.waitKeyEx(1)
+    # 을 호출했다. waitKey 한 번이 최소 1~5 ms 를 쓰므로 읽기 속도가 초당 1 MB
+    # 안팎으로 묶이는데, 서버는 그보다 빠르게 프레임을 밀어낸다. 소비가 생산을
+    # 못 따라가면 TCP 버퍼에 프레임이 계속 쌓여 화면 지연이 무한정 늘어난다
+    # (사용자가 겪은 "버퍼링" 증상). 수신을 전용 스레드로 분리하고, 버퍼에 밀린
+    # 프레임은 버린 뒤 항상 최신 한 장만 남긴다.
+    latest = {"jpeg": None}
+
+    def stream_reader():
+        while True:
+            try:
+                req = urllib.request.Request(STREAM_URL)
+                with urllib.request.urlopen(req, timeout=2.0) as stream:
+                    print("[OK] WSL2 스코프 영상 스트림에 성공적으로 연결되었습니다.")
+                    buf = b""
+                    while True:
+                        chunk = stream.read(65536)
+                        if not chunk:
+                            break
+                        buf += chunk
+                        # 버퍼에 여러 장이 밀려 있으면 마지막(최신) 한 장만 취한다.
+                        end = buf.rfind(b"\xff\xd9")
+                        if end != -1:
+                            start = buf.rfind(b"\xff\xd8", 0, end)
+                            if start != -1:
+                                latest["jpeg"] = buf[start : end + 2]
+                            buf = buf[end + 2 :]
+                        if len(buf) > 4_000_000:  # 경계 손상 시 폭주 방지
+                            buf = b""
+            except Exception:
+                pass
+            latest["jpeg"] = None
+            time.sleep(0.5)
+
+    threading.Thread(target=stream_reader, daemon=True).start()
+
+    shown_jpeg = None
 
     while True:
-        if stream is None:
+        jpg = latest["jpeg"]
+
+        if jpg is None:
             loading = np.zeros((720, 720, 3), dtype=np.uint8)
             cv2.putText(loading, "SMASH Smart Scope FCS", (140, 320), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 120), 2)
             cv2.putText(loading, "Connecting to WSL2 SMASH FCS (http://localhost:9999)...", (60, 380), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (180, 180, 180), 1)
             cv2.imshow(WINDOW_NAME, loading)
-            cv2.waitKey(100)
-
-            try:
-                req = urllib.request.Request(STREAM_URL)
-                stream = urllib.request.urlopen(req, timeout=2.0)
-                stream_bytes = b""
-                print("[OK] WSL2 스코프 영상 스트림에 성공적으로 연결되었습니다.")
-            except Exception:
-                stream = None
-                time.sleep(0.5)
-                continue
 
         try:
-            chunk = stream.read(4096)
-            if not chunk:
-                stream = None
-                continue
-            stream_bytes += chunk
-            a = stream_bytes.find(b"\xff\xd8")
-            b = stream_bytes.find(b"\xff\xd9")
-            if a != -1 and b != -1:
-                jpg = stream_bytes[a : b + 2]
-                stream_bytes = stream_bytes[b + 2 :]
+            # 같은 프레임을 다시 디코딩하지 않는다. 새 프레임일 때만 그린다.
+            if jpg is not None and jpg is not shown_jpeg:
+                shown_jpeg = jpg
                 frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
                 if frame is not None:
                     h, w = frame.shape[:2]
@@ -184,7 +213,7 @@ def main():
                         cv2.putText(frame, b_txt, (tx, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.38, b_col, 1, cv2.LINE_AA)
 
                     # 하단 조작 가이드 안내문
-                    guide_txt = "AIM: ARROWS / WASD | AIR PRESET: T | RESET: R | FIRE: SPACE"
+                    guide_txt = "AIM: ARROWS/WASD (SHIFT=FAST) | AIR: T | RESET: R | FIRE: SPACE"
                     cv2.putText(frame, guide_txt, (10, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 0), 3, cv2.LINE_AA)
                     cv2.putText(frame, guide_txt, (10, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 255, 200), 1, cv2.LINE_AA)
 
@@ -193,6 +222,9 @@ def main():
             key_ex = cv2.waitKeyEx(1)
             key = key_ex & 0xFF
             now = time.time()
+
+            # Shift 를 누르고 있으면 큰 스텝(표적 탐색), 아니면 정밀 스텝(정렬).
+            step_rad = STEP_COARSE_RAD if is_key_down(VK_SHIFT) else STEP_FINE_RAD
 
             # 키보드 방향키 / WASD / T(대공) / R(리셋) / 스페이스바 판별
             is_up = is_key_down(VK_UP) or is_key_down(VK_W) or (key in (ord("w"), ord("W"))) or (key_ex in (2490368, 0x260000, 38))

@@ -46,11 +46,18 @@ Gazebo 3D 월드 상에서 2축(Pan/Tilt) 대공 포탑을 모터 구동하고 �
    * Gazebo 시뮬레이터가 ROS 2 제어기 플러그인을 정상 인식할 수 있도록 wsl_setup_smash_fcs.sh 실행 스크립트 내에 아래 환경 변수를 자동으로 주입합니다.
    * `export GZ_SIM_SYSTEM_PLUGIN_PATH="/opt/ros/jazzy/lib:$GZ_SIM_SYSTEM_PLUGIN_PATH"`
 
-2. **파이썬 모듈 검색 경로 설정:**
+2. **Gazebo GPU 렌더링 환경 변수 주입:**
+   * WSL2 의 기본 OpenGL 은 `llvmpipe`(CPU 렌더링)로 동작하여 카메라·레이저 센서 렌더링이 매우 느립니다. 실행 스크립트가 Mesa D3D12 드라이버로 NVIDIA GPU 를 지정합니다.
+   * `export GALLIUM_DRIVER=d3d12`
+   * `export MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA` (내장 Intel GPU 대신 외장 GPU 선택)
+   * 확인: `GALLIUM_DRIVER=d3d12 MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA glxinfo -B` 결과가 `D3D12 (NVIDIA ...)`, `Accelerated: yes` 여야 합니다.
+   * GPU 가 없는 PC 에서는 `SMASH_GL_BACKEND=software` 로 CPU 렌더링으로 되돌릴 수 있습니다.
+
+3. **파이썬 모듈 검색 경로 설정:**
    * 공통 라이브러리(bridge 패키지 등)를 원활하게 임포트할 수 있도록 프로젝트 루트 경로를 PYTHONPATH에 등록합니다.
    * `export PYTHONPATH="/mnt/d/Aiming:$PYTHONPATH"`
 
-3. **ROS 2 워크스페이스 심볼릭 링크 연결:**
+4. **ROS 2 워크스페이스 심볼릭 링크 연결:**
    * 윈도우 프로젝트 폴더와 WSL2 ROS 2 워크스페이스(~/ros2_ws/src/)를 심볼릭 링크로 연결하여 코드 수정 사항이 실시간으로 동기화되도록 구성합니다.
    * simulation/ciws_turret_aerial_object_detection_main/ciws_turret → ~/ros2_ws/src/ciws_turret
    * simulation/ciws_turret_aerial_object_detection_main/drone_sim → ~/ros2_ws/src/drone_sim

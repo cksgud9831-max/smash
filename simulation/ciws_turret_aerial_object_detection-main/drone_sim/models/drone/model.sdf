@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="drone">
+    <!-- kinematic: moved by the flight node, not by physics -->
+    <static>false</static>
+    <link name="body">
+      <gravity>false</gravity>
+      <kinematic>true</kinematic>
+      <inertial>
+        <mass>0.8</mass>
+        <inertia><ixx>0.01</ixx><iyy>0.01</iyy><izz>0.02</izz>
+                 <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <mesh><uri>package://drone_sim/meshes/drone.stl</uri></mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+        </material>
+      </visual>
+      <collision name="collision">
+        <geometry><box><size>0.35 0.35 0.10</size></box></geometry>
+      </collision>
+    </link>
+
+    <!-- ===== SMASH FCS 3단계: Hit/Kill 판정용 실측(ground truth) 위치 발행 =====
+         이 표적의 실제 world 프레임 자세를 gz 토픽으로 내보낸다. FCS 노드는
+         자기 자신의(노이즈가 낀) 표적 추정치가 아니라 이 값을 Hit/Kill 판정
+         기준으로 쓴다 — 그래야 표적이 등속 가정을 위반해 예측과 다르게
+         움직이는 상황(로드맵 4단계 회피 기동)을 판정이 실제로 포착할 수
+         있다. 자세한 이유는 drone_sim/drone_sim/smash_fcs/fire_control.py
+         모듈 docstring 참고.
+
+         토픽 이름은 WSL2 에서 실측으로 확인했다(2026-09-12): world 스코프에서
+         "/model/drone/pose" 이며 메시지 형식은 gz.msgs.Pose, frame_id 는
+         "turret_world", child_frame_id 는 "drone" 이다.
+
+         ★ static_publisher 를 반드시 false 로 둘 것.
+           true 로 두면 PosePublisher 가 "변하지 않는 자세"를 본 토픽이 아니라
+           <이름>/pose_static 으로 따로 내보낸다. 1단계 표적은 정지 호버링이라
+           자세가 변하지 않으므로 /model/drone/pose 에는 발행자만 있고 데이터가
+           한 건도 흐르지 않는다(실측: 3초간 pose 0건 / pose_static 136줄).
+           그러면 FCS 가 실측 위치를 받지 못해 Hit/Kill 판정이 전부 UNVERIFIED 로
+           남는다 — 격발은 정상적으로 일어나므로 증상이 조용하다. 실제로 이 설정
+           때문에 통합 검증 첫 시도에서 733발 전부가 UNVERIFIED 였다.
+           false 로 두면 정지 표적이든 이동 표적이든 항상 본 토픽으로 나오므로
+           로드맵 4단계(회피 기동)까지 같은 토픽 하나로 처리된다. -->
+    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+      <publish_link_pose>false</publish_link_pose>
+      <publish_model_pose>true</publish_model_pose>
+      <publish_nested_model_pose>false</publish_nested_model_pose>
+      <publish_collision_pose>false</publish_collision_pose>
+      <publish_visual_pose>false</publish_visual_pose>
+      <use_pose_vector_msg>false</use_pose_vector_msg>
+      <static_publisher>false</static_publisher>
+      <!-- 물리 반복(1 kHz)마다 내보내지 않도록 발행 주기를 제한한다.
+           판정 시각 해상도로는 30 Hz 로 충분하다. -->
+      <update_frequency>30</update_frequency>
+    </plugin>
+  </model>
+</sdf>

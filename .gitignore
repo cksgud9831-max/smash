@@ -9,4 +9,4 @@
 *.engine
 *.pt
 *.pth
-models/
+/models/

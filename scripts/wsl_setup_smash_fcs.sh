@@ -24,6 +24,9 @@
 #   SMASH_HEADLESS             기본값 false. true 면 Gazebo GUI 없이 서버만 실행
 #   SMASH_GT_POSE_TOPIC        기본값 /model/drone/pose (Gazebo 실측 위치 gz 토픽.
 #                              `gz topic -l` 로 확인 후 다르면 이 값을 바꿀 것)
+#   SMASH_GL_BACKEND           기본값 d3d12 (Mesa D3D12 로 NVIDIA GPU 렌더링).
+#                              software 면 llvmpipe CPU 렌더링 (GPU 가 없는 PC 용)
+#   MESA_D3D12_DEFAULT_ADAPTER_NAME  기본값 NVIDIA (내장 Intel GPU 대신 외장 GPU 선택)
 
 set +u
 COLCON_TRACE="${COLCON_TRACE:-}"
@@ -279,7 +282,20 @@ build() {
 
 run() {
     export QT_X11_NO_MITSHM=1
-    export LIBGL_ALWAYS_SOFTWARE=1
+    # WSL2 의 기본 OpenGL 은 llvmpipe(CPU) 로 떨어진다. Mesa D3D12 드라이버로 NVIDIA GPU 를
+    # 지정해 Gazebo(ogre2) 카메라 / gpu_lidar 센서 렌더링을 GPU 에서 돌린다.
+    # 헤드리스 측정 (GTX 1050 Ti, 4코어):
+    #   월드만:        카메라 12.2 -> 18.0 Hz, 레이저 18.5 -> 28.6 Hz, gz 서버 CPU 200% -> 120%
+    #   FCS 포함 전체: 카메라 5.6 -> 13.1 Hz, FCS 처리율 3.8 -> 10.2 Hz
+    # SMASH_GL_BACKEND=software 면 이전 동작(CPU 렌더링)으로 돌아간다.
+    SMASH_GL_BACKEND="${SMASH_GL_BACKEND:-d3d12}"
+    if [ "$SMASH_GL_BACKEND" = "software" ]; then
+        export LIBGL_ALWAYS_SOFTWARE=1
+    else
+        unset LIBGL_ALWAYS_SOFTWARE
+        export GALLIUM_DRIVER=d3d12
+        export MESA_D3D12_DEFAULT_ADAPTER_NAME="${MESA_D3D12_DEFAULT_ADAPTER_NAME:-NVIDIA}"
+    fi
     head_ "실행"
     # 이전 잔류 프로세스 자동 청소 (충돌 방지)
     killall -9 gz_sim smash_scope_viewer 2>/dev/null || true

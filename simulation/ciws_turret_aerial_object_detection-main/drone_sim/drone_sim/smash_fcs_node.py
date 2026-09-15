@@ -130,6 +130,11 @@ SENSOR_QOS = QoSProfile(
     durability=QoSDurabilityPolicy.VOLATILE,
 )
 
+# pan 명령에 얹는 흔들림의 진폭(rad). 포탑이 아예 움직이지 않는 문제를 우회하기
+# 위한 필수 값이며, 근거와 실측 기록은 SmashFcsNode._publish_command 에 있다.
+# 5e-4 rad 은 카메라 화각 기준 약 0.8픽셀(0.4 rad / 640 px)로 조준·판정에 영향이 없다.
+PAN_DITHER_RAD = 5.0e-4
+
 
 def _stamp_to_seconds(stamp) -> float:
     return float(stamp.sec) + float(stamp.nanosec) * 1e-9
@@ -190,6 +195,9 @@ class SmashFcsNode(Node):
         self.declare_parameter("search_pan_rad", 0.0)
         self.declare_parameter("search_tilt_rad", 0.0)
         self.declare_parameter("command_feedforward_s", 0.0)
+        # 정렬 허용오차의 상한/하한(화소). 실제 값은 표적 거리에서 유도한다.
+        self.declare_parameter("align_tolerance_max_px", 35.0)
+        self.declare_parameter("align_tolerance_min_px", 3.0)
 
         self.declare_parameter("border_margin_px", 2)
         self.declare_parameter("border_frames_before_reset", 3)
@@ -333,6 +341,12 @@ class SmashFcsNode(Node):
             max_range_rate_mps=float(self.get_parameter("max_range_rate_mps").value),
         )
 
+        # 명중 반경. 격발 판정(FireController)과 정렬 허용오차(_align_tolerance_for_range)가
+        # 같은 값을 써야 하므로 두 용도보다 먼저 한 번만 정한다.
+        self._hit_radius_m = float(self.get_parameter("target_hit_radius_m").value)
+        if self._hit_radius_m <= 0.0:
+            self._hit_radius_m = float(self.get_parameter("target_characteristic_size_m").value) / 2.0
+
         # ── 3단계: 격발 제어 (기본 비활성) ──────────────────────────────
         self._enable_fire_control = bool(self.get_parameter("enable_fire_control").value)
         self._fire_control = None
@@ -343,9 +357,7 @@ class SmashFcsNode(Node):
         if self._enable_fire_control:
             from drone_sim.smash_fcs.fire_control import FireController  # noqa: E402
 
-            target_hit_radius_m = float(self.get_parameter("target_hit_radius_m").value)
-            if target_hit_radius_m <= 0.0:
-                target_hit_radius_m = float(self.get_parameter("target_characteristic_size_m").value) / 2.0
+            target_hit_radius_m = self._hit_radius_m
             fire_mode = str(self.get_parameter("fire_mode").value)
             self._fire_control = FireController(
                 projectile_config=self._aim_config.projectile,
@@ -387,12 +399,17 @@ class SmashFcsNode(Node):
         self._manual_tilt_offset = 0.0
         self._aim_aligned = False
         self._align_err_px = 999.0
-        self._align_tolerance_px = 35.0
+        # 정렬 허용오차는 고정 화소값이 아니라 표적 거리에서 유도한다.
+        # 아래 _align_tolerance_for_range 참고. 여기 값은 거리를 모를 때의 상한이다.
+        self._align_tolerance_px = float(self.get_parameter("align_tolerance_max_px").value)
+        self._align_tolerance_min_px = float(self.get_parameter("align_tolerance_min_px").value)
         self._feedforward = tk.GoalFeedForward(
             lead_time_s=float(self.get_parameter("command_feedforward_s").value),
             max_rate_rad_s=max(self._pan_max_rate, self._tilt_max_rate),
         )
         self._last_command_time: Optional[float] = None
+        # pan 명령 흔들림의 현재 부호. 상세한 이유는 _publish_command 참고.
+        self._pan_dither = PAN_DITHER_RAD
         self._border_frames = 0
         self._state_label = "SEARCH"
         self._last_output = None
@@ -412,6 +429,10 @@ class SmashFcsNode(Node):
 
         # ── ROS 인터페이스 ──────────────────────────────────────────────
         self._tf_buffer = tf2_ros.Buffer()
+        # ※ spin_thread=True 를 쓰지 말 것. rclpy 의 TransformListener 는 그 옵션에서
+        #   자체 실행기를 만들어 같은 노드를 중복으로 돌린다. main() 의 rclpy.spin()
+        #   과 충돌해 영상/타이머 콜백이 굶어 죽는다(2026-09-12 실측: 상태 토픽 발행이
+        #   통째로 멎었다). TF 수신은 기본 실행기에 맡긴다.
         self._tf_listener = tf2_ros.TransformListener(self._tf_buffer, self)
 
         self._cmd_pub = self.create_publisher(
@@ -598,6 +619,8 @@ class SmashFcsNode(Node):
         cy = int(round(self._intrinsics[1, 2])) if self._intrinsics is not None else frame_bgr.shape[0] // 2
         lead_pixel = self._project_direction_to_pixel(aim_dir_base) if aim_dir_base is not None else None
 
+        self._align_tolerance_px = self._align_tolerance_for_range(range_estimate)
+
         if lead_pixel is not None:
             self._align_err_px = math.hypot(lead_pixel[0] - cx, lead_pixel[1] - cy)
             self._aim_aligned = (self._align_err_px <= self._align_tolerance_px)
@@ -664,7 +687,17 @@ class SmashFcsNode(Node):
                 stamp,
                 timeout=rclpy.duration.Duration(seconds=self._tf_timeout_s),
             )
-        except tf2_ros.ExtrapolationException:
+        except (
+            tf2_ros.ExtrapolationException,
+            tf2_ros.LookupException,
+            tf2_ros.ConnectivityException,
+        ) as first_exc:
+            # 세 예외 모두 "지금 이 시각의 변환은 없다"는 뜻이며, 잠시 뒤 정상으로
+            # 돌아오는 일시적 상태일 수 있다. 이전 구현은 Extrapolation 일 때만
+            # 최신 시각으로 재시도하고 Lookup/Connectivity 는 즉시 포기했는데,
+            # 포탑이 도는 동안 실제로 발생하는 것은 Connectivity 쪽이었다. 그
+            # 결과 한 번 끊기면 조준 해를 영영 만들지 못했다. 셋 다 동일하게
+            # 최신 변환으로 재시도한다.
             try:
                 tf = self._tf_buffer.lookup_transform(
                     self._base_frame,
@@ -672,15 +705,15 @@ class SmashFcsNode(Node):
                     rclpy.time.Time(),
                     timeout=rclpy.duration.Duration(seconds=self._tf_timeout_s),
                 )
-            except Exception as exc:
-                self.get_logger().warn(f"TF 조회 실패: {exc}", throttle_duration_sec=2.0)
+            except Exception:
+                self.get_logger().warn(
+                    f"TF 조회 실패: {first_exc}. "
+                    "unconnected trees 로 나온다면 /tf 의 동적 변환(turret_link, "
+                    "gun_link)이 버퍼에 없다는 뜻이다. robot_state_publisher 와 "
+                    "joint_state_broadcaster 가 살아 있는지 확인할 것.",
+                    throttle_duration_sec=2.0,
+                )
                 return None
-        except (
-            tf2_ros.LookupException,
-            tf2_ros.ConnectivityException,
-        ) as exc:
-            self.get_logger().warn(f"TF 조회 실패: {exc}", throttle_duration_sec=2.0)
-            return None
 
         t = tf.transform.translation
         q = tf.transform.rotation
@@ -712,6 +745,40 @@ class SmashFcsNode(Node):
             return None
         return direction_base / norm
 
+    def _align_tolerance_for_range(self, range_estimate) -> float:
+        """표적 거리에서 정렬 허용오차(화소)를 유도한다.
+
+        왜 고정 화소값이면 안 되는가 (2026-09-12 실측). 이전에는 35 픽셀 고정이었다.
+        그런데 READY 는 "이대로 쏘면 맞는다"를 뜻해야 하고, 맞는지는 미터 단위의
+        명중 반경으로 정해진다. 화소는 각도 단위이므로 두 기준이 일치하는 거리는
+        한 점뿐이고, 그보다 멀어지면 READY 가 명중을 전혀 보장하지 못한다.
+
+            거리      35 px 이 대응하는 거리오차   명중 반경 0.1975 m 에 필요한 화소
+            10.8 m           0.236 m                      28.9 px
+            35.0 m           0.766 m                       8.8 px   <- 4배 헐거웠다
+
+        그래서 허용오차를 명중 반경의 각크기로 환산한다. 초점거리 fx 는 라디안당
+        화소이므로(소각 근사) 필요한 화소는 fx * hit_radius / R 이다.
+
+        거리를 모르면(추정 무효) 상한값을 그대로 쓴다 — 이때는 조준을 돕는 표시일
+        뿐 명중 보장이 아니다. 하한을 두는 이유는 아주 먼 표적에서 허용오차가
+        추적 잡음보다 작아져 READY 가 영영 켜지지 않는 것을 막기 위함이다.
+        """
+
+        if (
+            self._intrinsics is None
+            or range_estimate is None
+            or not getattr(range_estimate, "valid", False)
+            or not math.isfinite(range_estimate.distance_m)
+            or range_estimate.distance_m <= 1e-3
+        ):
+            return float(self.get_parameter("align_tolerance_max_px").value)
+
+        fx = float(self._intrinsics[0, 0])
+        needed_px = fx * self._hit_radius_m / float(range_estimate.distance_m)
+        upper = float(self.get_parameter("align_tolerance_max_px").value)
+        return float(min(upper, max(self._align_tolerance_min_px, needed_px)))
+
     def _publish_command(self) -> None:
         now = self.get_clock().now().nanoseconds * 1e-9
         dt = 1.0 / 30.0 if self._last_command_time is None else max(1e-3, now - self._last_command_time)
@@ -724,8 +791,41 @@ class SmashFcsNode(Node):
             self._tilt_max,
         )
 
+        # pan 명령에 매 발행마다 부호가 뒤집히는 아주 작은 흔들림을 얹는다.
+        # 미세조정이 아니라, 포탑이 아예 움직이지 않는 문제를 막기 위한 것이다.
+        #
+        # 증상 (2026-09-12 실측, ciws_turret 단독으로도 재현). pan 명령이 pan 관절의
+        # 현재 위치와 정확히 같으면(둘 다 0.0 인 기동 직후가 대표적) tilt 관절이
+        # 명령을 전혀 따르지 않는다. 토픽에는 명령이 20~30 Hz 로 정상적으로 흐르고,
+        # 컨트롤러는 active, command interface 도 claimed 이며 로그에 오류가 하나도
+        # 없는데 관절만 0 도에 붙어 있다. 조용해서 원인 추적이 매우 어렵다.
+        #
+        #   명령 [0.00, 0.38] 8초 -> 무반응        (pan 오차 0)
+        #   명령 [0.00, 0.58] 8초 -> 무반응        (pan 오차 0)
+        #   명령 [0.30, 0.28]     -> 두 관절 즉시 정상
+        #   명령 [0.00, 0.38] (pan 이 0.3 에 있을 때) -> 정상 (pan 오차 -0.3)
+        #
+        # pan 과 tilt 의 명령 순서를 뒤집으면 막히는 쪽도 따라 바뀌지 않고, 언제나
+        # pan 오차가 0 인 경우만 막힌다. 즉 컨트롤러 목록 순서가 아니라 pan 관절
+        # 자체가 조건이다. 일회성 잠금 해제가 아니라 동시 조건이라는 점도 확인했다 —
+        # 기동 직후 pan 을 0.05 rad 슬루시켰다 되돌려도(실제로 관절이 움직였다)
+        # 그 뒤 pan 오차가 다시 0 이 되면 tilt 는 그대로 얼어붙는다.
+        #
+        # 기각된 원인(재조사 금지): FCS 노드/표적 스폰/전체 장면 구성, CPU 부하,
+        # DDS 매칭 및 QoS(발행자와 컨트롤러 구독은 처음부터 정상 연결되어 있었다),
+        # position_proportional_gain, 컨트롤러 joints 순서, pan 의 continuous/revolute
+        # 관절 종류, tilt command_interface 의 min/max, URDF 의 initial_value,
+        # 컨트롤러 활성화 직후의 일회성 슬루.
+        #
+        # gz_ros2_control / DART 쪽 상류 동작으로 보이며 근본 원인까지는 규명하지
+        # 못했다. 그래서 pan 오차가 0 이 되는 상태 자체를 만들지 않는 것으로 우회한다.
+        # 진폭 PAN_DITHER_RAD 는 카메라 화각 기준 1픽셀 미만(0.4 rad / 640 px =
+        # 6.25e-4 rad/px)이라 조준·판정에 영향이 없다. 줄이려면 반드시 다시 실측할 것 —
+        # 임계값 아래로 내려가면 아무 오류 없이 조용히 재발한다.
+        self._pan_dither = -self._pan_dither
+
         msg = Float64MultiArray()
-        msg.data = [float(self._pan_cmd), float(self._tilt_cmd)]
+        msg.data = [float(self._pan_cmd + self._pan_dither), float(self._tilt_cmd)]
         self._cmd_pub.publish(msg)
 
         state = String()
@@ -855,6 +955,7 @@ class SmashFcsNode(Node):
                 None if result.ground_truth_point_world is None else result.ground_truth_point_world.tolist()
             ),
             "miss_distance_m": result.miss_distance_m,
+            "along_track_error_m": result.along_track_error_m,
             "ground_truth_available": result.ground_truth_available,
             "ground_truth_age_s": result.ground_truth_age_s,
         }

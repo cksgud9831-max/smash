@@ -164,9 +164,33 @@ def select_motion_consistent_bbox_from_yolo(boxes, prev_bbox, frame_shape, offse
     return best_bbox, best_conf
 
 
-def yolo_detect(frame, model, device, conf_thres, roi_bbox=None, prev_bbox=None):
+def yolo_detect(frame, model, device, conf_thres, roi_bbox=None, prev_bbox=None,
+                full_frame_imgsz=None):
     """ROI-cropped YOLO detection with motion-consistent candidate
-    selection; falls back to full-frame detection if the ROI crop fails."""
+    selection; falls back to full-frame detection if the ROI crop fails.
+
+    full_frame_imgsz 는 전체 프레임 경로에만 적용하는 추론 입력 크기다. 작고 먼
+    표적을 처음 포착할 때 필요하다 — 근거는 아래.
+
+    Ultralytics 는 입력을 imgsz 로 레터박스하므로, ROI 경로는 작은 crop 이 기본값
+    640 으로 **확대**되어 이미 고해상도 효과를 얻는다. 반면 전체 프레임 경로는
+    640x640 카메라 영상이 그대로 640 으로 들어가 확대가 전혀 없다. 그래서 화면에서
+    수십 화소인 표적은 stride-32 격자에 해상되지 않는다.
+
+    35 m 정지 호버링 표적(화면상 24x10 px)을 실제 캡처 프레임으로 측정한 결과
+    (2026-09-12, yolo11s_ga_final-3/best.pt, GTX 1050 Ti):
+
+        imgsz  최고 신뢰도   전체프레임 추론시간
+          640      0.020            32.5 ms      <- conf_thres 0.25 미달, 미탐지
+          960      0.585            55.1 ms
+         1280      0.701            93.3 ms
+         1920      0.720                 -
+
+    즉 임계값이나 가중치 문제가 아니라 입력 해상도 문제다. conf_thres 를 0.02 까지
+    낮추면 "잡히기"는 하지만 잡음 수준이라 오탐이 쏟아지므로 해법이 아니다.
+    기본값 960 은 신뢰도 여유(0.585)와 비용(+22.6 ms)을 맞바꾼 값이며, 이 비용은
+    표적을 포착하기 전(탐색 중)에만 든다. 한 번 물면 ROI 경로로 넘어가 640 을 쓴다.
+    """
 
     if roi_bbox is not None:
         rx, ry, rw, rh = expand_bbox(roi_bbox, frame.shape, ROI_MARGIN)
@@ -194,7 +218,9 @@ def yolo_detect(frame, model, device, conf_thres, roi_bbox=None, prev_bbox=None)
                 if score >= ROI_MIN_CONF_FOR_ACCEPT and is_roi_detection_scale_valid(prev_bbox, bbox):
                     return bbox, score
 
-    results = model.predict(source=frame, conf=conf_thres, device=device, verbose=False)
+    full_kwargs = {} if full_frame_imgsz is None else {"imgsz": int(full_frame_imgsz)}
+    results = model.predict(source=frame, conf=conf_thres, device=device, verbose=False,
+                            **full_kwargs)
     boxes = results[0].boxes
     if boxes is None or len(boxes) == 0:
         return None, 0.0
@@ -312,11 +338,17 @@ class OpticalFlowTracker:
     only on init / every PERIODIC_DETECT_INTERVAL frames / on an actual
     tracking failure. See module docstring for validation numbers."""
 
-    def __init__(self, model_path: str, device: "int | str" = 0, conf_thres: float = 0.25):
+    def __init__(self, model_path: str, device: "int | str" = 0, conf_thres: float = 0.25,
+                 acquire_imgsz: "int | None" = 960):
+        """acquire_imgsz: 표적을 아직 물지 않았을 때(전체 프레임 탐색) 쓰는 추론
+        입력 크기. 작고 먼 표적 포착에 필요하며 근거는 yolo_detect 참고.
+        None 이면 Ultralytics 기본값(640)을 써 이전 동작으로 되돌아간다."""
+
         from ultralytics import YOLO  # heavy import kept lazy -- only paid if this tracker is actually used
 
         self._model = YOLO(model_path)
         self._device = device
+        self._acquire_imgsz = acquire_imgsz
         self._conf_thres = conf_thres
 
         self._smooth_bbox: Optional[tuple] = None
@@ -367,7 +399,8 @@ class OpticalFlowTracker:
         return self._track(frame_bgr)
 
     def _initialize(self, frame_bgr: np.ndarray) -> Optional[FollowerResult]:
-        bbox, score = yolo_detect(frame_bgr, self._model, self._device, self._conf_thres, roi_bbox=None)
+        bbox, score = yolo_detect(frame_bgr, self._model, self._device, self._conf_thres,
+                                  roi_bbox=None, full_frame_imgsz=self._acquire_imgsz)
         if bbox is None:
             return None
 
@@ -452,6 +485,8 @@ class OpticalFlowTracker:
             yolo_bbox, yolo_score = yolo_detect(
                 frame_bgr, self._model, self._device, self._conf_thres,
                 roi_bbox=self._smooth_bbox, prev_bbox=self._smooth_bbox,
+                # ROI 가 실패해 전체 프레임으로 떨어지는 경우도 재포착이므로 같은 크기를 쓴다
+                full_frame_imgsz=self._acquire_imgsz,
             )
             if yolo_bbox is not None:
                 self._smooth_bbox = apply_redetection_bbox(self._smooth_bbox, yolo_bbox, frame_bgr.shape, redetect_reason)

@@ -77,7 +77,26 @@
     <xacro:box_inertia m="1.0" x="0.17" y="0.325" z="0.235"/>
   </link>
 
-  <!-- ===================== CAMERA (EO box + lens, side bracket, looks +X) ===================== -->
+  <!-- ===================== CAMERA (EO box + lens, looks +X) =====================
+       광학중심과 레이저는 gun_link 중심선(좌우 0)에 둔다. 브래킷 메시는 옆에 있지만
+       센서 자체는 포신 바로 위에 정렬되어야 한다. camera_link 가 gun_link 기준
+       좌우 +0.05 이므로 그 아래 오프셋을 -0.05 로 두어 합을 0 으로 맞춘다.
+
+       왜 (2026-09-12 실측). smash_fcs.yaml 의 scope_to_muzzle_m 은 [0.45, 0.0, -0.066]
+       으로 "조준경이 총열 바로 위에 정렬되어 있다(좌우 0)"를 전제한다. 그런데 이전
+       구성은 광학중심을 gun_link 기준 좌우 +0.21 m 에 두어 그 전제를 깨고 있었다.
+       가상 탄환은 카메라에서 유도한 총구에서 출발하는데(좌우 +0.21) 발사 방향은
+       포신 보어사이트(pan 0 이면 좌우 성분 0)라, 좌우 0 에 있는 표적에는 도달할 수
+       없다. 그 결과 좌우로 정확히 0.21 m 씩 빗나갔다.
+
+         빗나감 벡터 평균 (world m)   10.8 m: (-0.181, +0.210, +0.048)
+                                      35.3 m: (+0.530, +0.210, +0.294)
+         Y 성분이 거리와 무관하게 +0.210 (표준편차 2~7 mm) = 이 좌우 오프셋과 같다.
+
+       보정에 필요한 pan 각이 10.8 m 에서 31 px, 35 m 에서 9.5 px 로 둘 다 READY 임계
+       35 px 안이라, 정렬이 "완료"된 채로 계속 빗나가는 조용한 실패였다.
+       이 좌우 오프셋을 바꾸면 smash_fcs.yaml 의 gun_to_camera_optical_m 도 반드시
+       함께 맞출 것. -->
   <joint name="camera_joint" type="fixed"><parent link="gun_link"/><child link="camera_link"/>
     <origin xyz="-0.07 0.05 0.15"/></joint>
   <link name="camera_link">
@@ -87,12 +106,23 @@
       <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="1e-4"/></inertial>
   </link>
   <joint name="camera_optical_joint" type="fixed"><parent link="camera_link"/><child link="camera_link_optical"/>
-    <origin xyz="0.229 0.16 0.10" rpy="0 0 0"/></joint>
+    <origin xyz="0.229 -0.05 0.10" rpy="0 0 0"/></joint>
   <link name="camera_link_optical"/>
 
+  <!-- 센서 갱신 주기 30 Hz (카메라·레이저 공통).
+       ※ 15 Hz 로 낮추는 안을 실측했으나 효과가 없어 되돌렸다(2026-09-12).
+         i5-7400 4코어 / GTX 1050 Ti / WSL2 에서 2회 반복 측정:
+           30 Hz 설정 -> 카메라 평균 9.9 Hz, FCS 처리율 평균 5.0 Hz
+           15 Hz 설정 -> 카메라 평균 6.6 Hz, FCS 처리율 평균 5.1 Hz
+         화면에 보이는 FCS 처리율은 그대로인데 카메라 주기만 떨어졌다. 병목이
+         렌더링 주기가 아니라 CPU 코어 수(4개, HT 없음)이기 때문으로 보인다.
+         같은 이유로 .wslconfig 로 코어를 늘리는 방법도 불가능하다(호스트가 4코어).
+         측정으로 확인된 유일한 대안은 카메라 해상도를 320 으로 낮추는 것이며
+         (FCS 처리율 약 3배), 대신 탐지 정확도와 READY 판정 기준이 함께 나빠진다.
+         자세한 내용은 docs/sessions/session_work_summary_2026-09-12.md 참고. -->
   <gazebo reference="camera_link">
     <sensor name="turret_camera" type="camera">
-      <pose>0.229 0.16 0.10 0 0 0</pose>
+      <pose>0.229 -0.05 0.10 0 0 0</pose>
       <always_on>1</always_on><update_rate>30</update_rate><visualize>true</visualize>
       <topic>/turret_camera/image_raw</topic><gz_frame_id>camera_link_optical</gz_frame_id>
       <camera><horizontal_fov>0.4</horizontal_fov>
@@ -101,7 +131,7 @@
     </sensor>
 
     <!-- ===== SMASH FCS: 동축 광각 레이저 거리측정기 =====
-         카메라 광학중심과 동일한 위치(0.229 0.16 0.10)에 동축으로 놓인 LiDAR 다.
+         카메라 광학중심과 동일한 위치(0.229 -0.05 0.10)에 동축으로 놓인 LiDAR 다.
 
          왜 단일 보어사이트 빔이 아니라 원뿔형 다중 빔인가:
            카메라 광학중심과 포구는 gun_link 기준 (0.572, -0.21, -0.292) m 만큼
@@ -120,9 +150,38 @@
          반드시 화면에도 보인다. 오독을 막기 위해 바운딩박스 기하 추정치와의
          교차검증 게이트를 소프트웨어(range_estimator.py)에서 한 번 더 건다.
 
-         33 x 33 = 1089 빔, 빔 간격 2.5 mrad. 35 m 표적(13.4 mrad)은 약 5개 빔에
-         걸친다. 100 m 이상에서는 표적 각크기가 빔 간격에 근접해 빔 사이로 빠질 수
-         있으므로, 원거리 교전을 검증할 때는 samples 를 늘려야 한다.
+         33 x 33 = 1089 빔, 빔 간격 2.5 mrad.
+
+         ★ 미해결: 이 레이저는 약 15 m 를 넘으면 반사가 전혀 돌아오지 않는다
+           (2026-09-12 실측). 원인 미규명이며 근거를 아래에 남긴다. 그 거리 밖에서는
+           거리추정이 전부 바운딩박스로 떨어지고, bbox sigma 는 35 m 에서 9.2 m 나
+           되므로(HUD 실측 "RNG 34.50m +-9.23 [BOX]") 사거리 방향 산포가 그대로
+           명중률을 깎는다. 35 m 명중률을 올리려면 여기부터 풀어야 한다.
+
+           거리별 실측 (조준을 맞춰 STATE READY 인 상태에서 점군을 직접 관찰):
+             10.8 m : 유효 반사  42 빔 / 1089   -> 레이저 채택, 최근접 10.48 m
+             14.8 m : 유효 반사 156 빔 / 4225   -> 레이저 채택, 최근접 14.69 m
+             19.1 m : 유효 반사   0 빔          -> bbox 로 낙하
+             25.5 m : 유효 반사   0 빔
+             35.3 m : 유효 반사   0 빔 (640/640 스캔 전부)
+
+           기각한 원인 (재조사 금지):
+             - 빔 밀도: 65x65(간격 1.25 mrad)로 올려도 35 m 에서 그대로 0 이었다.
+               19 m 에서 표적 세로 각크기는 10.6 mrad 로 8빔에 걸쳐야 한다.
+             - 점군 전달/지연: 21 Hz 로 정상 수신되고 staleness(0.2초) 초과 0 회.
+             - <range><max>: 태그는 확실히 반영된다(12 m 로 낮추니 14.8 m 표적이
+               0 이 되었다). 그런데 500 m 로도 50 m 로도 35 m 는 0 이었다 — 근/원
+               평면 비율에 따른 깊이 정밀도 문제도 아니다.
+             - 원뿔 밖으로 벗어남: 14.8 m 에서 반사는 센서축 기준 방위 +1.2~+15.0,
+               앙각 -15.0~-0.0 mrad 에 찍혔다. 원뿔 한계 +-40 mrad 안이고, 이
+               각오차는 거리가 멀수록 오히려 줄어든다.
+
+           빔 수를 늘리는 것은 해법이 아니므로 33 x 33 을 유지한다. 65x65 의 비용은
+           FCS 9.6 fps 대 10 fps 로 크지 않았으나, 문제를 풀지 못하는 변경을 남길
+           이유가 없다. 참고로 빔 간격은 다음과 같다.
+             samples  간격        35 m 에서 세로(9.2cm) 빔 수
+                33    2.50 mrad     1.0
+                65    1.25 mrad     2.1
 
          gpu_lidar 는 <topic> 으로 LaserScan(가운데 행)을,
          <topic>/points 로 PointCloudPacked(전체 격자)를 발행한다. FCS 노드는
@@ -131,7 +190,7 @@
          빈 링크에 센서를 달면 gz-sim 이 고정관절을 병합하며 센서를 누락시키는
          경우가 있어, 관성이 정의된 camera_link 에 직접 부착했다. -->
     <sensor name="turret_boresight_laser" type="gpu_lidar">
-      <pose>0.229 0.16 0.10 0 0 0</pose>
+      <pose>0.229 -0.05 0.10 0 0 0</pose>
       <always_on>1</always_on><update_rate>30</update_rate><visualize>false</visualize>
       <topic>/turret_camera/boresight_range</topic><gz_frame_id>camera_link_optical</gz_frame_id>
       <lidar>
