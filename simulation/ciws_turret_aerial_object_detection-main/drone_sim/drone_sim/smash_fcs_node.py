@@ -349,6 +349,7 @@ class SmashFcsNode(Node):
 
         # ── 3단계: 격발 제어 (기본 비활성) ──────────────────────────────
         self._enable_fire_control = bool(self.get_parameter("enable_fire_control").value)
+        self._fire_mode = str(self.get_parameter("fire_mode").value)
         self._fire_control = None
         self._turret_world_translation = np.array(
             [float(v) for v in self.get_parameter("turret_world_translation_m").value], dtype=np.float64
@@ -358,11 +359,10 @@ class SmashFcsNode(Node):
             from drone_sim.smash_fcs.fire_control import FireController  # noqa: E402
 
             target_hit_radius_m = self._hit_radius_m
-            fire_mode = str(self.get_parameter("fire_mode").value)
             self._fire_control = FireController(
                 projectile_config=self._aim_config.projectile,
                 muzzle_velocity_mps=self._aim_config.projectile.muzzle_velocity,
-                fire_mode=fire_mode,
+                fire_mode=self._fire_mode,
                 fire_rate_rpm=float(self.get_parameter("fire_rate_rpm").value),
                 target_radius_m=target_hit_radius_m,
                 ground_truth_timeout_s=float(self.get_parameter("ground_truth_timeout_s").value),
@@ -370,7 +370,7 @@ class SmashFcsNode(Node):
             )
             self.get_logger().info(
                 "격발 제어 활성화: mode={} target_hit_radius={:.3f}m ground_truth_topic={}".format(
-                    fire_mode, target_hit_radius_m, str(self.get_parameter("ground_truth_pose_topic").value)
+                    self._fire_mode, target_hit_radius_m, str(self.get_parameter("ground_truth_pose_topic").value)
                 )
             )
             self.get_logger().warn(
@@ -890,6 +890,10 @@ class SmashFcsNode(Node):
             return
 
         now = self.get_clock().now().nanoseconds * 1e-9
+        trigger_pressed = self._trigger_pressed
+        if self._fire_mode == "manual":
+            # Manual trigger는 node 경계에서 one-shot으로 소비한다.
+            self._trigger_pressed = False
 
         if (
             self._last_scope_pose is not None
@@ -904,7 +908,7 @@ class SmashFcsNode(Node):
             shot = self._fire_control.maybe_fire(
                 now=self._last_frame_timestamp,
                 aim_ready=actual_ready,
-                trigger_pressed=self._trigger_pressed,
+                trigger_pressed=trigger_pressed,
                 aim_solution=self._last_output.aim_solution,
                 launch_point_world=self._last_scope_pose[:3, 3],
                 direction_world=bore_dir,
@@ -912,6 +916,9 @@ class SmashFcsNode(Node):
             if shot is not None:
                 self._publish_fire_event(shot)
                 self._publish_engagement_stats()
+
+        if self._fire_mode == "manual" and trigger_pressed:
+            self._fire_control.reset_trigger_edge()
 
         results = self._fire_control.update(
             now=now,
