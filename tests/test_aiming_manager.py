@@ -112,3 +112,24 @@ def test_hit_probability_and_debug_are_populated():
     assert 0.0 <= output.hit_probability <= 1.0
     assert "distance_m" in output.debug
     assert output.debug["distance_m"] > 0.0
+
+
+def test_rejected_measurement_uses_prediction_without_contaminating_motion_state():
+    gated = AimingManager(config=make_config())
+    clean = AimingManager(config=make_config())
+
+    for index in (0, 1):
+        gated.update(make_frame(index))
+        clean.update(make_frame(index))
+
+    jitter = make_frame(2, initial_range=5000.0, closing_speed=0.0)
+    predicted = gated.update(jitter, measurement_admitted=False)
+    assert predicted.debug["measurement_admitted"] is False
+
+    recovered = gated.update(make_frame(3), measurement_admitted=True)
+    expected = clean.update(make_frame(3), measurement_admitted=True)
+    assert recovered.debug["measurement_admitted"] is True
+    assert recovered.debug["target_speed"] == pytest.approx(expected.debug["target_speed"])
+    assert recovered.aim_solution.lead_point_world.to_array() == pytest.approx(
+        expected.aim_solution.lead_point_world.to_array()
+    )

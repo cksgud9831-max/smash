@@ -280,6 +280,42 @@ build() {
     echo "  다음 단계: bash $0 run"
 }
 
+# Match only this repository's simulation launch tree. Do not use broad
+# patterns such as "pkill -f ros2", "pkill -f gz", or "killall python3":
+# another ROS/Gazebo project may be running in the same WSL distribution.
+SMASH_SIM_PROCESS_PATTERN='ros2 launch drone_sim smash_scene\.launch\.py|gz sim .*turret_world\.sdf|drone_sim/smash_fcs|drone_sim/smash_scope_viewer|ros_gz_bridge.*parameter_bridge.*(turret_camera|model/drone/pose|/clock@)|controller_manager/spawner.*(joint_state_broadcaster|turret_controller)|ros_gz_sim.*create.*(ciws_turret|drone)'
+
+cleanup_smash_sim() {
+    head_ "SMASH simulation cleanup"
+
+    # `killall -9 gz_sim` cannot match the observed command line:
+    # `gz sim ... turret_world.sdf`. Stop the owning launch process first,
+    # then terminate only remaining SMASH-specific processes.
+    pkill -INT -f 'ros2 launch drone_sim smash_scene\.launch\.py' 2>/dev/null || true
+    sleep 0.5
+    pkill -TERM -f "$SMASH_SIM_PROCESS_PATTERN" 2>/dev/null || true
+
+    local attempt
+    for attempt in {1..15}; do
+        if ! pgrep -f "$SMASH_SIM_PROCESS_PATTERN" >/dev/null 2>&1; then
+            ok "SMASH simulation processes stopped"
+            return 0
+        fi
+        sleep 0.1
+    done
+
+    warn "SMASH processes still alive after 2 seconds; using SIGKILL fallback"
+    pkill -KILL -f "$SMASH_SIM_PROCESS_PATTERN" 2>/dev/null || true
+    sleep 0.2
+
+    if pgrep -f "$SMASH_SIM_PROCESS_PATTERN" >/dev/null 2>&1; then
+        warn "some SMASH processes remain; inspect with:"
+        echo "        pgrep -af '$SMASH_SIM_PROCESS_PATTERN'"
+        return 1
+    fi
+    ok "remaining SMASH simulation processes stopped"
+}
+
 run() {
     export QT_X11_NO_MITSHM=1
     # WSL2 의 기본 OpenGL 은 llvmpipe(CPU) 로 떨어진다. Mesa D3D12 드라이버로 NVIDIA GPU 를
@@ -298,9 +334,7 @@ run() {
     fi
     head_ "실행"
     # 이전 잔류 프로세스 자동 청소 (충돌 방지)
-    killall -9 gz_sim smash_scope_viewer 2>/dev/null || true
-    pkill -9 -f 'python3.*smash_fcs' 2>/dev/null || true
-    sleep 0.5
+    cleanup_smash_sim || return 1
     if [ ! -f "$ROS2_WS/install/setup.bash" ]; then
         bad "$ROS2_WS/install/setup.bash 가 없다. 먼저 build 를 실행할 것."
         return 1
@@ -321,6 +355,12 @@ run() {
         echo "  확인할 것. 확인 전에는 Hit/Kill 판정이 전부 UNVERIFIED 로 남는다."
     fi
     echo
+    # ros2 launch normally tears down its children on Ctrl+C. The EXIT trap
+    # also removes a detached Gazebo / ros2_control tree if that is incomplete.
+    # cleanup_smash_sim is idempotent, so startup and shutdown may both call it.
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+    trap 'cleanup_smash_sim' EXIT
     ros2 launch drone_sim smash_scene.launch.py \
         core_path:="$SMASH_CORE_PATH" \
         headless:="$SMASH_HEADLESS" \
@@ -330,6 +370,10 @@ run() {
         fire_mode:="$SMASH_FIRE_MODE" \
         ground_truth_pose_topic:="$SMASH_GT_POSE_TOPIC" \
         launch_viewer:="${SMASH_LAUNCH_VIEWER:-false}"
+    local rc=$?
+    trap - INT TERM EXIT
+    cleanup_smash_sim || true
+    return "$rc"
 }
 
 verify_fire_control() {
@@ -355,10 +399,11 @@ case "${1:-check}" in
     link)   link ;;
     build)  build ;;
     run)    run ;;
+    cleanup) cleanup_smash_sim ;;
     viewer) viewer ;;
     verify_fire_control) verify_fire_control ;;
     *)
-        echo "사용법: bash $0 {check|link|build|run|viewer|verify_fire_control}"
+        echo "사용법: bash $0 {check|link|build|run|cleanup|viewer|verify_fire_control}"
         exit 2
         ;;
 esac
