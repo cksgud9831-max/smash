@@ -157,6 +157,8 @@ class SmashFcsNode(Node):
         self.declare_parameter("command_topic", "/turret_controller/commands")
         self.declare_parameter("annotated_topic", "/turret_camera/image_annotated")
         self.declare_parameter("state_topic", "/smash_fcs/state")
+        self.declare_parameter("reliability_state_topic", "/smash_fcs/reliability_state")
+        self.declare_parameter("reliability_hold_aim_duration_s", 0.4)
 
         self.declare_parameter("base_frame", "base_footprint")
         self.declare_parameter("camera_optical_frame", "camera_link_optical")
@@ -241,6 +243,9 @@ class SmashFcsNode(Node):
         self._border_margin_px = int(self.get_parameter("border_margin_px").value)
         self._border_frames_limit = int(self.get_parameter("border_frames_before_reset").value)
         self._publish_annotated = bool(self.get_parameter("publish_annotated").value)
+        self._reliability_hold_aim_duration_s = max(
+            0.0, float(self.get_parameter("reliability_hold_aim_duration_s").value)
+        )
 
         self._scope_to_muzzle = tuple(float(v) for v in self.get_parameter("scope_to_muzzle_m").value)
         self._gun_to_camera = tuple(float(v) for v in self.get_parameter("gun_to_camera_optical_m").value)
@@ -319,6 +324,13 @@ class SmashFcsNode(Node):
             model_path=model_path,
             device=str(self.get_parameter("device").value),
             conf_thres=float(self.get_parameter("conf_thres").value),
+        )
+        from jun_reliability.bridge_adapter import SingleFrameTrackerFanout  # noqa: E402
+        from jun_reliability.engine import TrackingReliabilityEngine  # noqa: E402
+
+        self._tracker_fanout = SingleFrameTrackerFanout(self._tracker)
+        self._reliability_engine = TrackingReliabilityEngine(
+            tracker=self._tracker_fanout.reliability_tracker
         )
 
         # ── 거리 추정기 ─────────────────────────────────────────────────
@@ -421,6 +433,15 @@ class SmashFcsNode(Node):
         self._last_frame_timestamp: Optional[float] = None
         self._frames_seen = 0
         self._frames_solved = 0
+        self._reliability_state = self._reliability_engine.state.value
+        self._reliability_quality: Optional[float] = None
+        self._reliability_reason = "INITIAL"
+        self._last_trusted_aim_direction: Optional[tuple[float, float, float]] = None
+        self._last_trusted_ballistic_offset: Optional[tuple[float, float]] = None
+        self._last_trusted_aim_timestamp: Optional[float] = None
+        self._motion_state_initialized = False
+        self._motion_reseed_required = True
+        self._measurement_mode = "REJECT"
 
         # 3단계 격발 제어 런타임 상태
         self._trigger_pressed = False
@@ -439,6 +460,9 @@ class SmashFcsNode(Node):
             Float64MultiArray, str(self.get_parameter("command_topic").value), 10
         )
         self._state_pub = self.create_publisher(String, str(self.get_parameter("state_topic").value), 10)
+        self._reliability_state_pub = self.create_publisher(
+            String, str(self.get_parameter("reliability_state_topic").value), 10
+        )
         self._annotated_pub = self.create_publisher(
             Image, str(self.get_parameter("annotated_topic").value), 10
         )
@@ -536,7 +560,29 @@ class SmashFcsNode(Node):
         frame_bgr = self._bridge_cv.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         self._frames_seen += 1
 
-        result = self._tracker.update(frame_bgr)
+        # 두 소비자가 동일 결과를 공유하므로 실제 tracker update는 프레임당 한 번뿐이다.
+        self._tracker_fanout.begin(frame_bgr)
+        try:
+            reliability = self._reliability_engine.update(frame_bgr, timestamp)
+            result = self._tracker_fanout.bridge_tracker.update(frame_bgr)
+            self._tracker_fanout.ensure_complete()
+        finally:
+            self._tracker_fanout.finish()
+        self._reliability_state = reliability.state.value
+        self._reliability_quality = reliability.quality.overall_quality_score
+        self._reliability_reason = reliability.transition.reason
+        self._measurement_mode = "REJECT"
+        if self._reliability_state == "LOST":
+            # LOST 뒤 재획득 HOLD에서 과거 cue가 되살아나지 않도록 폐기한다.
+            self._last_trusted_aim_direction = None
+            self._last_trusted_ballistic_offset = None
+            self._last_trusted_aim_timestamp = None
+            self._motion_state_initialized = False
+            self._motion_reseed_required = True
+        reliability_msg = String()
+        reliability_msg.data = self._reliability_state
+        self._reliability_state_pub.publish(reliability_msg)
+
         if result is None:
             self._enter_search("표적 미포착")
             self._render(msg, frame_bgr)
@@ -602,7 +648,31 @@ class SmashFcsNode(Node):
             laser_range_m=float(range_estimate.distance_m),
         )
 
-        output = self._aiming_manager.update(tracker_frame)
+        output = None
+        if self._reliability_state == "STABLE":
+            if self._motion_reseed_required:
+                # LOST 이전 OLS/Kalman 이력과 solver warm start를 함께 폐기한다.
+                self._aiming_manager = self._AimingManager(config=self._aim_config)
+                self._motion_reseed_required = False
+                self.get_logger().info("[MEAS] estimator reseed on STABLE reacquisition")
+            output = self._aiming_manager.update(tracker_frame, measurement_admitted=True)
+            self._motion_state_initialized = True
+            self._measurement_mode = "ACCEPT"
+        elif self._reliability_state == "HOLD" and self._motion_state_initialized:
+            output = self._aiming_manager.update(tracker_frame, measurement_admitted=False)
+            self._measurement_mode = "PREDICT"
+
+        if output is None:
+            # Initial/reacquisition HOLD and LOST have no admitted motion state.
+            self._last_output = None
+            self._last_aim_dir_base = None
+            self._last_frame_timestamp = timestamp
+            self._aim_aligned = False
+            self._align_err_px = 999.0
+            self._state_label = f"TRACK(REL {self._reliability_state})"
+            self._render(msg, frame_bgr)
+            return
+
         self._last_output = output
         self._last_frame_timestamp = timestamp
         self._frames_solved += 1
@@ -619,6 +689,21 @@ class SmashFcsNode(Node):
         cy = int(round(self._intrinsics[1, 2])) if self._intrinsics is not None else frame_bgr.shape[0] // 2
         lead_pixel = self._project_direction_to_pixel(aim_dir_base) if aim_dir_base is not None else None
 
+        if (
+            self._reliability_state == "STABLE"
+            and output.aim_solution is not None
+            and output.aim_solution.solver_converged
+            and aim_dir_base is not None
+            and lead_pixel is not None
+            and np.all(np.isfinite(output.aim_solution.ballistic_offset))
+        ):
+            # HUD 재현에 필요한 immutable 숫자만 trusted aim으로 보관한다.
+            self._last_trusted_aim_direction = tuple(float(v) for v in aim_dir_base)
+            self._last_trusted_ballistic_offset = tuple(
+                float(v) for v in output.aim_solution.ballistic_offset
+            )
+            self._last_trusted_aim_timestamp = timestamp
+
         self._align_tolerance_px = self._align_tolerance_for_range(range_estimate)
 
         if lead_pixel is not None:
@@ -628,8 +713,10 @@ class SmashFcsNode(Node):
             self._align_err_px = 999.0
             self._aim_aligned = False
 
-        if output.aim_ready and self._aim_aligned:
+        if self._effective_aim_ready():
             self._state_label = "READY"
+        elif output.aim_ready and self._aim_aligned:
+            self._state_label = f"READY BLOCK: REL {self._reliability_state}"
         elif output.aim_solution is not None and output.aim_solution.solver_converged:
             self._state_label = f"ALIGN({self._align_err_px:.0f}px)"
         else:
@@ -638,6 +725,47 @@ class SmashFcsNode(Node):
         self._render(msg, frame_bgr)
 
     # ── 내부 로직 ───────────────────────────────────────────────────────
+
+    def _effective_aim_ready(self) -> bool:
+        """기존 READY에 FCS integration layer의 reliability gate를 적용한다."""
+
+        return bool(
+            self._last_output is not None
+            and self._last_output.aim_ready
+            and self._aim_aligned
+            and self._reliability_state == "STABLE"
+        )
+
+    def _hud_lead(self, timestamp: float) -> tuple[Optional[np.ndarray], str, Optional[tuple[float, float]]]:
+        """Reliability 상태에 맞는 LIVE/HELD HUD lead를 선택한다."""
+
+        if self._reliability_state == "STABLE":
+            solution = None if self._last_output is None else self._last_output.aim_solution
+            if (
+                solution is not None
+                and solution.solver_converged
+                and self._last_aim_dir_base is not None
+                and self._project_direction_to_pixel(self._last_aim_dir_base) is not None
+                and np.all(np.isfinite(solution.ballistic_offset))
+            ):
+                offsets = tuple(float(v) for v in solution.ballistic_offset)
+                return self._last_aim_dir_base, "LIVE", offsets
+            return None, "INVALID", None
+
+        if (
+            self._reliability_state == "HOLD"
+            and self._last_trusted_aim_direction is not None
+            and self._last_trusted_aim_timestamp is not None
+        ):
+            age_s = float(timestamp) - self._last_trusted_aim_timestamp
+            if 0.0 <= age_s <= self._reliability_hold_aim_duration_s:
+                return (
+                    np.asarray(self._last_trusted_aim_direction, dtype=np.float64),
+                    "HELD",
+                    self._last_trusted_ballistic_offset,
+                )
+
+        return None, "INVALID", None
 
     def _bbox_on_border(self, bbox: tuple[float, float, float, float], shape) -> bool:
         height, width = shape[0], shape[1]
@@ -657,6 +785,9 @@ class SmashFcsNode(Node):
             self.get_logger().info(f"상태 초기화 -> SEARCH ({reason})")
         self._tracker.reset()
         self._aiming_manager = self._AimingManager(config=self._aim_config)
+        self._motion_state_initialized = False
+        self._motion_reseed_required = True
+        self._measurement_mode = "REJECT"
         self._range_estimator.reset()
         self._feedforward.reset()
         self._border_frames = 0
@@ -900,7 +1031,7 @@ class SmashFcsNode(Node):
             and self._last_output is not None
             and self._last_frame_timestamp is not None
         ):
-            actual_ready = bool(self._last_output.aim_ready and self._aim_aligned)
+            actual_ready = self._effective_aim_ready()
             actual_bore_dir_base = np.asarray(self._last_scope_pose, dtype=np.float64)[:3, 0]
             norm = float(np.linalg.norm(actual_bore_dir_base))
             bore_dir = actual_bore_dir_base / norm if norm > 1e-6 else self._last_aim_dir_base
@@ -1038,9 +1169,11 @@ class SmashFcsNode(Node):
         height, width = canvas.shape[:2]
         cx = int(round(self._intrinsics[0, 2])) if self._intrinsics is not None else width // 2
         cy = int(round(self._intrinsics[1, 2])) if self._intrinsics is not None else height // 2
+        timestamp = _stamp_to_seconds(msg.header.stamp)
+        hud_aim_direction, lead_mode, hud_ballistic_offset = self._hud_lead(timestamp)
 
 
-        ready = bool(self._last_output is not None and self._last_output.aim_ready and self._aim_aligned)
+        ready = self._effective_aim_ready()
         cross_color = (0, 255, 0) if ready else (0, 255, 255)
         cross_thick = 2 if ready else 1
 
@@ -1057,8 +1190,8 @@ class SmashFcsNode(Node):
             cv2.rectangle(canvas, (x1, y1), (x2, y2), box_color, 2)
 
         # 탄도 보정이 포함된 지향점 (미래 탄착 리드각 레티클)
-        if self._last_aim_dir_base is not None:
-            pixel = self._project_direction_to_pixel(self._last_aim_dir_base)
+        if hud_aim_direction is not None:
+            pixel = self._project_direction_to_pixel(hud_aim_direction)
             if pixel is not None:
                 reticle_color = (0, 255, 0) if ready else (0, 165, 255)
                 # 리드각 조준원 및 십자선
@@ -1070,6 +1203,12 @@ class SmashFcsNode(Node):
                     cv2.line(canvas, (cx, cy), pixel, (0, 200, 255), 1, cv2.LINE_AA)
 
         lines = [f"STATE {self._state_label}"]
+        lines.append(f"RELIABILITY {self._reliability_state}")
+        quality = "--" if self._reliability_quality is None else f"{self._reliability_quality:.2f}"
+        lines.append(f"REL Q {quality}  {self._reliability_reason[:32]}")
+        measurement_label = "MOTION PREDICT" if self._measurement_mode == "PREDICT" else f"MEAS {self._measurement_mode}"
+        lines.append(measurement_label)
+        lines.append(f"LEAD {lead_mode}")
         lines.append(
             "AIM SLEW PAN {:+6.1f}deg TILT {:+5.1f}deg".format(
                 math.degrees(self._user_pan), math.degrees(self._user_tilt)
@@ -1087,11 +1226,14 @@ class SmashFcsNode(Node):
         if out is not None and out.aim_solution is not None:
             sol = out.aim_solution
             lines.append(f"TOF {sol.time_of_flight * 1000.0:6.1f}ms  ITER {sol.solver_iterations}")
-            lines.append(
-                "LEAD AZ {:+.3f}deg EL {:+.3f}deg".format(
-                    math.degrees(sol.ballistic_offset[0]), math.degrees(sol.ballistic_offset[1])
+            if hud_ballistic_offset is not None:
+                lines.append(
+                    "LEAD {} AZ {:+.3f}deg EL {:+.3f}deg".format(
+                        lead_mode,
+                        math.degrees(hud_ballistic_offset[0]),
+                        math.degrees(hud_ballistic_offset[1]),
+                    )
                 )
-            )
             lines.append(
                 "ALIGN ERR {:4.1f}px  PHIT {:4.2f}".format(
                     self._align_err_px, out.hit_probability
@@ -1158,6 +1300,19 @@ class SmashFcsNode(Node):
             )
             cv2.putText(
                 canvas, "[ FIRE READY ]", (width - 160, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 0), 2, cv2.LINE_AA
+            )
+        elif (
+            self._last_output is not None
+            and self._last_output.aim_ready
+            and self._aim_aligned
+            and self._reliability_state != "STABLE"
+        ):
+            block_text = f"READY BLOCK: REL {self._reliability_state}"
+            cv2.putText(
+                canvas, block_text, (width - 250, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 0), 3, cv2.LINE_AA
+            )
+            cv2.putText(
+                canvas, block_text, (width - 250, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 165, 255), 1, cv2.LINE_AA
             )
         elif self._last_output is not None and self._last_aim_dir_base is not None:
             cv2.putText(
