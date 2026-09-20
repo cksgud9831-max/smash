@@ -45,7 +45,15 @@ def generate_launch_description():
     plugin_paths = ':'.join([p for p in ['/opt/ros/jazzy/lib', existing_plugin_path] if p])
     set_plugin_path = SetEnvironmentVariable('GZ_SIM_SYSTEM_PLUGIN_PATH', plugin_paths)
 
-    robot_description = ParameterValue(Command(['xacro ', xacro_file]), value_type=str)
+    # 640x640 영상이 Fast DDS 기본 공유메모리 세그먼트(512 KB)에 들어가지 않아 절반가량
+    # 유실되던 문제의 수정. 근거는 config/fastdds_large_messages.xml 주석 참고.
+    # 사용자가 이미 프로파일을 지정했다면 존중한다. 이 런치에서 뜨는 모든 노드
+    # (Gazebo, 브리지, 그리고 smash_scene 이 포함할 때 FCS 노드)에 적용된다.
+    dds_profile = os.environ.get('FASTRTPS_DEFAULT_PROFILES_FILE') or         os.path.join(pkg, 'config', 'fastdds_large_messages.xml')
+    set_dds_profile = SetEnvironmentVariable('FASTRTPS_DEFAULT_PROFILES_FILE', dds_profile)
+
+    robot_description = ParameterValue(Command(['xacro ', xacro_file, ' camera_px:=', LaunchConfiguration('camera_px'),
+                                          ' camera_hfov:=', LaunchConfiguration('camera_hfov')]), value_type=str)
 
     # headless:=true 면 Gazebo GUI 없이 서버만 띄운다(gz sim -s).
     # WSLg 처럼 GUI 렌더링이 안 되는 환경에서도 카메라 센서는 정상 동작하므로,
@@ -170,7 +178,13 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'headless', default_value='false',
             description='true 면 Gazebo GUI 없이 서버만 실행 (gz sim -s)'),
-        set_resource_path, set_plugin_path, gz_sim_gui, gz_sim_headless,
+        DeclareLaunchArgument(
+            'camera_px', default_value='640',
+            description='조준 카메라 해상도(정사각, 화소)'),
+        DeclareLaunchArgument(
+            'camera_hfov', default_value='0.4',
+            description='조준 카메라 수평 화각(rad). 0.4 = 약 23도'),
+        set_resource_path, set_plugin_path, set_dds_profile, gz_sim_gui, gz_sim_headless,
         rsp, clock_bridge, bridge, spawn,
         # 모델 스폰 직후는 Gazebo 가 메시와 센서를 올리느라 가장 바쁜 구간이라
         # 컨트롤러 활성화 서비스가 밀리기 쉽다. 3초 여유를 두고 올린다.

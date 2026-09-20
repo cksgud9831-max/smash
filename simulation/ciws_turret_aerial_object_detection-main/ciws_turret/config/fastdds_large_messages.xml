@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fast DDS 프로파일: 640x640 카메라 영상을 공유메모리로 온전히 전달하기 위한 설정.
+
+  왜 필요한가 (2026-09-18 실측, WSL2 / ROS 2 Jazzy / rmw_fastrtps_cpp):
+    Fast DDS 기본 공유메모리(SHM) 세그먼트는 512 KB 다. 640x640 RGB 영상 한 장은
+    1.23 MB 라 들어가지 못하고 UDP 조각 전송으로 넘어가며, best-effort 구독에서
+    절반가량이 유실된다. 320x320(307 KB)은 들어가므로 유실이 없었다.
+
+      조건 (포탑 장면만, FCS 없이)       image_raw / camera_info
+      640, 기본 설정                     10.9 / 23.6 Hz,  13.8 / 24.6 Hz
+      640, 이 프로파일                   23.2 / 23.2 Hz,  24.9 / 25.0 Hz
+
+    전체 장면(FCS 포함)에서 FCS 처리율이 7.4~11.5 Hz 에서 17.2~24.6 Hz 로 올랐다.
+
+  view.launch.py 가 FASTRTPS_DEFAULT_PROFILES_FILE 이 비어 있을 때 이 파일을 지정한다.
+  UDPv4 도 함께 켜 두므로 다른 호스트와의 통신은 그대로 된다.
+-->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+  <transport_descriptors>
+    <transport_descriptor>
+      <transport_id>shm_large</transport_id>
+      <type>SHM</type>
+      <segment_size>16777216</segment_size>
+      <maxMessageSize>4194304</maxMessageSize>
+    </transport_descriptor>
+    <transport_descriptor>
+      <transport_id>udp</transport_id>
+      <type>UDPv4</type>
+    </transport_descriptor>
+  </transport_descriptors>
+  <participant profile_name="smash_default_participant" is_default_profile="true">
+    <rtps>
+      <userTransports>
+        <transport_id>shm_large</transport_id>
+        <transport_id>udp</transport_id>
+      </userTransports>
+      <useBuiltinTransports>false</useBuiltinTransports>
+    </rtps>
+  </participant>
+</profiles>

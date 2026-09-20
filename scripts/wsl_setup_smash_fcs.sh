@@ -300,6 +300,10 @@ run() {
     # 이전 잔류 프로세스 자동 청소 (충돌 방지)
     killall -9 gz_sim smash_scope_viewer 2>/dev/null || true
     pkill -9 -f 'python3.*smash_fcs' 2>/dev/null || true
+    # 강제 종료된 노드가 남긴 Fast DDS 공유메모리 파일 정리. 640 영상용 프로파일
+    # (ciws_turret/config/fastdds_large_messages.xml)은 참가자마다 16 MB 를 잡으므로
+    # 남겨 두면 /dev/shm 에 쌓인다. 사용 중인 파일은 건드리지 않는다.
+    command -v fastdds >/dev/null 2>&1 && fastdds shm clean >/dev/null 2>&1 || true
     sleep 0.5
     if [ ! -f "$ROS2_WS/install/setup.bash" ]; then
         bad "$ROS2_WS/install/setup.bash 가 없다. 먼저 build 를 실행할 것."
