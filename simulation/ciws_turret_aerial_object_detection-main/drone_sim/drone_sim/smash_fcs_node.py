@@ -113,6 +113,7 @@ from std_msgs.msg import Bool, Float64MultiArray, String
 import tf2_ros
 
 from drone_sim.smash_fcs import turret_kinematics as tk
+from drone_sim.smash_fcs.hud import HudFrame, HudRenderer, impact_mark
 from drone_sim.smash_fcs.engine_bootstrap import build_aim_config, ensure_core_on_path
 from drone_sim.smash_fcs.pointcloud_utils import field_offsets, ranges_from_xyz_buffer
 from drone_sim.smash_fcs.range_estimator import (
@@ -160,7 +161,8 @@ class SmashFcsNode(Node):
 
         self.declare_parameter("base_frame", "base_footprint")
         self.declare_parameter("camera_optical_frame", "camera_link_optical")
-        self.declare_parameter("tf_timeout_s", 0.05)
+        # 0 이 기본이다. 기다려 봐야 소용없는 이유는 _lookup_camera_pose 참고.
+        self.declare_parameter("tf_timeout_s", 0.0)
 
         # 5.56 x 45mm M855 (62 gr) 기준. 총열 길이에 따라 포구초속이 달라진다.
         self.declare_parameter("muzzle_velocity_mps", 920.0)
@@ -202,6 +204,8 @@ class SmashFcsNode(Node):
         self.declare_parameter("border_margin_px", 2)
         self.declare_parameter("border_frames_before_reset", 3)
         self.declare_parameter("publish_annotated", True)
+        # 시연용 HUD. hud_debug 가 참이면 상세 수치를 함께 그린다(뷰어에서 H 키로 토글).
+        self.declare_parameter("hud_debug", False)
 
         # ── 3단계: 가상 탄환 격발 및 Hit/Kill 판정 ─────────────────────
         # 기본값 false. 1/2단계 검증에는 아무 영향이 없다(설계 근거는 위
@@ -422,6 +426,18 @@ class SmashFcsNode(Node):
         self._frames_seen = 0
         self._frames_solved = 0
 
+        # 시연 HUD 상태
+        self._hud = HudRenderer()
+        self._hud_debug = bool(self.get_parameter("hud_debug").value)
+        self._lock_start_time: Optional[float] = None
+        self._last_hit_time: Optional[float] = None
+        self._kill_time: Optional[float] = None
+        self._kills = 0
+        self._target_down = False
+        self._impacts: list = []
+        self._shot_launch_points: dict[int, np.ndarray] = {}
+        self._trigger_reject_time: Optional[float] = None
+
         # 3단계 격발 제어 런타임 상태
         self._trigger_pressed = False
         self._gt_position_base: Optional[np.ndarray] = None
@@ -455,6 +471,10 @@ class SmashFcsNode(Node):
         self.create_subscription(
             Float64MultiArray, "/smash_fcs/manual_slew", self._on_manual_slew, 10
         )
+
+        # 뷰어 명령(HUD 상세 토글, 통계 초기화)과 시연 연출 노드의 표적 격추/재출현 알림
+        self.create_subscription(String, "/smash_fcs/ui_command", self._on_ui_command, 10)
+        self.create_subscription(String, "/smash_fcs/target_event", self._on_target_event, 10)
 
         rate = max(1.0, float(self.get_parameter("command_rate_hz").value))
         self.create_timer(1.0 / rate, self._publish_command)
@@ -542,6 +562,8 @@ class SmashFcsNode(Node):
             self._render(msg, frame_bgr)
             return
 
+        if self._lock_start_time is None:
+            self._lock_start_time = timestamp
         x, y, w, h = result.bbox
         bbox = (float(x), float(y), float(x + w), float(y + h))
         center_px = (float(x + w / 2.0), float(y + h / 2.0))
@@ -661,6 +683,7 @@ class SmashFcsNode(Node):
         self._feedforward.reset()
         self._border_frames = 0
         self._state_label = "SEARCH"
+        self._lock_start_time = None
         self._last_output = None
         self._last_bbox = None
         self._last_range = None
@@ -678,7 +701,16 @@ class SmashFcsNode(Node):
             self._fire_control.reset_trigger_edge()
 
     def _lookup_camera_pose(self, stamp) -> Optional[np.ndarray]:
-        """base_frame <- camera_optical_frame 4x4 동차변환을 TF 에서 가져온다."""
+        """base_frame <- camera_optical_frame 4x4 동차변환을 TF 에서 가져온다.
+
+        tf_timeout_s 는 0(대기 없음)으로 둘 것. rclpy tf2 Buffer 는 timeout 동안
+        sleep(0.02) 로 폴링하며 호출 스레드를 막는다. 이 노드는 단일 스레드 실행기라
+        그동안 /tf 구독 콜백이 실행되지 못하므로 버퍼는 절대 채워지지 않고, 대기는
+        매번 timeout 을 다 쓰고 실패한 뒤 아래 최신 변환 재시도로 넘어간다.
+        2026-09-18 실측: 0.05 에서 이 함수가 프레임당 평균 54~70 ms(영상 콜백의 절반)를
+        먹었고 명령 발행(목표 30 Hz)이 6 Hz, 격발 판정 타이머가 7 Hz 로 굶었다.
+        0 으로 바꾸자 0.3 ms 가 됐다. 결과(최신 변환 사용)는 이전과 같다.
+        """
 
         try:
             tf = self._tf_buffer.lookup_transform(
@@ -872,6 +904,35 @@ class SmashFcsNode(Node):
             self._pan_goal = self._user_pan
             self._tilt_goal = self._user_tilt
 
+    def _on_ui_command(self, msg: String) -> None:
+        cmd = msg.data.strip()
+        if cmd == "toggle_debug":
+            self._hud_debug = not self._hud_debug
+            self.get_logger().info(f"[HUD] 상세 표시 {'켬' if self._hud_debug else '끔'}")
+        elif cmd == "reset_stats":
+            self._impacts.clear()
+            self._kills = 0
+            if self._fire_control is not None:
+                fc = self._fire_control
+                fc.shots_fired = fc.hits = fc.misses = fc.unverified = 0
+            self.get_logger().info("[HUD] 사격 통계 초기화")
+
+    def _on_target_event(self, msg: String) -> None:
+        try:
+            ev = json.loads(msg.data)
+        except ValueError:
+            return
+        kind = ev.get("event")
+        if kind == "destroyed":
+            self._target_down = True
+            self._kills += 1
+            self._kill_time = self.get_clock().now().nanoseconds * 1e-9
+            self.get_logger().info(f"[DEMO] 표적 격추 (누적 {self._kills})")
+        elif kind == "respawn":
+            self._target_down = False
+            self._enter_search("표적 재출현")
+            self.get_logger().info("[DEMO] 새 표적 출현")
+
     def _on_ground_truth_pose(self, msg: PoseStamped) -> None:
         p = msg.pose.position
         world_pos = np.array([p.x, p.y, p.z], dtype=np.float64)
@@ -879,7 +940,14 @@ class SmashFcsNode(Node):
         self._gt_timestamp = _stamp_to_seconds(msg.header.stamp)
 
     def _on_trigger(self, msg: Bool) -> None:
-        self._trigger_pressed = bool(msg.data)
+        # 방아쇠는 "한 번 당김" 사건으로 다룬다. 뷰어는 당길 때 True 만 보내고 놓는
+        # 메시지를 보내지 않는다. 이전에는 이 값을 그대로 눌림 상태로 들고 있어서
+        # 첫 발 이후 영영 눌린 채로 남았고, manual 모드의 상승 엣지 검출 때문에 두 번째
+        # 당김부터 전부 무시됐다. 게다가 SEARCH 재진입으로 엣지 상태가 초기화되면
+        # 아무도 당기지 않았는데 다음 READY 에서 한 발이 저절로 나갔다(2026-09-18 실측).
+        # 여기서는 당김을 기록만 하고, _fire_control_tick 이 한 번 소비한 뒤 지운다.
+        if msg.data:
+            self._trigger_pressed = True
 
     def _fire_control_tick(self) -> None:
         """command 타이머와 별개의 고정 주기 타이머. 새 영상 프레임이 없어도
@@ -890,13 +958,18 @@ class SmashFcsNode(Node):
             return
 
         now = self.get_clock().now().nanoseconds * 1e-9
+        # 방아쇠 당김은 이번 틱에서 한 번만 쓴다(_on_trigger 참고).
+        pull = self._trigger_pressed and not self._target_down
+        self._trigger_pressed = False
+        shot = None
 
         if (
             self._last_scope_pose is not None
             and self._last_output is not None
             and self._last_frame_timestamp is not None
         ):
-            actual_ready = bool(self._last_output.aim_ready and self._aim_aligned)
+            # 격추된 표적이 떨어지는 동안에는 쏘지 않는다(시연 연출 노드가 알려 준다).
+            actual_ready = bool(self._last_output.aim_ready and self._aim_aligned and not self._target_down)
             actual_bore_dir_base = np.asarray(self._last_scope_pose, dtype=np.float64)[:3, 0]
             norm = float(np.linalg.norm(actual_bore_dir_base))
             bore_dir = actual_bore_dir_base / norm if norm > 1e-6 else self._last_aim_dir_base
@@ -904,7 +977,7 @@ class SmashFcsNode(Node):
             shot = self._fire_control.maybe_fire(
                 now=self._last_frame_timestamp,
                 aim_ready=actual_ready,
-                trigger_pressed=self._trigger_pressed,
+                trigger_pressed=pull,
                 aim_solution=self._last_output.aim_solution,
                 launch_point_world=self._last_scope_pose[:3, 3],
                 direction_world=bore_dir,
@@ -912,6 +985,11 @@ class SmashFcsNode(Node):
             if shot is not None:
                 self._publish_fire_event(shot)
                 self._publish_engagement_stats()
+
+        if pull and shot is None and str(self.get_parameter("fire_mode").value) == "manual":
+            # READY 가 아닐 때 당긴 방아쇠는 설계상 거부된다. 사수가 모르고 지나가지 않도록
+            # HUD 에 잠깐 알린다.
+            self._trigger_reject_time = now
 
         results = self._fire_control.update(
             now=now,
@@ -924,6 +1002,7 @@ class SmashFcsNode(Node):
             self._publish_engagement_stats()
 
     def _publish_fire_event(self, shot) -> None:
+        self._shot_launch_points[shot.shot_id] = np.asarray(shot.launch_point_world, dtype=np.float64)
         payload = {
             "event": "fire",
             "shot_id": shot.shot_id,
@@ -945,6 +1024,16 @@ class SmashFcsNode(Node):
         )
 
     def _publish_hit_result(self, result) -> None:
+        if result.verdict == "HIT":
+            self._last_hit_time = self.get_clock().now().nanoseconds * 1e-9
+        launch = self._shot_launch_points.pop(result.shot_id, None)
+        if launch is not None and result.ground_truth_point_world is not None and result.verdict in ("HIT", "MISS"):
+            mark = impact_mark(
+                result.projectile_point_world, result.ground_truth_point_world, launch, result.verdict == "HIT"
+            )
+            if mark is not None:
+                self._impacts.append(mark)
+                del self._impacts[:-200]
         payload = {
             "event": "hit_result",
             "shot_id": result.shot_id,
@@ -1016,158 +1105,111 @@ class SmashFcsNode(Node):
         return self._project_direction_to_pixel(direction / norm)
 
     def _render(self, msg: Image, frame_bgr: np.ndarray) -> None:
-        """1단계용 최소 HUD. 정식 스마트 스코프 HUD 는 4단계 과제다.
-
-        텍스트는 ASCII 만 사용한다. OpenCV 의 Hershey 폰트는 한글 글리프가 없어
-        한글을 그리면 전부 사각형으로 깨지기 때문이다.
-        """
+        """시연용 HUD 를 그려 image_annotated 로 발행한다. 그리기는 smash_fcs/hud.py 담당."""
 
         if not self._publish_annotated:
             return
 
-        import cv2  # 지연 임포트
-
-        canvas = frame_bgr.copy()
-        height, width = canvas.shape[:2]
+        height, width = frame_bgr.shape[:2]
         cx = int(round(self._intrinsics[0, 2])) if self._intrinsics is not None else width // 2
         cy = int(round(self._intrinsics[1, 2])) if self._intrinsics is not None else height // 2
+        now = self.get_clock().now().nanoseconds * 1e-9
+        stamp = _stamp_to_seconds(msg.header.stamp)
 
-
-        ready = bool(self._last_output is not None and self._last_output.aim_ready and self._aim_aligned)
-        cross_color = (0, 255, 0) if ready else (0, 255, 255)
-        cross_thick = 2 if ready else 1
-
-        # 보어사이트 십자선 (총구 지향 중심)
-        cv2.line(canvas, (cx - 16, cy), (cx - 4, cy), cross_color, cross_thick)
-        cv2.line(canvas, (cx + 4, cy), (cx + 16, cy), cross_color, cross_thick)
-        cv2.line(canvas, (cx, cy - 16), (cx, cy - 4), cross_color, cross_thick)
-        cv2.line(canvas, (cx, cy + 4), (cx, cy + 16), cross_color, cross_thick)
-
-        box_color = (0, 255, 0) if ready else (0, 165, 255)
-
-        if self._last_bbox is not None:
-            x1, y1, x2, y2 = (int(round(v)) for v in self._last_bbox)
-            cv2.rectangle(canvas, (x1, y1), (x2, y2), box_color, 2)
-
-        # 탄도 보정이 포함된 지향점 (미래 탄착 리드각 레티클)
-        if self._last_aim_dir_base is not None:
-            pixel = self._project_direction_to_pixel(self._last_aim_dir_base)
-            if pixel is not None:
-                reticle_color = (0, 255, 0) if ready else (0, 165, 255)
-                # 리드각 조준원 및 십자선
-                cv2.circle(canvas, pixel, 8, reticle_color, 2)
-                cv2.line(canvas, (pixel[0] - 12, pixel[1]), (pixel[0] + 12, pixel[1]), reticle_color, 1)
-                cv2.line(canvas, (pixel[0], pixel[1] - 12), (pixel[0], pixel[1] + 12), reticle_color, 1)
-                # 정렬 유도선 (보어사이트 십자선 -> 리드각 레티클)
-                if not ready:
-                    cv2.line(canvas, (cx, cy), pixel, (0, 200, 255), 1, cv2.LINE_AA)
-
-        lines = [f"STATE {self._state_label}"]
-        lines.append(
-            "AIM SLEW PAN {:+6.1f}deg TILT {:+5.1f}deg".format(
-                math.degrees(self._user_pan), math.degrees(self._user_tilt)
-            )
-        )
-        if self._last_range is not None and self._last_range.valid:
-            src = {SOURCE_LASER: "LSR", SOURCE_BBOX: "BOX"}.get(self._last_range.source, "---")
-            lines.append(
-                f"RNG {self._last_range.distance_m:6.2f}m +-{self._last_range.sigma_m:4.2f} [{src}]"
-            )
+        label = self._state_label
+        detail = ""
+        if label == "READY":
+            state = "READY"
+        elif label.startswith("ALIGN("):
+            state, detail = "ALIGN", label[6:-1]
+        elif label == "SEARCH":
+            state = "SEARCH"
         else:
-            lines.append("RNG   --.--m [---]")
+            state = "TRACK"
+            if label.startswith("TRACK(") and label.endswith(")"):
+                detail = label[6:-1]
+
+        lead_pixel = None
+        if self._last_aim_dir_base is not None:
+            lead_pixel = self._project_direction_to_pixel(self._last_aim_dir_base)
+
+        rng = src = None
+        if self._last_range is not None and self._last_range.valid:
+            rng = float(self._last_range.distance_m)
+            src = {SOURCE_LASER: "LASER", SOURCE_BBOX: "OPTICAL"}.get(self._last_range.source, "")
 
         out = self._last_output
+        tof_ms = phit = None
         if out is not None and out.aim_solution is not None:
-            sol = out.aim_solution
-            lines.append(f"TOF {sol.time_of_flight * 1000.0:6.1f}ms  ITER {sol.solver_iterations}")
-            lines.append(
-                "LEAD AZ {:+.3f}deg EL {:+.3f}deg".format(
-                    math.degrees(sol.ballistic_offset[0]), math.degrees(sol.ballistic_offset[1])
+            tof_ms = out.aim_solution.time_of_flight * 1000.0
+            phit = float(out.hit_probability)
+
+        debug_lines = []
+        if self._hud_debug:
+            debug_lines.append(f"STATE {self._state_label}")
+            debug_lines.append(
+                "AIM PAN {:+6.2f}deg TILT {:+5.2f}deg".format(math.degrees(self._user_pan), math.degrees(self._user_tilt))
+            )
+            if self._last_range is not None and self._last_range.valid:
+                debug_lines.append(f"RNG {self._last_range.distance_m:6.2f}m +-{self._last_range.sigma_m:4.2f}")
+            if out is not None and out.aim_solution is not None:
+                sol = out.aim_solution
+                debug_lines.append(
+                    "LEAD AZ {:+.3f} EL {:+.3f} deg ITER {}".format(
+                        math.degrees(sol.ballistic_offset[0]), math.degrees(sol.ballistic_offset[1]), sol.solver_iterations
+                    )
                 )
-            )
-            lines.append(
-                "ALIGN ERR {:4.1f}px  PHIT {:4.2f}".format(
-                    self._align_err_px, out.hit_probability
+                debug_lines.append(
+                    "ALIGN {:4.1f}/{:4.1f}px  SPD {:4.2f}m/s".format(
+                        self._align_err_px, self._align_tolerance_px, float(out.debug.get("target_speed", float("nan")))
+                    )
                 )
-            )
-            lines.append(
-                "TGT SPD {:5.2f}m/s  CONV {}".format(
-                    float(out.debug.get("target_speed", float("nan"))),
-                    "Y" if sol.solver_converged else "N",
-                )
-            )
-        lines.append(
-            "CMD PAN {:+7.2f}deg TILT {:+6.2f}deg".format(
-                math.degrees(self._pan_cmd), math.degrees(self._tilt_cmd)
-            )
+
+        f = HudFrame(
+            now=now,
+            principal_point=(cx, cy),
+            state=state,
+            state_detail=detail,
+            bbox_xyxy=self._last_bbox,
+            lock_age_s=(stamp - self._lock_start_time) if self._lock_start_time is not None else None,
+            lead_pixel=lead_pixel,
+            range_m=rng,
+            range_src=src or "",
+            tof_ms=tof_ms,
+            hit_probability=phit,
+            fire_enabled=self._fire_control is not None,
+            fire_mode=str(self.get_parameter("fire_mode").value),
+            kills=self._kills,
+            target_down=self._target_down,
+            last_hit_age_s=(now - self._last_hit_time) if self._last_hit_time is not None else None,
+            kill_banner_age_s=(now - self._kill_time) if self._kill_time is not None else None,
+            trigger_reject_age_s=(now - self._trigger_reject_time) if self._trigger_reject_time is not None else None,
+            impacts=self._impacts,
+            hit_radius_m=self._hit_radius_m,
+            air_cue=True,
+            debug=self._hud_debug,
+            debug_lines=debug_lines,
         )
 
-        # ── 3단계: 탄환 궤적 및 Hit/Kill 이펙트 ─────────────────────────
         if self._fire_control is not None:
-            now = self.get_clock().now().nanoseconds * 1e-9
-            for shot in self._fire_control.pending_shots:
-                pos = self._fire_control.projectile_position_at(shot, now - shot.fire_time)
-                pixel = self._project_world_point_to_pixel(pos)
-                if pixel is not None:
-                    cv2.circle(canvas, pixel, 3, (0, 255, 255), -1)
-
-            for result in self._fire_control.recent_results:
-                pixel = self._project_world_point_to_pixel(result.projectile_point_world)
-                if pixel is None:
-                    continue
-                if result.verdict == "HIT":
-                    cv2.circle(canvas, pixel, 18, (0, 255, 0), 3)
-                    cv2.putText(
-                        canvas, "KILL", (pixel[0] - 26, pixel[1] - 24),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 3, cv2.LINE_AA,
-                    )
-                    cv2.putText(
-                        canvas, "KILL", (pixel[0] - 26, pixel[1] - 24),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2, cv2.LINE_AA,
-                    )
-                elif result.verdict == "MISS":
-                    cv2.line(canvas, (pixel[0] - 12, pixel[1] - 12), (pixel[0] + 12, pixel[1] + 12), (0, 0, 255), 2)
-                    cv2.line(canvas, (pixel[0] - 12, pixel[1] + 12), (pixel[0] + 12, pixel[1] - 12), (0, 0, 255), 2)
-                else:  # UNVERIFIED
-                    cv2.circle(canvas, pixel, 14, (0, 165, 255), 2)
-
             stats = self._fire_control.stats()
-            hit_rate = stats["hit_rate"]
-            hit_rate_str = f"{hit_rate * 100.0:5.1f}%" if hit_rate is not None else " --.-%"
-            lines.append(
-                "SHOTS {:3d} HIT {:3d} MISS {:3d} UNV {:3d} ACC {}".format(
-                    stats["shots_fired"], stats["hits"], stats["misses"], stats["unverified"], hit_rate_str
+            f.shots, f.hits, f.misses = stats["shots_fired"], stats["hits"], stats["misses"]
+            f.in_flight_pixels = [
+                px
+                for px in (
+                    self._project_world_point_to_pixel(self._fire_control.projectile_position_at(s, now - s.fire_time))
+                    for s in self._fire_control.pending_shots
                 )
-            )
+                if px is not None
+            ]
+            f.recent_impacts = [
+                (px, r.verdict)
+                for r in self._fire_control.recent_results
+                for px in [self._project_world_point_to_pixel(r.projectile_point_world)]
+                if px is not None
+            ]
 
-        for i, text in enumerate(lines):
-            origin = (8, 20 + 18 * i)
-            cv2.putText(canvas, text, origin, cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 0), 3, cv2.LINE_AA)
-            cv2.putText(canvas, text, origin, cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
-
-        if ready:
-            cv2.putText(
-                canvas, "[ FIRE READY ]", (width - 160, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 0), 4, cv2.LINE_AA
-            )
-            cv2.putText(
-                canvas, "[ FIRE READY ]", (width - 160, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 0), 2, cv2.LINE_AA
-            )
-        elif self._last_output is not None and self._last_aim_dir_base is not None:
-            cv2.putText(
-                canvas, "ALIGNING", (width - 110, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 0), 3, cv2.LINE_AA
-            )
-            cv2.putText(
-                canvas, "ALIGNING", (width - 110, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 165, 255), 1, cv2.LINE_AA
-            )
-        else:
-            # 시야 밖 표적 방향 안내 (Off-Boresight Air Cue)
-            cue_txt = "^ AIR CUE: PRESS [UP] OR [T] (TGT EL +22deg) ^"
-            cv2.putText(
-                canvas, cue_txt, (width // 2 - 190, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 3, cv2.LINE_AA
-            )
-            cv2.putText(
-                canvas, cue_txt, (width // 2 - 190, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1, cv2.LINE_AA
-            )
+        canvas = self._hud.render(frame_bgr, f)
 
         canvas = np.ascontiguousarray(canvas, dtype=np.uint8)
         out_msg = Image()

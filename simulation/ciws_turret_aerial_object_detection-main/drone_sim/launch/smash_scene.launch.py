@@ -29,7 +29,7 @@ from launch.actions import (
 )
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 
@@ -49,6 +49,12 @@ def generate_launch_description():
             'headless', default_value='true',
             description='true 면 Gazebo GUI 없이 서버만 실행. 화면은 smash_scope_viewer 로 확인'),
         DeclareLaunchArgument('device', default_value='cuda:0'),
+        DeclareLaunchArgument(
+            'camera_px', default_value='640',
+            description='조준 카메라 해상도(정사각, 화소). ciws_turret view.launch.py 로 전달'),
+        DeclareLaunchArgument(
+            'camera_hfov', default_value='0.4',
+            description='조준 카메라 수평 화각(rad). ciws_turret view.launch.py 로 전달'),
         DeclareLaunchArgument('muzzle_velocity', default_value='880.0'),
         DeclareLaunchArgument('enable_drag', default_value='true'),
         DeclareLaunchArgument('target_x', default_value='10.0'),
@@ -69,6 +75,17 @@ def generate_launch_description():
             'fire_mode', default_value='manual',
             description='"manual"(트리거 상승 엣지 격발) 또는 "auto"(READY 자동 격발)'),
         DeclareLaunchArgument(
+            'demo_kill', default_value='true',
+            description='격발 제어가 켜져 있을 때, 명중하면 표적을 떨어뜨리고 재출현시키는 시연 연출'),
+        # 기본 재출현 위치는 시야 밖(좌우 약 9도)과 거리를 섞어 둔다. 같은 자리에 다시
+        # 띄우면 포탑이 이미 그곳을 겨누고 있어 재조준 없이 곧바로 격추되므로 시연이
+        # 단조롭다. 순서: 20 m 좌측 -> 15 m 우측 -> 35 m 정면 -> 10.8 m 정면(world +y 가 왼쪽).
+        # 앙각은 모두 약 18~20도로 포탑 앙각 범위 안이다. [0.0] 이면 처음 자리로 돌아온다.
+        DeclareLaunchArgument(
+            'respawn_positions',
+            default_value='[20.0, 3.0, 7.4, 15.0, -2.5, 5.6, 33.0, 0.0, 12.5, 10.0, 0.0, 4.2]',
+            description='재출현 위치 목록 [x,y,z, x,y,z, ...] (world). [0.0] 이면 처음 자리'),
+        DeclareLaunchArgument(
             'launch_viewer', default_value='false',
             description='true 면 대화형 스코프 뷰어(smash_scope_viewer)를 자동으로 함께 기동'),
     ]
@@ -81,7 +98,9 @@ def generate_launch_description():
     turret = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(turret_pkg, 'launch', 'view.launch.py')),
-        launch_arguments={'headless': LaunchConfiguration('headless')}.items())
+        launch_arguments={'headless': LaunchConfiguration('headless'),
+                          'camera_px': LaunchConfiguration('camera_px'),
+                          'camera_hfov': LaunchConfiguration('camera_hfov')}.items())
 
     drone = Node(
         package='ros_gz_sim', executable='create', output='screen',
@@ -140,12 +159,33 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}],
     )
 
+    # 시연 연출: 명중 시 격추 낙하 + 재출현 (demo_director.py). 격발 제어가 켜져 있어야
+    # 명중 판정이 나오므로 두 인자가 모두 참일 때만 띄운다. 표적 이동은 Gazebo 의
+    # set_pose 서비스로 하므로 그 서비스만 따로 브리지한다.
+    demo_on = IfCondition(PythonExpression([
+        "'", LaunchConfiguration('enable_fire_control'), "' == 'true' and '",
+        LaunchConfiguration('demo_kill'), "' == 'true'"]))
+    set_pose_bridge = Node(
+        package='ros_gz_bridge', executable='parameter_bridge', name='set_pose_bridge',
+        output='screen', condition=demo_on,
+        arguments=['/world/turret_world/set_pose@ros_gz_interfaces/srv/SetEntityPose'],
+    )
+    director = Node(
+        package='drone_sim', executable='demo_director', name='demo_director',
+        output='screen', condition=demo_on,
+        parameters=[{
+            'use_sim_time': True,
+            'ground_truth_pose_topic': LaunchConfiguration('ground_truth_pose_topic'),
+            'respawn_positions': LaunchConfiguration('respawn_positions'),
+        }],
+    )
+
     viewer_node = Node(
         package='drone_sim', executable='smash_scope_viewer',
         name='smash_scope_viewer', output='screen',
         condition=IfCondition(LaunchConfiguration('launch_viewer')),
     )
 
-    delayed = TimerAction(period=6.0, actions=[drone] + extras + [fcs, ground_truth_bridge, viewer_node])
+    delayed = TimerAction(period=6.0, actions=[drone] + extras + [fcs, ground_truth_bridge, set_pose_bridge, director, viewer_node])
 
     return LaunchDescription(args + [set_res, turret, delayed])

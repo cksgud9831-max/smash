@@ -5,6 +5,7 @@ Windows 데스크탑에서 직접 OpenCV 창을 띄우고 격발 및 수동 조�
 GetAsyncKeyState + cv2.waitKeyEx 이중 키 감지로 방향키/WASD 조작 보장.
 """
 
+import os
 import sys
 import time
 import threading
@@ -36,18 +37,44 @@ VK_T = 0x54
 VK_Q = 0x51
 VK_ESCAPE = 0x1B
 VK_SHIFT = 0x10
+VK_H = 0x48
+VK_C = 0x43
+VK_V = 0x56
 
-# 조준 스텝. 카메라 화각이 0.4 rad(약 23도)뿐이고 READY 정렬 허용오차가 35픽셀
-# (약 0.022 rad = 1.25도)이므로, 이전 기본값 0.070 rad(4.0도)로는 한 번 누를 때마다
-# 화면의 6분의 1이 통째로 움직여 허용오차 안에 들어가는 것이 구조적으로 불가능했다.
-# 실제로 표적이 화면 밖으로 밀려 추적이 초기화되는 일이 반복됐다.
-# 기본을 정밀 스텝으로 두고, 크게 돌릴 때만 Shift 를 누르도록 분리한다.
-STEP_FINE_RAD = 0.010   # 약 0.57도 (허용오차 1.25도의 절반 이하)
+# 녹화: 화면에 들어온 HUD 영상을 그대로(D_pad 버튼·안내문 제외) MP4 로 저장한다.
+# 영상 도착 간격이 고르지 않으므로 벽시계 기준 고정 FPS 로 마지막 프레임을 채워
+# 넣는다 — 재생 속도가 실제 시간과 같아진다.
+REC_FPS = 20.0
+REC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "recordings")
+
+# 조준 스텝. 카메라 화각 0.4 rad / 640 px 이므로 1 mrad 가 약 1.6 px 이다.
+# READY 정렬 허용오차는 표적 거리에서 유도된다(명중 반경의 각크기, smash_fcs_node
+# _align_tolerance_for_range): 10.8 m 약 29 px, 20 m 약 16 px, 35 m 약 9 px.
+# 이전 정밀 스텝 0.010 rad(약 16 px)은 허용오차가 35 px 고정이던 시절 값이라, 20 m 이상에서는
+# 한 번 누를 때마다 허용오차를 통째로 건너뛰어 키로는 READY 에 들어가기 어려웠다
+# (2026-09-18 실측). 35 m 허용오차의 약 3분의 2인 0.004 rad(약 6 px)로 줄인다.
+# 크게 돌릴 때는 Shift(표적 탐색용 큰 이동)를 쓴다.
+STEP_FINE_RAD = 0.004   # 약 0.23도, 약 6 px
 STEP_COARSE_RAD = 0.070  # 약 4.0도 (Shift: 표적 탐색용 큰 이동)
 
 
+_viewer_hwnd = {"h": 0}
+
+
+def viewer_focused():
+    """뷰어 창이 맨 앞일 때만 참.
+
+    GetAsyncKeyState 는 어느 창에 입력하든 키 상태를 돌려준다. 이 검사가 없으면 다른
+    창에서 타이핑한 W/A/S/D·Space 가 그대로 조준·격발로 들어간다(2026-09-18 실측:
+    뷰어를 띄워 둔 채 다른 창을 쓰는 동안 포탑이 돌고 한 발이 나갔다).
+    """
+    if not _viewer_hwnd["h"]:
+        _viewer_hwnd["h"] = user32.FindWindowW(None, WINDOW_NAME)
+    return bool(_viewer_hwnd["h"]) and user32.GetForegroundWindow() == _viewer_hwnd["h"]
+
+
 def is_key_down(vk):
-    return (user32.GetAsyncKeyState(vk) & 0x8000) != 0
+    return viewer_focused() and (user32.GetAsyncKeyState(vk) & 0x8000) != 0
 
 
 def send_async(endpoint):
@@ -65,7 +92,55 @@ def fire():
 
 
 def slew(pan, tilt):
+    # pan 은 ROS 관례(Z 축 기준 반시계 = 왼쪽이 +)다. 왼쪽 키는 +, 오른쪽 키는 - 를 보낸다.
+    # 이전에는 반대로 보내 왼쪽 키가 포탑을 오른쪽으로 돌렸다(2026-09-18 실측: 화면 왼쪽
+    # 표적을 향해 A 를 누르자 표적이 화면 밖으로 밀려났다).
     send_async(f"/slew?pan={pan}&tilt={tilt}")
+
+
+def ui_command(name):
+    send_async(f"/cmd?name={name}")
+
+
+class Recorder:
+    def __init__(self):
+        self.writer = None
+        self.path = None
+        self.size = None
+        self.started = 0.0
+        self.next_t = 0.0
+
+    @property
+    def active(self):
+        return self.writer is not None
+
+    def start(self, frame):
+        os.makedirs(REC_DIR, exist_ok=True)
+        self.path = os.path.join(REC_DIR, time.strftime("smash_%Y%m%d_%H%M%S.mp4"))
+        h, w = frame.shape[:2]
+        self.size = (w, h)
+        self.writer = cv2.VideoWriter(self.path, cv2.VideoWriter_fourcc(*"mp4v"), REC_FPS, self.size)
+        if not self.writer.isOpened():
+            print("[REC] 녹화 파일을 열지 못했습니다: " + self.path)
+            self.writer = None
+            return
+        self.started = self.next_t = time.time()
+        print("[REC] 녹화 시작: " + self.path)
+
+    def feed(self, frame, now):
+        if self.writer is None or frame is None:
+            return
+        if (frame.shape[1], frame.shape[0]) != self.size:
+            frame = cv2.resize(frame, self.size)
+        while self.next_t <= now:
+            self.writer.write(frame)
+            self.next_t += 1.0 / REC_FPS
+
+    def stop(self):
+        if self.writer is not None:
+            self.writer.release()
+            print(f"[REC] 녹화 종료 ({time.time() - self.started:.0f}초): {self.path}")
+        self.writer = None
 
 
 def is_inside(pt, rect):
@@ -81,6 +156,7 @@ def main():
     print("  조작: 마우스 좌클릭 / 스페이스바 (격발)")
     print("        방향키(↑,↓,←,→) / WASD / 화면 D_pad 버튼 (수동 조준)")
     print("        T (대공 경계 앙각 프리셋: 드론 즉시 포착) / R (수평 리셋)")
+    print("        V (녹화 시작/종료, recordings 폴더) / H (HUD 상세 수치) / C (사격 통계 초기화)")
     print("        Q 또는 ESC (종료)")
     print("============================================================")
 
@@ -115,10 +191,10 @@ def main():
                 slew(0.0, -step_rad)
             elif is_inside(pt, btn_left):
                 print("[BUTTON] 좌측(PAN LEFT) 조준")
-                slew(-step_rad, 0.0)
+                slew(step_rad, 0.0)
             elif is_inside(pt, btn_right):
                 print("[BUTTON] 우측(PAN RIGHT) 조준")
-                slew(step_rad, 0.0)
+                slew(-step_rad, 0.0)
             elif is_inside(pt, btn_reset):
                 print("[BUTTON] 조준 수평 리셋")
                 slew(999.0, 0.0)
@@ -168,6 +244,16 @@ def main():
     threading.Thread(target=stream_reader, daemon=True).start()
 
     shown_jpeg = None
+    recorder = Recorder()
+    clean_frame = None
+    prev_toggle = {VK_H: False, VK_C: False, VK_V: False}
+
+    def toggled(vk, key, chars):
+        """누르는 순간 한 번만 참. GetAsyncKeyState 는 누르고 있는 동안 계속 참이다."""
+        down = is_key_down(vk) or key in chars
+        edge = down and not prev_toggle[vk]
+        prev_toggle[vk] = down
+        return edge
 
     while True:
         jpg = latest["jpeg"]
@@ -184,6 +270,7 @@ def main():
                 shown_jpeg = jpg
                 frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
                 if frame is not None:
+                    clean_frame = frame.copy()
                     h, w = frame.shape[:2]
                     bw, bh = 38, 28
                     cx = w - 85
@@ -213,15 +300,35 @@ def main():
                         cv2.putText(frame, b_txt, (tx, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.38, b_col, 1, cv2.LINE_AA)
 
                     # 하단 조작 가이드 안내문
-                    guide_txt = "AIM: ARROWS/WASD (SHIFT=FAST) | AIR: T | RESET: R | FIRE: SPACE"
+                    guide_txt = "AIM: WASD (SHIFT=FAST) | AIR: T | FIRE: SPACE | REC: V | INFO: H"
                     cv2.putText(frame, guide_txt, (10, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 0), 3, cv2.LINE_AA)
                     cv2.putText(frame, guide_txt, (10, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 255, 200), 1, cv2.LINE_AA)
+
+                    if recorder.active:
+                        el = int(time.time() - recorder.started)
+                        # 상단 가운데: 좌상단 상태 표시줄과 우상단 거리·과녁 패널을 피한다
+                        if el % 2 == 0:
+                            cv2.circle(frame, (w // 2 - 52, 26), 7, (0, 0, 255), -1, cv2.LINE_AA)
+                        cv2.putText(frame, f"REC {el // 60:02d}:{el % 60:02d}", (w // 2 - 40, 32),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 255), 2, cv2.LINE_AA)
 
                     cv2.imshow(WINDOW_NAME, frame)
 
             key_ex = cv2.waitKeyEx(1)
             key = key_ex & 0xFF
             now = time.time()
+            recorder.feed(clean_frame, now)
+
+            if toggled(VK_V, key, (ord("v"), ord("V"))) and clean_frame is not None:
+                if recorder.active:
+                    recorder.stop()
+                else:
+                    recorder.start(clean_frame)
+            if toggled(VK_H, key, (ord("h"), ord("H"))):
+                ui_command("toggle_debug")
+            if toggled(VK_C, key, (ord("c"), ord("C"))):
+                print("[KEY] 사격 통계 초기화")
+                ui_command("reset_stats")
 
             # Shift 를 누르고 있으면 큰 스텝(표적 탐색), 아니면 정밀 스텝(정렬).
             step_rad = STEP_COARSE_RAD if is_key_down(VK_SHIFT) else STEP_FINE_RAD
@@ -234,7 +341,11 @@ def main():
             is_air = is_key_down(VK_T) or (key in (ord("t"), ord("T")))
             is_reset = is_key_down(VK_R) or (key in (ord("r"), ord("R")))
             is_fire = is_key_down(VK_SPACE) or (key == 32)
-            is_quit = (key == 27) or (cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1)
+            # 안내문대로 Q 도 종료로 받는다(이전에는 ESC 만 받아 Q 를 눌러도 창이 남았다)
+            # 다른 키와 마찬가지로 GetAsyncKeyState 로도 받는다. waitKeyEx 로만 받으면 입력이
+            # OpenCV 창에 전달되지 않는 경우 ESC 가 먹지 않았다(2026-09-18 실측).
+            is_quit = (key in (27, ord("q"), ord("Q")) or is_key_down(VK_ESCAPE) or is_key_down(VK_Q)
+                       or cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1)
 
             if now - last_key_time > 0.05:  # 50ms 쿨다운으로 신속하고 부드러운 연속 조작
                 if is_air:
@@ -251,11 +362,11 @@ def main():
                     last_key_time = now
                 elif is_left:
                     print("[KEY] 좌측(PAN LEFT) 조준")
-                    slew(-step_rad, 0.0)
+                    slew(step_rad, 0.0)
                     last_key_time = now
                 elif is_right:
                     print("[KEY] 우측(PAN RIGHT) 조준")
-                    slew(step_rad, 0.0)
+                    slew(-step_rad, 0.0)
                     last_key_time = now
                 elif is_reset:
                     print("[KEY] 조준 수평 리셋")
@@ -272,6 +383,7 @@ def main():
             stream = None
             time.sleep(0.2)
 
+    recorder.stop()
     cv2.destroyAllWindows()
 
 

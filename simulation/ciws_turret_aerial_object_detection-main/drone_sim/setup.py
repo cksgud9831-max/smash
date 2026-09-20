@@ -43,6 +43,8 @@ setup(
             'smash_fcs = drone_sim.smash_fcs_node:main',
             # SMASH 대화형 스코프 뷰어 (마우스 좌클릭 및 스페이스바 격발 지원)
             'smash_scope_viewer = drone_sim.smash_scope_viewer:main',
+            # 시연 연출: 명중 시 표적 격추(낙하) 후 재출현
+            'demo_director = drone_sim.demo_director:main',
         ],
     },
 )

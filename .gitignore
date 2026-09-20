@@ -10,3 +10,6 @@
 *.pt
 *.pth
 /models/
+
+# 스코프 뷰어 녹화 결과 (win_scope_viewer.py 의 V 키)
+/recordings/

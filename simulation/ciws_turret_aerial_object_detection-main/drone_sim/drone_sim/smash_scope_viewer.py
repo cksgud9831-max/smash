@@ -13,7 +13,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import Bool, Float64MultiArray
+from std_msgs.msg import Bool, Float64MultiArray, String
 from cv_bridge import CvBridge
 
 
@@ -41,6 +41,16 @@ class ScopeHttpHandler(http.server.BaseHTTPRequestHandler):
             d_tilt = float(query.get("tilt", [0.0])[0])
             if ScopeHttpHandler.viewer_instance:
                 ScopeHttpHandler.viewer_instance._slew(d_pan, d_tilt)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(b"OK")
+        elif path == "/cmd":
+            # HUD 명령 중계: toggle_debug(상세 표시), reset_stats(사격 통계 초기화)
+            name = query.get("name", [""])[0]
+            if ScopeHttpHandler.viewer_instance and name in ("toggle_debug", "reset_stats"):
+                ScopeHttpHandler.viewer_instance._ui_command(name)
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
             self.send_header("Access-Control-Allow-Origin", "*")
@@ -100,8 +110,8 @@ button:hover { background: #00ff88; color: #000; }
   <button style="background: #005f73; color: #00ffcc; border-color: #00ffcc; font-weight: bold;" onclick="slew(888, 0)">대공 프리셋 (T)</button>
   <button onclick="slew(0, 0.05)">상 (W / UP)</button>
   <button onclick="slew(0, -0.05)">하 (S / DN)</button>
-  <button onclick="slew(-0.05, 0)">좌 (A / LT)</button>
-  <button onclick="slew(0.05, 0)">우 (D / RT)</button>
+  <button onclick="slew(0.05, 0)">좌 (A / LT)</button>
+  <button onclick="slew(-0.05, 0)">우 (D / RT)</button>
   <button onclick="slew(999, 0)">리셋 (R)</button>
   <button class="btn-fire" onclick="fire()">[ BANG! 격발 (SPACE) ]</button>
 </div>
@@ -113,8 +123,8 @@ window.addEventListener('keydown', (e) => {
   else if (e.key === 't' || e.key === 'T') slew(888, 0);
   else if (e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') slew(0, 0.05);
   else if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') slew(0, -0.05);
-  else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') slew(-0.05, 0);
-  else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') slew(0.05, 0);
+  else if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') slew(0.05, 0);
+  else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') slew(-0.05, 0);
   else if (e.key === 'r' || e.key === 'R') slew(999, 0);
 });
 </script>
@@ -146,6 +156,7 @@ class SmashScopeViewer(Node):
 
         self._trigger_pub = self.create_publisher(Bool, "/smash_fcs/trigger", 10)
         self._slew_pub = self.create_publisher(Float64MultiArray, "/smash_fcs/manual_slew", 10)
+        self._ui_pub = self.create_publisher(String, "/smash_fcs/ui_command", 10)
         self._image_sub = self.create_subscription(
             Image, "/turret_camera/image_annotated", self._on_image, 10
         )
@@ -179,6 +190,11 @@ class SmashScopeViewer(Node):
         self._bang_timer = 1.0
         self.get_logger().info("[BANG!] 사수 방아쇠 격발 명령 전송 (/smash_fcs/trigger)")
 
+    def _ui_command(self, name: str):
+        msg = String()
+        msg.data = name
+        self._ui_pub.publish(msg)
+
     def _slew(self, d_pan: float, d_tilt: float):
         msg = Float64MultiArray()
         msg.data = [float(d_pan), float(d_tilt)]
@@ -201,10 +217,10 @@ class SmashScopeViewer(Node):
                 self._slew(0.0, -step_rad)
                 self.get_logger().info("[BUTTON] 포탑 하방(TILT DOWN) 조준")
             elif self._is_inside(pt, self._btn_left):
-                self._slew(-step_rad, 0.0)
+                self._slew(step_rad, 0.0)
                 self.get_logger().info("[BUTTON] 포탑 좌측(PAN LEFT) 조준")
             elif self._is_inside(pt, self._btn_right):
-                self._slew(step_rad, 0.0)
+                self._slew(-step_rad, 0.0)
                 self.get_logger().info("[BUTTON] 포탑 우측(PAN RIGHT) 조준")
             elif self._is_inside(pt, self._btn_reset):
                 self._slew(999.0, 0.0)
@@ -247,7 +263,13 @@ class SmashScopeViewer(Node):
             if self._frame_seq == self._rendered_seq and time.time() > self._bang_timer:
                 continue
 
-            if self._latest_frame is not None:
+            if self._latest_frame is not None and not self._gui_available:
+                # WSL 창을 띄우지 않을 때(기본)는 FCS 가 그린 HUD 를 그대로 내보낸다.
+                # 조작 버튼과 안내문은 Windows 뷰어가 그리므로 여기서 또 그리면 화면에
+                # 두 벌이 겹치고, Windows 뷰어의 녹화(V 키)에도 섞여 들어간다.
+                self._rendered_seq = self._frame_seq
+                self._rendered_frame = self._latest_frame
+            elif self._latest_frame is not None:
                 self._rendered_seq = self._frame_seq
                 display = self._latest_frame.copy()
                 h, w = display.shape[:2]
@@ -348,9 +370,9 @@ class SmashScopeViewer(Node):
                     elif is_down:
                         self._slew(0.0, -step_rad)
                     elif is_left:
-                        self._slew(-step_rad, 0.0)
-                    elif is_right:
                         self._slew(step_rad, 0.0)
+                    elif is_right:
+                        self._slew(-step_rad, 0.0)
                     elif key in (ord("r"), ord("R")):
                         self._slew(999.0, 0.0)
                     elif key == 32:
