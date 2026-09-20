@@ -66,6 +66,42 @@ FLOW_KEEP_RESIDUAL = 30.0
 UPWARD_FLOW_SCALE = 0.65
 UPWARD_DAMPING_MAX_STEP = 35.0
 
+# 탐지기가 알아보는 표적 크기의 상한(모델 입력 화소 기준).
+#
+# 2026-09-19 실측(yolo11s_ga_final-3/best.pt). 화각 6.9도로 10.8 m 드론을 찍은 영상(드론이 온전히
+# 보이는 것)을 크기만 줄여 가며 넣었다. 최고 신뢰도(0.25 이상이면 탐지):
+#   카메라 영상에서 드론 폭    imgsz 640      imgsz 960
+#        181 px                0.00           0.00
+#        135 px                0.34           0.00
+#         90 px                0.72           0.27
+#         63 px                0.76           0.75
+#         45 px                0.74           0.76
+# 모델 입력 기준 약 100 px 까지는 안정적이고, 135 px 에서 약해지며, 그 위로는 알아보지 못한다.
+# 학습 데이터가 작고 먼 드론 위주라 가까이서 크게 찍힌 드론은 놓친다. 그래서 화각을 좁혀
+# (배율을 높여) 100 m 를 잡으면, 같은 설정에서 가까운 표적(6.9도 화각 기준 약 24 m 이내)이
+# 아예 탐지되지 않았다. 입력 크기를 조절해 표적이 이 상한 아래로 들어가게 한다.
+MAX_MODEL_TARGET_PX = 100
+# 표적 크기를 모를 때(첫 포착) 프레임마다 돌아가며 쓰는 입력 크기. 한 프레임에 한 번만
+# 추론하므로 탐색 중 부하는 그대로이고, 최대 3 프레임 안에 크기와 무관하게 포착한다.
+# 960: 작고 먼 표적(카메라 약 100 px 까지), 640: 중간(약 130 px 까지), 320: 가까운 큰 표적.
+ACQUIRE_IMGSZ_CYCLE = (960, 640, 320)
+MIN_IMGSZ = 256
+
+
+def imgsz_for_target(source_max_side, target_max_side, cap):
+    """source 이미지를 넣을 때 표적이 MAX_MODEL_TARGET_PX 이하가 되는 입력 크기.
+
+    Ultralytics 는 source 의 긴 변을 imgsz 로 맞추므로 표적은 imgsz / source 배가 된다.
+    cap 보다 크게 키우지는 않는다(작은 표적은 cap 그대로 = 이전 동작). 32 의 배수로 내림.
+    """
+
+    if target_max_side <= 0 or source_max_side <= 0:
+        return int(cap)
+    limit = source_max_side * MAX_MODEL_TARGET_PX / float(target_max_side)
+    size = int(min(float(cap), limit)) // 32 * 32
+    return max(MIN_IMGSZ, size)
+
+
 _NON_PERIODIC_REDETECT_REASONS = {"low_features", "center_jump", "area_jump", "feature_offset"}
 
 
@@ -165,7 +201,7 @@ def select_motion_consistent_bbox_from_yolo(boxes, prev_bbox, frame_shape, offse
 
 
 def yolo_detect(frame, model, device, conf_thres, roi_bbox=None, prev_bbox=None,
-                full_frame_imgsz=None):
+                full_frame_imgsz=None, limit_target_size=False):
     """ROI-cropped YOLO detection with motion-consistent candidate
     selection; falls back to full-frame detection if the ROI crop fails.
 
@@ -197,7 +233,12 @@ def yolo_detect(frame, model, device, conf_thres, roi_bbox=None, prev_bbox=None,
         crop = frame[ry:ry + rh, rx:rx + rw]
 
         if crop.size != 0:
-            results = model.predict(source=crop, conf=conf_thres, device=device, verbose=False)
+            # crop 은 bbox 의 ROI_MARGIN 배라 보통 640 으로 확대하면 표적이 약 108 px 이 된다.
+            # 표적이 커서 crop 이 화면 끝에 잘리면 그 비율이 깨져 상한을 넘으므로 입력을 줄인다.
+            roi_kwargs = {}
+            if limit_target_size:
+                roi_kwargs["imgsz"] = imgsz_for_target(max(rw, rh), max(roi_bbox[2], roi_bbox[3]), 640)
+            results = model.predict(source=crop, conf=conf_thres, device=device, verbose=False, **roi_kwargs)
             boxes = results[0].boxes
 
             if boxes is not None and len(boxes) > 0:
@@ -218,7 +259,11 @@ def yolo_detect(frame, model, device, conf_thres, roi_bbox=None, prev_bbox=None,
                 if score >= ROI_MIN_CONF_FOR_ACCEPT and is_roi_detection_scale_valid(prev_bbox, bbox):
                     return bbox, score
 
-    full_kwargs = {} if full_frame_imgsz is None else {"imgsz": int(full_frame_imgsz)}
+    full_imgsz = full_frame_imgsz
+    if limit_target_size and prev_bbox is not None and full_imgsz is not None:
+        # 재포착: 직전 표적 크기를 알므로 상한에 맞춰 입력 크기를 고른다
+        full_imgsz = imgsz_for_target(max(frame.shape[:2]), max(prev_bbox[2], prev_bbox[3]), full_imgsz)
+    full_kwargs = {} if full_imgsz is None else {"imgsz": int(full_imgsz)}
     results = model.predict(source=frame, conf=conf_thres, device=device, verbose=False,
                             **full_kwargs)
     boxes = results[0].boxes
@@ -339,10 +384,14 @@ class OpticalFlowTracker:
     tracking failure. See module docstring for validation numbers."""
 
     def __init__(self, model_path: str, device: "int | str" = 0, conf_thres: float = 0.25,
-                 acquire_imgsz: "int | None" = 960):
+                 acquire_imgsz: "int | None" = 960, multi_scale: bool = True):
         """acquire_imgsz: 표적을 아직 물지 않았을 때(전체 프레임 탐색) 쓰는 추론
         입력 크기. 작고 먼 표적 포착에 필요하며 근거는 yolo_detect 참고.
-        None 이면 Ultralytics 기본값(640)을 써 이전 동작으로 되돌아간다."""
+        None 이면 Ultralytics 기본값(640)을 써 이전 동작으로 되돌아간다.
+
+        multi_scale: 참이면 표적이 탐지기의 크기 상한(MAX_MODEL_TARGET_PX)을 넘지 않게
+        입력 크기를 조절한다. 첫 포착은 ACQUIRE_IMGSZ_CYCLE 을 프레임마다 돌아가며 쓰고,
+        추적·재포착은 직전 표적 크기로 입력을 고른다. 작은 표적에서는 이전과 같다."""
 
         from ultralytics import YOLO  # heavy import kept lazy -- only paid if this tracker is actually used
 
@@ -350,6 +399,8 @@ class OpticalFlowTracker:
         self._device = device
         self._acquire_imgsz = acquire_imgsz
         self._conf_thres = conf_thres
+        self._multi_scale = bool(multi_scale) and acquire_imgsz is not None
+        self._acquire_cycle_index = 0
 
         self._smooth_bbox: Optional[tuple] = None
         self._base_w = 0.0
@@ -392,6 +443,9 @@ class OpticalFlowTracker:
         self._prev_area = 1.0
         self._prev_center = (0.0, 0.0)
         self._last_score = 0.0
+        # _acquire_cycle_index 는 일부러 초기화하지 않는다. smash_fcs_node 는 SEARCH 인 동안
+        # 매 프레임 reset() 을 부르므로, 여기서 0 으로 되돌리면 입력 크기가 960 에 고정되어
+        # 가까운 큰 표적을 영영 못 잡는다(2026-09-19 실측: 순환이 한 번도 돌지 않았다).
 
     def update(self, frame_bgr: np.ndarray) -> Optional[FollowerResult]:
         if self._smooth_bbox is None:
@@ -399,8 +453,13 @@ class OpticalFlowTracker:
         return self._track(frame_bgr)
 
     def _initialize(self, frame_bgr: np.ndarray) -> Optional[FollowerResult]:
+        imgsz = self._acquire_imgsz
+        if self._multi_scale:
+            cycle = (self._acquire_imgsz,) + tuple(s for s in ACQUIRE_IMGSZ_CYCLE[1:] if s < self._acquire_imgsz)
+            imgsz = cycle[self._acquire_cycle_index % len(cycle)]
+            self._acquire_cycle_index += 1
         bbox, score = yolo_detect(frame_bgr, self._model, self._device, self._conf_thres,
-                                  roi_bbox=None, full_frame_imgsz=self._acquire_imgsz)
+                                  roi_bbox=None, full_frame_imgsz=imgsz)
         if bbox is None:
             return None
 
@@ -487,6 +546,7 @@ class OpticalFlowTracker:
                 roi_bbox=self._smooth_bbox, prev_bbox=self._smooth_bbox,
                 # ROI 가 실패해 전체 프레임으로 떨어지는 경우도 재포착이므로 같은 크기를 쓴다
                 full_frame_imgsz=self._acquire_imgsz,
+                limit_target_size=self._multi_scale,
             )
             if yolo_bbox is not None:
                 self._smooth_bbox = apply_redetection_bbox(self._smooth_bbox, yolo_bbox, frame_bgr.shape, redetect_reason)
