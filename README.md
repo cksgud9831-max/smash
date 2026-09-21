@@ -24,12 +24,14 @@ AimingManager (aiming_engine/)  ─┐  좌표변환 → 표적운동추정 → 
 HUD → 사람 운용자 (발사 결정은 항상 사람)
 ```
 
-같은 트래커 출력을 한 번만 호출해 별도로 소비하는 **진단 전용 병렬 경로**도 있다 (`jun_reliability/`, 아래 4절 참고). 아직 `AimingManager`에는 연결되어 있지 않은 독립 모듈이다.
+같은 트래커 출력을 한 번만 호출해 `AimingManager`와 `jun_reliability`가 함께 소비한다. 일반 브리지 예제에서는 신뢰도 파이프라인을 독립 진단용으로 실행할 수 있고, Gazebo 통합 FCS에서는 신뢰도 상태가 측정 수용, 조준점 유지 및 READY 판정에 연결된다(아래 4절 참고).
 
 ```
 Tracker.update() 결과 (한 번만 호출, fan-out)
-   ├─▶ TrackerFrameBuilder → AimingManager → HUD   (기존 운용 경로)
-   └─▶ jun_reliability 파이프라인 → STABLE/HOLD/LOST (진단 전용, 아직 미연결)
+   ├─▶ TrackerFrameBuilder → AimingManager → HUD
+   └─▶ jun_reliability → STABLE/HOLD/LOST
+                              │
+                              └─▶ Gazebo FCS 측정 수용·READY gate·HUD 상태
 ```
 
 ---
@@ -93,7 +95,7 @@ smash/
 
 ## 4. `jun_reliability/` — 트래킹 신뢰도 진단 레이어
 
-트래커 출력이 "지금 얼마나 믿을 만한가"만 판단하는 완전히 독립적인 진단 모듈이다. 기존 `bridge`/`aiming_engine` 코드는 전혀 수정하지 않고 바깥에서 관찰만 한다.
+트래커 출력이 "지금 얼마나 믿을 만한가"를 판단하는 독립 모듈이다. 신뢰도 계산 자체는 `bridge` 및 `aiming_engine`과 분리되어 있으며, 통합 계층이 결과를 소비한다.
 
 ```
 Tracker.update() 결과
@@ -110,7 +112,10 @@ Tracker.update() 결과
 
 - **`bridge_adapter.py`의 `SingleFrameTrackerFanout`**: 트래커 `update()`를 프레임당 정확히 한 번만 호출하고, 그 결과를 `TrackerFrameBuilder`와 신뢰도 파이프라인이 각각 소비하도록 팬아웃한다 — 중복 추론 비용 없음.
 - `LOST -> STABLE` 직접 전이는 구조적으로 불가능(반드시 HOLD를 거침). 상태 진입/이탈에 서로 다른 임계값을 써서 히스테리시스를 보장.
-- **현재 상태**: `AimingManager`/HUD와는 아직 연결되어 있지 않다. `integration_smoke.py`로 실제 비디오에 대해 독립적으로 스모크 테스트만 되는 단계이며, 모든 임계값은 "초기 실험값(initial experimental default)"이라고 코드에 명시돼 있어 검증/튜닝이 필요하다.
+- **일반 파이프라인**: `integration_smoke.py`로 실제 비디오에 대해 신뢰도 레이어를 독립 검증할 수 있다.
+- **Gazebo 통합 FCS**: `smash_fcs_node.py`가 프레임당 한 번의 트래커 결과를 팬아웃해 신뢰도를 계산한다. `STABLE` 측정만 운동 추정기에 반영하고, `HOLD`에서는 마지막 신뢰 상태로 예측하며, `LOST`에서는 측정을 거부한다. READY는 `STABLE`일 때만 허용하고 HUD에는 LIVE/HELD 조준점과 신뢰도 상태를 표시한다.
+- **코어 지원**: `AimingManager.update(..., measurement_admitted=False)`는 현재 측정값을 추가하지 않고 마지막 신뢰 상태에서 예측만 진행한다.
+- 모든 임계값은 초기 실험값이므로 이동 표적과 실제 센서 조건에서 추가 검증·튜닝이 필요하다.
 - 설계 배경과 상태 정의(STABLE/HOLD/LOST가 의미하는 것과 의미하지 않는 것)는 `jun_reliability/STATE_ESTIMATOR_DESIGN.md`에 상세히 문서화돼 있다.
 
 ---
