@@ -55,9 +55,19 @@ class AimingManager:
         self._aim_readiness_logic = AimReadinessLogic(self._config.aim_readiness)
         self._aim_state_machine = AimStateMachine(self._config.aim_state_machine)
 
-    def update(self, frame: TrackerFrame) -> AimAssistOutput:
-        position_world = self._coordinate_transform.image_to_world(frame)
-        target_snapshot = self._target_state.update(position_world, frame.timestamp)
+    def update(self, frame: TrackerFrame, *, measurement_admitted: bool = True) -> AimAssistOutput:
+        """Update aim assistance, optionally predicting without admitting a measurement.
+
+        ``measurement_admitted=False`` advances the aim solution from the last
+        trusted TargetState prediction without appending the current tracker
+        position to either motion estimator.
+        """
+
+        if measurement_admitted:
+            position_world = self._coordinate_transform.image_to_world(frame)
+            target_snapshot = self._target_state.update(position_world, frame.timestamp)
+        else:
+            target_snapshot = self._target_state.predict(frame.timestamp)
 
         launch_point_world = self._coordinate_transform.scope_to_world(
             Vector3(0.0, 0.0, 0.0), frame.camera_extrinsics
@@ -105,5 +115,10 @@ class AimingManager:
             aim_solution=aim_solution,
             hit_probability=hit_probability,
             aim_ready=aim_ready,
-            debug={"distance_m": distance_m, "aim_error_mrad": aim_error_mrad, "target_speed": target_speed},
+            debug={
+                "distance_m": distance_m,
+                "aim_error_mrad": aim_error_mrad,
+                "target_speed": target_speed,
+                "measurement_admitted": measurement_admitted,
+            },
         )
