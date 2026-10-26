@@ -29,6 +29,8 @@ from ros_gz_interfaces.msg import Entity
 from ros_gz_interfaces.srv import SetEntityPose
 from std_msgs.msg import String
 
+from drone_sim.smash_fcs.spawn_command import parse_spawn
+
 G = 9.81
 
 
@@ -60,6 +62,7 @@ class DemoDirector(Node):
         self._cli = self.create_client(SetEntityPose, f"/world/{self._world}/set_pose")
         self._event_pub = self.create_publisher(String, "/smash_fcs/target_event", 10)
         self.create_subscription(String, "/smash_fcs/hit_result", self._on_hit, 50)
+        self.create_subscription(String, "/smash_fcs/ui_command", self._on_ui_command, 10)
         self.create_subscription(
             PoseStamped, str(self.get_parameter("ground_truth_pose_topic").value), self._on_pose, 10
         )
@@ -127,15 +130,36 @@ class DemoDirector(Node):
                 self._t0 = self._now()
             self._set_pose(x, y0, z, roll=4.0 * t, pitch=2.5 * t)
         elif self._state == "DOWN" and t >= self._respawn_delay:
-            if self._positions:
-                pos = self._positions[self._next_pos % len(self._positions)]
-                self._next_pos += 1
-            else:
-                pos = self._home or self._fall_start
-            self._set_pose(*pos)
-            self._state = "ALIVE"
-            self._publish({"event": "respawn", "position": list(pos)})
-            self.get_logger().info("재출현: ({:.1f}, {:.1f}, {:.1f})".format(*pos))
+            self._respawn()
+
+    def _on_ui_command(self, msg: String) -> None:
+        spawn = parse_spawn(msg.data)
+        if spawn is not None:
+            self._respawn(*spawn)
+
+    def _respawn(self, motion=None, kmh=None) -> None:
+        """표적을 다음 재출현 위치에 다시 띄운다. 방식·속도를 주면 target_mover 가 그대로 적용한다.
+
+        뷰어의 즉시 생성 버튼도 여기로 온다. 낙하·대기 중이면 그 연출을 끊고, 살아 있으면 교체한다.
+        """
+
+        if self._positions:
+            pos = self._positions[self._next_pos % len(self._positions)]
+        else:
+            pos = self._home or self._fall_start
+        if pos is None or not self._cli.service_is_ready():
+            if motion is not None:  # 대기 타이머가 30 Hz 로 다시 부르므로 사용자 명령일 때만 알린다
+                self.get_logger().warn("즉시 생성 불가: 재출현 위치를 모르거나 set_pose 서비스가 준비되지 않았다")
+            return
+        self._next_pos += 1
+        self._set_pose(*pos)
+        self._state = "ALIVE"
+        event = {"event": "respawn", "position": list(pos)}
+        if motion is not None:
+            event.update(motion=motion, kmh=kmh)
+        self._publish(event)
+        self.get_logger().info("재출현: ({:.1f}, {:.1f}, {:.1f})".format(*pos)
+                               + ("" if motion is None else f" — 즉시 생성 {motion} {kmh:g} km/h"))
 
 
 def main() -> None:

@@ -329,9 +329,15 @@ class GoalFeedForward:
             if dt > 1e-6:
                 pan_rate = wrap_to_pi(pan_goal - self._prev[0]) / dt
                 tilt_rate = (tilt_goal - self._prev[1]) / dt
-                # 잡음이 만든 비현실적인 각속도는 관절 속도한계로 잘라 낸다.
-                pan_rate = clamp(pan_rate, -self._max_rate_rad_s, self._max_rate_rad_s)
-                tilt_rate = clamp(tilt_rate, -self._max_rate_rad_s, self._max_rate_rad_s)
+                # A solver reseed or tracker correction is a discontinuity, not
+                # physical angular velocity. Clamping such a jump would turn it
+                # into a full-scale lead command for one frame, so reject the
+                # extrapolation on that axis instead. Ordinary target motion is
+                # far below this limit and keeps the configured lead.
+                if abs(pan_rate) > self._max_rate_rad_s:
+                    pan_rate = 0.0
+                if abs(tilt_rate) > self._max_rate_rad_s:
+                    tilt_rate = 0.0
                 result = (
                     pan_goal + pan_rate * self._lead_time_s,
                     tilt_goal + tilt_rate * self._lead_time_s,

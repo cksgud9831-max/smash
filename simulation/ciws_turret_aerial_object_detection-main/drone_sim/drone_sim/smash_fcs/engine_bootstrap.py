@@ -80,6 +80,8 @@ def build_aim_config(
     projectile_mass_kg: float,
     projectile_diameter_m: float,
     drag_model: str = "G1",
+    maneuver_reset: Optional[bool] = None,
+    maneuver_gate_mrad: Optional[float] = None,
 ):
     """config/aiming_engine.yaml 을 불러온 뒤 포탑 전용 값으로 덮어쓴다.
 
@@ -135,4 +137,10 @@ def build_aim_config(
             float(scope_mount_offset_m[2]),
         ),
     )
-    return replace(config, projectile=projectile, scope=scope)
+    # 3. target_state 기동 감지(방향 전환 시 기록 비우기). None 이면 YAML 값을 그대로 둔다.
+    target_state = config.target_state
+    if maneuver_reset is not None:
+        target_state = replace(target_state, maneuver_reset=bool(maneuver_reset))
+    if maneuver_gate_mrad is not None:
+        target_state = replace(target_state, maneuver_gate_mrad=float(maneuver_gate_mrad))
+    return replace(config, projectile=projectile, scope=scope, target_state=target_state)

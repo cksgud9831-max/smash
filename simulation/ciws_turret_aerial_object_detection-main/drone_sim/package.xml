@@ -2,14 +2,13 @@
 <package format="3">
   <name>drone_sim</name>
   <version>0.1.0</version>
-  <description>Flying drone target + YOLO11 detector for the CIWS turret camera.</description>
+  <description>SMASH FCS simulation: target drone, FCS node and turret driver for the CIWS turret.</description>
   <maintainer email="ajay@example.com">Ajay</maintainer>
   <license>MIT</license>
 
   <exec_depend>rclpy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>vision_msgs</exec_depend>
   <exec_depend>cv_bridge</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
   <exec_depend>ros_gz_interfaces</exec_depend>

@@ -4,9 +4,7 @@
 FCS 노드만 붙일 때 쓴다. 월드와 표적까지 한 번에 띄우려면 smash_scene.launch.py 를
 사용할 것.
 
-주의: 기존 drone_detector / turret_tracker 를 함께 띄우면 안 된다. 두 노드 모두
-/turret_controller/commands 와 /turret_camera/image_annotated 를 발행하므로
-FCS 노드와 명령이 충돌한다.
+이 런치는 SMASH FCS와 독립 Gazebo 포탑 제어기(turret_command)를 함께 띄운다.
 """
 
 import os
@@ -53,5 +51,10 @@ def generate_launch_description():
         ],
     )
 
+    turret_command = Node(
+        package='drone_sim', executable='turret_command', name='turret_command', output='screen',
+        parameters=[params_file, {'use_sim_time': True}],
+    )
+
     return LaunchDescription(
-        [core_path, model_path, device, muzzle_velocity, enable_drag, fcs])
+        [core_path, model_path, device, muzzle_velocity, enable_drag, turret_command, fcs])

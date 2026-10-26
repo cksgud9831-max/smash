@@ -11,6 +11,7 @@ smash_fcs_node._render 가 이번 프레임의 상태를 HudFrame 으로 모아 
     - 탄착 과녁 패널: 표적 중심 기준 탄착 분포(미터). 명중 반경 원을 함께 그려
       "얼마나 정확한가"를 한눈에 보인다.
     - 명중 히트마커, 격추 배너
+    - 추적 신뢰도 게이지, 정렬 허용 원, 표적 궤적·속도, 격추 요약 카드(일반 관객용)
     - 상세 모드(디버그 수치). 시연 중에는 끄고 필요할 때만 켠다.
 
 부하 기준: 640x640 에서 한 프레임 약 3~5 ms. 비네팅 마스크는 해상도별로 한 번만
@@ -40,6 +41,8 @@ C_RED = (60, 60, 255)
 C_GREY = (170, 170, 170)
 C_CYAN = (255, 220, 0)
 
+RELIABILITY_COLORS = {"STABLE": C_GREEN, "HOLD": C_YELLOW, "LOST": C_RED}
+
 STATE_COLORS = {
     "SEARCH": C_GREY,
     "TRACK": C_YELLOW,
@@ -58,6 +61,16 @@ class ImpactMark:
 
 
 @dataclass
+class Engagement:
+    """격추 한 건의 요약. 잠금 시점부터 격추까지."""
+
+    index: int
+    seconds: float
+    shots: int
+    hits: int
+
+
+@dataclass
 class HudFrame:
     """한 프레임을 그리는 데 필요한 상태 묶음."""
 
@@ -73,7 +86,6 @@ class HudFrame:
     tof_ms: Optional[float] = None
     hit_probability: Optional[float] = None
     fire_enabled: bool = False
-    fire_mode: str = ""
     shots: int = 0
     hits: int = 0
     misses: int = 0
@@ -83,12 +95,17 @@ class HudFrame:
     recent_impacts: Sequence[tuple[tuple[int, int], str]] = field(default_factory=list)
     last_hit_age_s: Optional[float] = None
     kill_banner_age_s: Optional[float] = None
-    trigger_reject_age_s: Optional[float] = None  # READY 아닐 때 방아쇠를 당긴 뒤 경과 시간
     impacts: Sequence[ImpactMark] = field(default_factory=list)
     hit_radius_m: float = 0.2
-    air_cue: bool = False
     debug: bool = False
     debug_lines: Sequence[str] = field(default_factory=list)
+    reliability: str = ""  # STABLE | HOLD | LOST. 빈 문자열이면 게이지를 그리지 않는다
+    quality: Optional[float] = None  # 추적 품질 0~1
+    align_tol_px: Optional[float] = None  # 리드점이 이 반경 안에 들어오면 정렬 완료
+    target_kmh: Optional[float] = None
+    trail: Sequence[tuple[int, int]] = field(default_factory=list)  # 최근 표적 중심(오래된 것부터)
+    engagement: Optional[Engagement] = None
+    engagement_age_s: Optional[float] = None
 
 
 class HudRenderer:
@@ -180,6 +197,45 @@ class HudRenderer:
         pts = np.array([[px, py - 9], [px + 9, py], [px, py + 9], [px - 9, py]], dtype=np.int32)
         cv2.polylines(img, [pts], True, C_BLACK, 3, cv2.LINE_AA)
         cv2.polylines(img, [pts], True, color, 1 if not ready else 2, cv2.LINE_AA)
+        self._text(img, "LEAD", (px + 12, py - 14), 0.36, color, 1)
+
+    @staticmethod
+    def _range_label(f: HudFrame) -> str:
+        """우상단 거리. 관객용 기본 화면은 정수 미터로 보여 준다(소수점 이하는 추정 오차 안이라 흔들려 보인다). 상세 모드는 원래 값."""
+
+        return f"RNG {f.range_m:5.1f} m" if f.debug else f"RNG {f.range_m:.0f} m"
+
+    @staticmethod
+    def _speed_label(f: HudFrame) -> Optional[str]:
+        """표적 옆 추정 속도. 상세 모드(H 키)에서만 보인다.
+
+        추정 속도는 표적이 일정하게 움직여도 3~24 km/h 로 흔들리고 방향을 바꿀 때 한동안 튄다(2026-10-18 시험).
+        외부 관객에게는 시스템이 속도를 못 재는 것처럼 보이고 조준 결과를 이해하는 데 필요하지도 않아 기본 화면에서는 숨긴다.
+        속도가 안정될 때까지 발사를 보류하는 동작은 상태 줄("SETTLING SPEED")과 한글 자막으로 계속 보여 준다.
+        """
+
+        if not f.debug or f.target_kmh is None or f.state == "SEARCH":
+            return None
+        return "HOVERING" if f.target_kmh < 0.8 else f"{f.target_kmh:.1f} km/h"
+
+    @staticmethod
+    def _friendly_detail(f: HudFrame) -> str:
+        """상태 줄 부가 문구. 상세 모드가 아니면 내부 용어·픽셀 수치를 풀어 쓴다."""
+
+        d = f.state_detail
+        if f.debug or not d:
+            return d
+        if d.startswith("READY BLOCK"):
+            return "SETTLING SPEED" if "MOTION" in d else "LOW CONFIDENCE"
+        if d == "NO RANGE":
+            return "RANGING"
+        if d == "NO TF":
+            return "SYNCING"
+        if d.startswith("REL"):
+            return "VERIFYING"
+        if d.endswith("px"):
+            return ""
+        return d
 
     def _status_bar(self, img, f: HudFrame, color) -> None:
         label = {
@@ -188,8 +244,9 @@ class HudRenderer:
             "ALIGN": "ALIGN",
             "READY": "FIRE READY",
         }.get(f.state, f.state)
-        if f.state_detail:
-            label = f"{label}  {f.state_detail}"
+        detail = self._friendly_detail(f)
+        if detail:
+            label = f"{label}  {detail}"
         if f.target_down:
             label, color = "TARGET DOWN", C_GREEN
         (tw, th), _ = cv2.getTextSize(label, FONT, 0.62, 2)
@@ -202,12 +259,12 @@ class HudRenderer:
 
         # 우측 상단: 거리
         if f.range_m is not None:
-            rng = f"RNG {f.range_m:5.1f} m"
+            rng = HudRenderer._range_label(f)
             (rw, rh), _ = cv2.getTextSize(rng, FONT, 0.62, 2)
             w = img.shape[1]
             self._darken(img, w - rw - 28, y, w - 12, y + rh + 16, 0.6)
             self._text(img, rng, (w - rw - 20, y + rh + 8), 0.62, C_WHITE, 2, outline=False)
-            if f.range_src:
+            if f.range_src and f.debug:
                 self._text(img, f.range_src, (w - rw - 20, y + rh + 26), 0.38, C_GREY, 1)
 
     def _data_block(self, img, f: HudFrame) -> None:
@@ -220,9 +277,10 @@ class HudRenderer:
             judged = f.hits + f.misses
             acc = f"{100.0 * f.hits / judged:5.1f}%" if judged else "  --.-%"
             lines.append(f"SHOTS {f.shots:3d}  HIT {f.hits:3d}  ACC {acc}")
-            lines.append(f"KILLS {f.kills:2d}   MODE {f.fire_mode.upper()}")
-        y0 = h - 44 - 18 * (len(lines) - 1)
-        self._darken(img, 8, y0 - 16, 262, h - 34, 0.55)
+            lines.append(f"KILLS {f.kills:2d}")
+        # 하단 14 px 는 윈도우 뷰어의 한글 자막 띠가 덮는 자리라 비워 둔다
+        y0 = h - 58 - 18 * (len(lines) - 1)
+        self._darken(img, 8, y0 - 16, 262, h - 48, 0.55)
         for i, s in enumerate(lines):
             self._text(img, s, (14, y0 + 18 * i), 0.45, C_WHITE, 1, outline=False)
 
@@ -266,6 +324,73 @@ class HudRenderer:
         else:
             self._text(img, "NO SHOTS", (x1 + 6, y1 + size + 20), 0.36, C_GREY, 1, outline=False)
 
+    def _tolerance_ring(self, img, cx, cy, tol_px, color, ready) -> None:
+        """리드 마름모가 이 원 안에 들어오면 정렬 완료. 숫자 대신 "넣으면 된다"를 보인다."""
+
+        r = int(min(max(tol_px, 10.0), 70.0))
+        if ready:
+            cv2.circle(img, (cx, cy), r, C_BLACK, 4, cv2.LINE_AA)
+            cv2.circle(img, (cx, cy), r, color, 2, cv2.LINE_AA)
+            return
+        for k in range(0, 24, 2):  # 점선
+            a0, a1 = k * 15, k * 15 + 9
+            cv2.ellipse(img, (cx, cy), (r, r), 0, a0, a1, C_BLACK, 3, cv2.LINE_AA)
+            cv2.ellipse(img, (cx, cy), (r, r), 0, a0, a1, color, 1, cv2.LINE_AA)
+
+    @staticmethod
+    def _trail(img, points, color) -> None:
+        """표적 중심의 최근 궤적. 오래될수록 어둡고 가늘다."""
+
+        n = len(points)
+        if n < 2:
+            return
+        for i in range(1, n):
+            k = i / (n - 1)
+            c = tuple(int(v * (0.25 + 0.75 * k)) for v in color)
+            cv2.line(img, tuple(points[i - 1]), tuple(points[i]), c, 1 if k < 0.6 else 2, cv2.LINE_AA)
+
+    def _quality_gauge(self, img, f: HudFrame) -> None:
+        """추적 신뢰도. SMASH 는 신뢰도가 충분할 때만 조준해를 믿고 발사한다."""
+
+        if not f.reliability or f.state == "SEARCH" or f.target_down:
+            return
+        color = RELIABILITY_COLORS.get(f.reliability, C_GREY)
+        q = f.quality
+        if q is None:
+            q = {"STABLE": 1.0, "HOLD": 0.45, "LOST": 0.0}.get(f.reliability, 0.0)
+        q = float(min(max(q, 0.0), 1.0))
+        x, y, w, bh = 12, 56, 150, 8
+        self._darken(img, x - 4, y - 4, x + w + 4, y + bh + 30, 0.6)
+        self._text(img, "CONFIDENCE", (x, y + 12), 0.36, C_GREY, 1, outline=False)
+        by = y + 18
+        cv2.rectangle(img, (x, by), (x + w, by + bh), C_GREY, 1)
+        fill = int((w - 2) * q)
+        if fill > 0:
+            cv2.rectangle(img, (x + 1, by + 1), (x + 1 + fill, by + bh - 1), color, -1)
+        (rw, _), _ = cv2.getTextSize(f.reliability, FONT, 0.36, 1)
+        self._text(img, f.reliability, (x + w - rw, y + 12), 0.36, color, 1, outline=False)
+
+    def _engagement_card(self, img, f: HudFrame) -> None:
+        e, age = f.engagement, f.engagement_age_s
+        if e is None or age is None or age > 5.0 or not f.target_down:
+            return  # 새 표적이 나타나면 이전 교전 카드는 치운다
+        h, w = img.shape[:2]
+        acc = f"{100.0 * e.hits / e.shots:.0f}%" if e.shots else "--"
+        lines = (
+            f"ENGAGEMENT #{e.index}",
+            f"TIME TO KILL {e.seconds:4.1f} s",
+            f"SHOTS {e.shots}   HITS {e.hits}   ACC {acc}",
+        )
+        y0 = int(h * 0.74) - 92  # 격추 배너 위. 좌하단 데이터 블록과 겹치지 않게
+        bw = 300
+        x = (w - bw) // 2
+        self._darken(img, x, y0 - 18, x + bw, y0 + 18 * len(lines) - 6, 0.6)
+        cv2.rectangle(img, (x, y0 - 18), (x + bw, y0 + 18 * len(lines) - 6), C_GREEN, 1)
+        for i, text in enumerate(lines):
+            scale, color = (0.45, C_GREEN) if i == 0 else (0.5, C_WHITE)
+            (tw, _), _ = cv2.getTextSize(text, FONT, scale, 1)
+            self._text(img, text, ((w - tw) // 2, y0 + 18 * i), scale, color, 1, outline=False)
+
     @staticmethod
     def _hitmarker(img, cx, cy, age_s) -> None:
         if age_s is None or age_s > 0.3:
@@ -297,8 +422,17 @@ class HudRenderer:
 
         self._reticle(img, cx, cy, color)
 
-        if f.bbox_xyxy is not None and not f.target_down:
+        tracking = f.bbox_xyxy is not None and not f.target_down
+        if tracking and f.trail:
+            self._trail(img, f.trail, C_CYAN)
+        if f.lead_pixel is not None and not f.target_down and f.align_tol_px is not None:
+            self._tolerance_ring(img, cx, cy, f.align_tol_px, color, ready)
+        if tracking:
             self._brackets(img, f.bbox_xyxy, color, f.lock_age_s)
+            speed = self._speed_label(f)
+            if speed is not None:
+                x1, y1, x2, y2 = f.bbox_xyxy
+                self._text(img, speed, (int(x1), int(y2) + 20), 0.42, C_CYAN, 1)
         if f.lead_pixel is not None and not f.target_down:
             self._lead(img, cx, cy, f.lead_pixel, color, ready)
 
@@ -313,25 +447,15 @@ class HudRenderer:
 
         self._hitmarker(img, cx, cy, f.last_hit_age_s)
         self._status_bar(img, f, color)
+        self._quality_gauge(img, f)
         if f.fire_enabled:
             self._impact_panel(img, f)
         self._data_block(img, f)
         self._kill_banner(img, f.kill_banner_age_s)
-        if f.trigger_reject_age_s is not None and f.trigger_reject_age_s < 0.7:
-            w = img.shape[1]
-            msg = "NOT READY - HOLD FIRE"
-            (tw, _), _ = cv2.getTextSize(msg, FONT, 0.7, 2)
-            self._text(img, msg, ((w - tw) // 2, int(img.shape[0] * 0.40)), 0.7, C_RED, 2)
-
-        if f.air_cue and f.state == "SEARCH" and not f.target_down:
-            w = img.shape[1]
-            cue = "NO TARGET  -  SEARCH WITH [W A S D]   (SHIFT = FAST)"
-            (tw, _), _ = cv2.getTextSize(cue, FONT, 0.5, 1)
-            self._text(img, cue, ((w - tw) // 2, int(img.shape[0] * 0.66)), 0.5, C_YELLOW, 1)
-
+        self._engagement_card(img, f)
         if f.debug:
             h = img.shape[0]
-            y0 = 64
+            y0 = 112
             self._darken(img, 8, y0 - 14, 330, y0 + 16 * len(f.debug_lines), 0.55)
             for i, s in enumerate(f.debug_lines):
                 self._text(img, s, (12, y0 + 16 * i), 0.4, C_WHITE, 1, outline=False)

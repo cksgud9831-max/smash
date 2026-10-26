@@ -53,7 +53,8 @@ def generate_launch_description():
     set_dds_profile = SetEnvironmentVariable('FASTRTPS_DEFAULT_PROFILES_FILE', dds_profile)
 
     robot_description = ParameterValue(Command(['xacro ', xacro_file, ' camera_px:=', LaunchConfiguration('camera_px'),
-                                          ' camera_hfov:=', LaunchConfiguration('camera_hfov')]), value_type=str)
+                                          ' camera_hfov:=', LaunchConfiguration('camera_hfov'),
+                                          ' enable_lidar:=', LaunchConfiguration('enable_lidar')]), value_type=str)
 
     # headless:=true 면 Gazebo GUI 없이 서버만 띄운다(gz sim -s).
     # WSLg 처럼 GUI 렌더링이 안 되는 환경에서도 카메라 센서는 정상 동작하므로,
@@ -184,6 +185,9 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'camera_hfov', default_value='0.4',
             description='조준 카메라 수평 화각(rad). 0.4 = 약 23도'),
+        DeclareLaunchArgument(
+            'enable_lidar', default_value='true',
+            description='false면 Gazebo GPU LiDAR 센서를 생성하지 않음'),
         set_resource_path, set_plugin_path, set_dds_profile, gz_sim_gui, gz_sim_headless,
         rsp, clock_bridge, bridge, spawn,
         # 모델 스폰 직후는 Gazebo 가 메시와 센서를 올리느라 가장 바쁜 구간이라

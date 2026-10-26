@@ -89,14 +89,12 @@ def test_render_every_state_keeps_shape_and_does_not_touch_input(state):
             tof_ms=40.0,
             hit_probability=0.9,
             fire_enabled=True,
-            fire_mode="auto",
             shots=3,
             hits=2,
             misses=1,
             impacts=[ImpactMark(0.05, -0.02, True), ImpactMark(0.4, 0.3, False)],
             last_hit_age_s=0.1,
             kill_banner_age_s=0.5,
-            air_cue=True,
         ),
     )
     assert out.shape == img.shape and out.dtype == np.uint8
@@ -127,3 +125,86 @@ def test_impact_panel_only_when_fire_control_enabled():
     on = r.render(img, _frame(fire_enabled=True))
     panel = (slice(60, 180), slice(510, 620))  # 우상단 과녁 패널 영역
     assert not np.array_equal(off[panel], on[panel])
+
+
+# ── 일반 관객용 요소 ───────────────────────────────────────────────────
+
+from drone_sim.smash_fcs.hud import Engagement  # noqa: E402
+
+
+def _frame(**kw):
+    base = dict(now=1.0, principal_point=(320, 320), state="TRACK", fire_enabled=True)
+    base.update(kw)
+    return HudFrame(**base)
+
+
+def test_friendly_detail_hides_pixel_numbers_and_jargon_unless_debug():
+    d = HudRenderer._friendly_detail
+    assert d(_frame(state="ALIGN", state_detail="14px")) == ""
+    assert d(_frame(state="ALIGN", state_detail="READY BLOCK: MOTION FIT")) == "SETTLING SPEED"
+    assert d(_frame(state="ALIGN", state_detail="READY BLOCK: REL HOLD")) == "LOW CONFIDENCE"
+    assert d(_frame(state="TRACK", state_detail="NO RANGE")) == "RANGING"
+    assert d(_frame(state="ALIGN", state_detail="14px", debug=True)) == "14px"
+
+
+def test_new_overlays_render_without_error_and_change_the_image():
+    bg = np.full((640, 640, 3), 100, dtype=np.uint8)
+    plain = HudRenderer().render(bg, _frame())
+    rich = HudRenderer().render(bg, _frame(
+        state="ALIGN", bbox_xyxy=(380, 250, 420, 280), lead_pixel=(350, 300), align_tol_px=20.0,
+        reliability="STABLE", quality=0.8, target_kmh=3.0,
+        trail=[(300 + i, 280) for i in range(10)],
+        engagement=Engagement(1, 5.0, 4, 2), engagement_age_s=1.0,
+    ))
+    assert rich.shape == plain.shape
+    assert not np.array_equal(plain, rich)
+
+
+def test_engagement_card_only_while_target_down_and_fresh():
+    bg = np.full((640, 640, 3), 100, dtype=np.uint8)
+    eng = Engagement(1, 5.0, 4, 2)
+    shown = HudRenderer().render(bg, _frame(engagement=eng, engagement_age_s=1.0, target_down=True))
+    expired = HudRenderer().render(bg, _frame(engagement=eng, engagement_age_s=9.0, target_down=True))
+    respawned = HudRenderer().render(bg, _frame(engagement=eng, engagement_age_s=1.0, target_down=False))
+    none = HudRenderer().render(bg, _frame(target_down=True))
+    assert not np.array_equal(shown, none)
+    assert np.array_equal(expired, none)
+    assert np.array_equal(respawned, HudRenderer().render(bg, _frame()))
+
+
+def test_quality_gauge_hidden_while_searching():
+    bg = np.full((640, 640, 3), 100, dtype=np.uint8)
+    searching = HudRenderer().render(bg, _frame(state="SEARCH", reliability="LOST"))
+    baseline = HudRenderer().render(bg, _frame(state="SEARCH"))
+    assert np.array_equal(searching, baseline)
+
+
+def test_audience_view_hides_estimated_speed_and_rounds_distance_unless_debug():
+    """외부 관객용 기본 화면: 흔들리는 추정 속도는 숨기고 거리는 정수 미터. 상세 모드(H)에서는 원래 값."""
+
+    r = HudRenderer
+    tracking = dict(state="ALIGN", target_kmh=23.8, range_m=34.03, bbox_xyxy=(380, 250, 420, 280))
+    assert r._speed_label(_frame(**tracking)) is None
+    assert r._speed_label(_frame(debug=True, **tracking)) == "23.8 km/h"
+    assert r._speed_label(_frame(debug=True, **{**tracking, "state": "SEARCH"})) is None
+    assert r._speed_label(_frame(debug=True, **{**tracking, "target_kmh": 0.3})) == "HOVERING"
+    assert r._range_label(_frame(**tracking)) == "RNG 34 m"
+    assert r._range_label(_frame(debug=True, **tracking)) == "RNG  34.0 m"
+
+
+def test_render_draws_speed_text_only_in_debug(monkeypatch):
+    drawn = []
+    original = HudRenderer._text
+
+    def spy(img, text, *a, **k):
+        drawn.append(text)
+        return original(img, text, *a, **k)
+
+    monkeypatch.setattr(HudRenderer, "_text", staticmethod(spy))
+    bg = np.full((640, 640, 3), 100, dtype=np.uint8)
+    kw = dict(state="ALIGN", bbox_xyxy=(380, 250, 420, 280), target_kmh=12.3, range_m=35.2, range_src="OPTICAL")
+    HudRenderer().render(bg, _frame(**kw))
+    assert not any("km/h" in t for t in drawn) and "RNG 35 m" in drawn and "OPTICAL" not in drawn
+    drawn.clear()
+    HudRenderer().render(bg, _frame(debug=True, debug_lines=["x"], **kw))
+    assert any("12.3 km/h" in t for t in drawn) and any(t.startswith("RNG  35.2") for t in drawn) and "OPTICAL" in drawn

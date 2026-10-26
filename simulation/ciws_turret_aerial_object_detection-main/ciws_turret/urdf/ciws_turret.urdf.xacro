@@ -6,6 +6,8 @@
   <xacro:arg name="camera_px" default="640"/>
   <!-- 조준 카메라 수평 화각(rad). 기본 0.4(약 23도). 좁히면 배율을 높인 것과 같다. -->
   <xacro:arg name="camera_hfov" default="0.4"/>
+  <!-- 진단/35 m 시험에서 유효 반사를 주지 못하는 GPU LiDAR를 끌 수 있다. -->
+  <xacro:arg name="enable_lidar" default="true"/>
   <xacro:property name="mesh" value="package://ciws_turret/meshes"/>
   <xacro:property name="base_top" value="0.0885"/>
   <xacro:property name="PI" value="3.14159265359"/>
@@ -25,7 +27,18 @@
                iyy="${m*(x*x+z*z)/12.0}" iyz="0" izz="${m*(x*x+y*y)/12.0}"/></inertial>
   </xacro:macro>
 
-  <!-- ===================== BASE ===================== -->
+  <!-- ===================== BASE =====================
+       포탑을 월드에 고정한다 (2026-09-29 실측). 이전에는 월드 고정 관절이 없어 포탑 전체가
+       바닥 위에 놓인 자유 물체였다. 스폰 높이 0.05 m 에서 바닥으로 내려앉고(z 0.05 -> 0),
+       표적을 따라 돌기 시작하면 팬 모터 반작용으로 몸체가 약 2 mrad 돌아갔다.
+       FCS 는 포탑이 스폰 자세(z 0.05, 회전 없음, smash_fcs.yaml turret_world_*)에 그대로 있다고
+       보고 실측 표적 위치를 포탑 기준으로 옮긴다. 그래서 화면 속 표적과 명중 판정 기준이 어긋났다.
+       정지 교정에서 좌우 -5.5 mrad(거리와 무관)와 상하 약 5 cm 가 나왔다. 자동 추종으로 조준점에
+       정확히 겨누자 명중률이 49 % 에서 11 % 로 떨어졌다. "world" 링크와 고정 관절은
+       gz-sim 이 월드 고정 관절로 바꾼다. -->
+  <link name="world"/>
+  <joint name="world_joint" type="fixed"><parent link="world"/><child link="base_footprint"/>
+    <origin xyz="0 0 0"/></joint>
   <link name="base_footprint"/>
   <joint name="base_joint" type="fixed"><parent link="base_footprint"/><child link="base_link"/>
     <origin xyz="0 0 0"/></joint>
@@ -194,6 +207,7 @@
 
          빈 링크에 센서를 달면 gz-sim 이 고정관절을 병합하며 센서를 누락시키는
          경우가 있어, 관성이 정의된 camera_link 에 직접 부착했다. -->
+    <xacro:if value="$(arg enable_lidar)">
     <sensor name="turret_boresight_laser" type="gpu_lidar">
       <pose>0.229 -0.05 0.10 0 0 0</pose>
       <always_on>1</always_on><update_rate>30</update_rate><visualize>false</visualize>
@@ -213,6 +227,7 @@
         <noise><type>gaussian</type><mean>0.0</mean><stddev>0.02</stddev></noise>
       </lidar>
     </sensor>
+    </xacro:if>
   </gazebo>
 
   <!-- ===================== Gazebo colours ===================== -->

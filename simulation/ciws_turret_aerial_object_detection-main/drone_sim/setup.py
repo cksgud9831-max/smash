@@ -17,34 +17,27 @@ setup(
         (os.path.join('share', package_name, 'meshes'), glob('meshes/*')),
         (os.path.join('share', package_name, 'models', 'drone'),
             glob('models/drone/*')),
-        (os.path.join('share', package_name, 'models', 'bird'),
-            glob('models/bird/*')),
-        (os.path.join('share', package_name, 'models', 'plane'),
-            glob('models/plane/*')),
-        (os.path.join('share', package_name, 'models', 'heli'),
-            glob('models/heli/*')),
-        (os.path.join('share', package_name, 'weights'), glob('weights/*.pt')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Ajay',
     maintainer_email='ajay@example.com',
-    description='Flying drone target + YOLO11 detector for the CIWS turret.',
+    description='SMASH FCS simulation: target drone, FCS node and turret driver for the CIWS turret.',
     license='MIT',
     entry_points={
         'console_scripts': [
-            'drone_flight = drone_sim.drone_flight:main',
-            'drone_detector = drone_sim.drone_detector:main',
-            'turret_tracker = drone_sim.turret_tracker:main',
-            'camera_zoom = drone_sim.camera_zoom:main',
-            'bird_wander = drone_sim.bird_wander:main',
-            'wander = drone_sim.wander:main',
-            # SMASH 지능형 사격통제 통합 노드 (drone_detector + turret_tracker 대체)
+            # SMASH 지능형 사격통제 통합 노드
             'smash_fcs = drone_sim.smash_fcs_node:main',
-            # SMASH 대화형 스코프 뷰어 (마우스 좌클릭 및 스페이스바 격발 지원)
+            # Gazebo 포탑 구동 전용 프로세스 (영상 추론과 제어 주기 분리)
+            'turret_command = drone_sim.turret_command_node:main',
+            # SMASH 스코프 영상 중계 서버 (HTTP MJPEG 9999, 뷰어 명령 중계)
             'smash_scope_viewer = drone_sim.smash_scope_viewer:main',
             # 시연 연출: 명중 시 표적 격추(낙하) 후 재출현
             'demo_director = drone_sim.demo_director:main',
+            # 이동 표적 시나리오 (지연 보정 검증, 로드맵 4단계 선행)
+            'target_mover = drone_sim.target_mover:main',
+            # 사수 에뮬레이션: 표적 실측 위치로 포를 돌려 표적을 화면 중심 부근에 둔다
+            'operator_follow = drone_sim.operator_follow:main',
         ],
     },
 )

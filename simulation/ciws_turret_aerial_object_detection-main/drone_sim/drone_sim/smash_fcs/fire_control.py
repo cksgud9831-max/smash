@@ -4,8 +4,7 @@
     smash_fcs_node.py 가 매 프레임 조준(1~2단계)을 끝내고 나면, 이 모듈이
     다음 두 가지를 추가로 담당한다.
 
-      1. 격발 판단: READY 점등 시 자동 격발(auto) 또는 사수 트리거 신호의
-         상승 엣지에 따른 수동 격발(manual)을 판정하고, 발사 순간의 발사점 /
+      1. 격발 판단: READY 점등 시 자동 격발을 판정하고, 발사 순간의 발사점 /
          발사방향 / 예상 비행시간 / 예상 명중점을 기록한다.
       2. Hit/Kill 판정: 예상 비행시간이 지난 시점에, 그 시점까지 탄환이 실제로
          날아간 위치(재적분)와 "그 시점의 표적 실제 위치"를 비교해 명중 여부를
@@ -78,6 +77,7 @@
 
 from __future__ import annotations
 
+import bisect
 import math
 from dataclasses import dataclass
 from typing import Optional
@@ -113,7 +113,6 @@ class FiredShot:
     predicted_impact_point_world: np.ndarray
     target_radius_m: float
     muzzle_velocity_mps: float
-    trigger_mode: str
     judged: bool = False
     result: Optional["ShotResult"] = None
 
@@ -127,6 +126,7 @@ class ShotResult:
     ground_truth_point_world: Optional[np.ndarray]
     miss_distance_m: Optional[float]
     ground_truth_available: bool
+    # 판정에 쓴 실측 샘플과 탄착 시각의 거리(초). 탄착 시각을 앞뒤 샘플로 보간했으면 0.
     ground_truth_age_s: Optional[float]
     # 탄도 방향으로 표적이 얼마나 앞/뒤에 있었는지. 사거리 추정 오차가 그대로 실린다.
     # 명중 판정에는 쓰지 않는다(최근접 거리로 판정한다). 진단용.
@@ -140,7 +140,6 @@ class FireController:
         self,
         projectile_config,
         muzzle_velocity_mps: float,
-        fire_mode: str,
         fire_rate_rpm: float,
         target_radius_m: float,
         ground_truth_timeout_s: float,
@@ -149,21 +148,23 @@ class FireController:
     ) -> None:
         from aiming_engine.projectile_model import ProjectileModel  # 지연 임포트
 
-        if fire_mode not in ("auto", "manual"):
-            raise ValueError(f"fire_mode 는 'auto' 또는 'manual' 이어야 합니다: {fire_mode!r}")
-
         self._projectile_model = ProjectileModel(projectile_config)
         self._muzzle_velocity_mps = float(muzzle_velocity_mps)
-        self._fire_mode = fire_mode
         self._cooldown_s = 60.0 / max(float(fire_rate_rpm), 1e-3)
         self._target_radius_m = float(target_radius_m)
         self._ground_truth_timeout_s = float(ground_truth_timeout_s)
         self._impact_effect_hold_s = float(impact_effect_hold_s)
         self._max_tof_multiple = float(max_tof_multiple)
 
+        # 실측 위치 이력 (시각 오름차순). 판정은 "판정하는 순간"이 아니라 "탄착 시각"의
+        # 표적 위치로 해야 한다. 이동 표적은 그 사이 판정 지연(타이머 주기 + 실측 수신 지연)
+        # 만큼 움직이기 때문이다(60 km/h 에서 20 ms 면 0.33 m, 명중 반경보다 크다).
+        self._gt_times: list[float] = []
+        self._gt_positions: list[np.ndarray] = []
+        self._gt_history_s = max(2.0, 4.0 * self._ground_truth_timeout_s)
+
         self._next_shot_id = 1
         self._last_fire_time: Optional[float] = None
-        self._prev_trigger_pressed = False
         self._pending: list[FiredShot] = []
         self._recent_results: list[ShotResult] = []
 
@@ -172,18 +173,9 @@ class FireController:
         self.misses = 0
         self.unverified = 0
 
-    # ── 상태 초기화 ────────────────────────────────────────────────────
-
-    def reset_trigger_edge(self) -> None:
-        """SEARCH 재진입 시 호출. 트리거 엣지 검출 상태만 초기화한다.
-
-        이미 발사된 탄환(``_pending``)은 취소하지 않는다 — 표적 추적을
-        일시적으로 잃었더라도 이미 날아간 탄환은 물리적으로 계속 비행 중이며,
-        판정은 예정대로 진행되어야 한다(단, 판정 시점에 ground truth 마저
-        구할 수 없다면 UNVERIFIED 로 남는다).
-        """
-
-        self._prev_trigger_pressed = False
+    # 표적 추적을 잃어(SEARCH 재진입) 이미 발사된 탄환(``_pending``)을 취소하지 않는다.
+    # 날아간 탄환은 물리적으로 계속 비행하며, 판정은 예정대로 진행된다(판정 시점에
+    # ground truth 마저 구할 수 없다면 UNVERIFIED 로 남는다).
 
     # ── 격발 판단 ──────────────────────────────────────────────────────
 
@@ -191,36 +183,24 @@ class FireController:
         self,
         now: float,
         aim_ready: bool,
-        trigger_pressed: bool,
         aim_solution,
         launch_point_world: np.ndarray,
         direction_world: Optional[np.ndarray],
     ) -> Optional[FiredShot]:
         """이번 프레임에 격발해야 하면 FiredShot 을 만들어 반환한다.
 
-        auto 모드: aim_ready 가 참인 매 프레임 격발을 "원하는" 것으로 보되,
-            fire_rate_rpm 에서 유도한 쿨다운으로 실제 발사 간격을 제한한다
-            (완전자동 사격의 근사).
-        manual 모드: trigger_pressed 의 상승 엣지에서만 한 발을 격발한다
-            (반자동 방아쇠의 근사). 같은 쿨다운이 여전히 적용된다.
+        aim_ready 가 참인 매 프레임 격발을 "원하는" 것으로 보되, fire_rate_rpm 에서
+        유도한 쿨다운으로 실제 발사 간격을 제한한다(완전자동 사격의 근사).
 
         aim_solution 이나 direction_world 가 없으면(SEARCH/TRACK 상태 등, 아직
         조준각이 없음) 격발하지 않는다 — "쏠 방향"이 없는 상태에서 가상
         탄환을 만드는 것은 물리적으로 정의되지 않는다.
         """
 
-        rising_edge = trigger_pressed and not self._prev_trigger_pressed
-        self._prev_trigger_pressed = trigger_pressed
-
         if aim_solution is None or direction_world is None:
             return None
 
-        if self._fire_mode == "auto":
-            want_fire = bool(aim_ready)
-        else:
-            want_fire = bool(rising_edge and aim_ready)
-
-        if not want_fire:
+        if not aim_ready:
             return None
         if self._last_fire_time is not None and (now - self._last_fire_time) < self._cooldown_s:
             return None
@@ -236,7 +216,6 @@ class FireController:
             predicted_impact_point_world=aim_solution.lead_point_world.to_array(),
             target_radius_m=self._target_radius_m,
             muzzle_velocity_mps=self._muzzle_velocity_mps,
-            trigger_mode=self._fire_mode,
         )
         self._next_shot_id += 1
         self._last_fire_time = float(now)
@@ -304,6 +283,44 @@ class FireController:
 
     # ── Hit/Kill 판정 ──────────────────────────────────────────────────
 
+    def record_ground_truth(self, position_world: Optional[np.ndarray], timestamp: Optional[float]) -> None:
+        """실측 위치 샘플을 이력에 넣는다. 같은 시각이면 덮어쓰고, 더 오래된 시각은 버린다."""
+
+        if position_world is None or timestamp is None:
+            return
+        t = float(timestamp)
+        pos = np.asarray(position_world, dtype=np.float64).copy()
+        if self._gt_times and t <= self._gt_times[-1]:
+            if t == self._gt_times[-1]:
+                self._gt_positions[-1] = pos
+            return
+        self._gt_times.append(t)
+        self._gt_positions.append(pos)
+        cut = bisect.bisect_left(self._gt_times, t - self._gt_history_s)
+        if cut > 0:
+            del self._gt_times[:cut]
+            del self._gt_positions[:cut]
+
+    def ground_truth_at(self, t: float) -> tuple[Optional[np.ndarray], Optional[float]]:
+        """시각 t 의 실측 위치와, 그 값이 t 에서 떨어진 정도(초).
+
+        t 가 이력 구간 안이면 앞뒤 샘플을 선형 보간하고 거리 0 을 돌려준다. 구간 밖이면
+        가장 가까운 끝 샘플을 쓰되(외삽하지 않는다) 그 시각 차이를 돌려준다.
+        """
+
+        if not self._gt_times:
+            return None, None
+        t = float(t)
+        times = self._gt_times
+        if t <= times[0]:
+            return self._gt_positions[0].copy(), times[0] - t
+        if t >= times[-1]:
+            return self._gt_positions[-1].copy(), t - times[-1]
+        i = bisect.bisect_right(times, t)
+        t0, t1 = times[i - 1], times[i]
+        w = (t - t0) / (t1 - t0)
+        return (1.0 - w) * self._gt_positions[i - 1] + w * self._gt_positions[i], 0.0
+
     def update(
         self,
         now: float,
@@ -311,8 +328,19 @@ class FireController:
         ground_truth_timestamp: Optional[float],
     ) -> list[ShotResult]:
         """매 프레임(또는 고정 주기 타이머) 호출. 비행시간이 지난 대기 중
-        탄환을 판정하고, 이번 호출에서 새로 판정된 결과 목록을 반환한다."""
+        탄환을 판정하고, 이번 호출에서 새로 판정된 결과 목록을 반환한다.
 
+        넘겨받은 최신 실측 샘플은 이력에 쌓고, 판정은 탄착 시각(fire_time + TOF)으로
+        보간한 실측 위치와 한다. 탄착 시각보다 새로운 실측이 아직 안 왔으면 최대
+        ground_truth_timeout_s 동안 판정을 미룬다.
+
+        시각 차이의 부호는 보지 않는다. now 는 /clock 으로 받은 노드 시각이고 실측
+        스탬프는 같은 모의 시계로 찍히지만, FCS 가 YOLO 로 바쁜 동안 /clock 처리가 밀리면
+        노드 시계가 실측 스탬프보다 뒤처진다(2026-09-12 실측: FCS 에서 -0.051 ~ -0.106 초).
+        그 경우 실측이 탄착 시각을 이미 지나 있으므로 바로 보간 판정된다.
+        """
+
+        self.record_ground_truth(ground_truth_position_world, ground_truth_timestamp)
         judged_now: list[ShotResult] = []
         still_pending: list[FiredShot] = []
 
@@ -322,37 +350,20 @@ class FireController:
                 still_pending.append(shot)
                 continue
 
-            impact_point, impact_velocity = self.projectile_state_at(shot, shot.predicted_tof_s)
+            impact_time = shot.fire_time + shot.predicted_tof_s
+            newest_gt = self._gt_times[-1] if self._gt_times else None
+            if (newest_gt is None or newest_gt < impact_time) and (now - impact_time) <= self._ground_truth_timeout_s:
+                still_pending.append(shot)  # 탄착 시각 이후의 실측을 기다린다
+                continue
 
-            gt_available = ground_truth_position_world is not None and ground_truth_timestamp is not None
-            gt_age: Optional[float] = None
-            if gt_available:
-                gt_age = now - float(ground_truth_timestamp)
-                # 판정 시각과 실측 스탬프가 timeout 안에 있으면 쓴다. 부호는 보지 않는다.
-                #
-                # 이전에는 gt_age < 0 이면 무조건 버렸다. 그런데 now 는 /clock 으로
-                # 받은 sim 시각이고 ground_truth_timestamp 는 같은 sim 시계로 찍힌
-                # PosePublisher 스탬프다. FCS 가 YOLO 로 바쁜 동안 /clock 처리가 밀리면
-                # 노드 시계가 GT 스탬프보다 뒤처져 gt_age 가 음수가 된다. 그 값은 더
-                # 오래된 것이 아니라 더 신선한 것이므로 버릴 이유가 없다.
-                #
-                # 실측(2026-09-12). 부하 없는 관찰자 노드에서는 시차가 -0.011 ~ +0.009 초
-                # 였지만, FCS 본체에서는 -0.051 ~ -0.106 초까지 벌어졌다. 이 때문에
-                # 판정의 20~57 %가 근거 없이 UNVERIFIED 로 남아 명중률 통계의 표본이
-                # 절반 이하로 깎였다(타임아웃 초과는 0 건이었다 — 오래되어서가 아니라
-                # 부호 때문에 버려진 것이다).
-                #
-                # 판정 기준을 "timeout 안의 값이면 쓴다"로 대칭화한다. 과거 쪽 0.5초를
-                # 이미 허용하고 있으므로 미래 쪽만 0 으로 막을 근거가 없다.
-                # 시차 자체는 /clock 을 영상 브리지에서 분리해 별도 프로세스로 옮겨
-                # 줄였다(view.launch.py 참고).
-                if abs(gt_age) > self._ground_truth_timeout_s:
-                    gt_available = False
+            impact_point, impact_velocity = self.projectile_state_at(shot, shot.predicted_tof_s)
+            gt_point, gt_age = self.ground_truth_at(impact_time)
+            gt_available = gt_point is not None and gt_age is not None and gt_age <= self._ground_truth_timeout_s
 
             along_track: Optional[float] = None
             if gt_available:
                 miss_distance, along_track, impact_point = self.closest_approach(
-                    impact_point, impact_velocity, ground_truth_position_world
+                    impact_point, impact_velocity, gt_point
                 )
                 verdict = "HIT" if miss_distance <= shot.target_radius_m else "MISS"
                 if verdict == "HIT":
@@ -367,13 +378,9 @@ class FireController:
             result = ShotResult(
                 shot_id=shot.shot_id,
                 verdict=verdict,
-                impact_time=shot.fire_time + shot.predicted_tof_s,
+                impact_time=impact_time,
                 projectile_point_world=impact_point,
-                ground_truth_point_world=(
-                    None
-                    if ground_truth_position_world is None
-                    else np.asarray(ground_truth_position_world, dtype=np.float64).copy()
-                ),
+                ground_truth_point_world=gt_point,
                 miss_distance_m=miss_distance,
                 ground_truth_available=gt_available,
                 ground_truth_age_s=gt_age,

@@ -19,13 +19,44 @@
 #                           다른 가중치로 비교 실험할 때만 이 값을 지정한다.)
 #   ROS2_WS                기본값 $HOME/ros2_ws
 #   SMASH_DEVICE           기본값 cpu  (CUDA 가 WSL 에서 동작하면 0)
-#   SMASH_ENABLE_FIRE_CONTROL  기본값 false (로드맵 3단계: 가상 탄환 격발/판정)
-#   SMASH_FIRE_MODE            기본값 manual ("manual" 또는 "auto")
+#   SMASH_ENABLE_FIRE_CONTROL  기본값 true (READY 에서 자동 격발 + HIT/MISS 판정). false 면 탐지·조준만 한다
+#   SMASH_DEMO_KILL            기본값 false. true면 명중 시 낙하/재출현 시연을 켠다.
 #   SMASH_HEADLESS             기본값 false. true 면 Gazebo GUI 없이 서버만 실행
 #   SMASH_GT_POSE_TOPIC        기본값 /model/drone/pose (Gazebo 실측 위치 gz 토픽.
 #                              `gz topic -l` 로 확인 후 다르면 이 값을 바꿀 것)
-#   SMASH_GL_BACKEND           기본값 d3d12 (Mesa D3D12 로 NVIDIA GPU 렌더링).
-#                              software 면 llvmpipe CPU 렌더링 (GPU 가 없는 PC 용)
+#   SMASH_TARGET_MOTION        기본값 none (정지 호버링). straight(좌우 직선 통과) | cross(좌우 왕복) |
+#                              maneuver(8자 기동) | approach(정면 접근).
+#                              이동 표적이면 표적을 35 m (33, 0, 12.5) 에 둔다. 아래 값으로 조절한다.
+#                              어느 경우든 실행 중 스코프 뷰어 키로 방식(0~4)·속도(+/-)·정지(M)를 바꿀 수 있다
+#                              (target_control:=true). SMASH_DEMO_KILL=true일 때만 격추/재출현 연출을 한다.
+#   SMASH_TARGET_SPEED_KMH     기본값 30 (기동 속력 km/h, 소수 가능)
+#   SMASH_TARGET_HALF_LENGTH   기본값 straight/approach 15, cross/maneuver 3.0 (반폭 m)   SMASH_TARGET_HALF_HEIGHT 기본값 1.8 (상하 반폭 m)
+#   SMASH_CAMERA_HFOV          기본값 0.4 rad. 런처 F/11 메뉴에서 0.4 / 0.2 / 0.12 를 선택한다.
+#                              이동 표적 시험 권장값은 0.12 rad: 35 m 표적이 약 73 px 로 보여
+#                              전체 파이프라인이 안정적으로 동작했다(2026-09-23, 3회 STABLE 100 %).
+#                              0.4 에서는 35 m 표적이 약 20 px 라
+#                              추적기가 3 프레임마다 low_features 재탐지(=복구 이벤트)를 내 신뢰도가
+#                              HOLD 에서 못 벗어난다(2026-09-22 실측). 0.2 에서 8자 3.0 x 1.8 m 가 화면에 든다.
+#   SMASH_AIM_MAX_GOAL_JUMP    기본값 0.012 rad. 검출기 갱신 한 번에 허용하는 포 목표각 변화 한도(추종 한계 속도를 정한다)
+#   SMASH_AIM_ACQUIRE_ENVELOPE 기본값 0.08 rad. 잠금(READY 1초 연속) 확정 전에 시작 자세에서 허용하는 최대 이탈각
+#   SMASH_OPERATOR_FOLLOW      기본값 false. true 면 사수 에뮬레이션: 표적 실측 위치로 포를 돌려 표적을 화면 중심 부근에 둔다(지향에만 사용, 탐지·추정·격발은 FCS)
+#   SMASH_OPERATOR_LATERAL_M   기본값 0.21 m. 사수 에뮬레이션 좌우 평행 보정(역기구학 상수 0.21 과 URDF 0 의 차이 상쇄)
+#   SMASH_MOTION_LAG_S         기본값 0.17 s(smash_fcs.yaml 과 같음). FCS 가 이동 표적 리드에 더하는 영상/추적 위치 지연. 시뮬 비교용
+#   SMASH_MOTION_FIT_RMSE_M    기본값 0.20 m(smash_fcs.yaml 과 같음). 이동 표적 궤적 적합 잔차가 이 값을 넘으면 READY 를 막는다
+#                              ("MOTION FIT"). 8자처럼 곡선 기동 시험 비교용이며 실장비 값이 아니다
+#   SMASH_MOTION_VEL_DISAGREE_MPS  기본값 0.75 m/s(smash_fcs.yaml 과 같음). 장기 OLS 속도와 최근 6프레임 속도의 차가 이 값을 넘으면
+#                              READY 를 막는다("MOTION FIT"). 곡선 기동 시험 비교용이며 실장비 값이 아니다
+#   SMASH_FIRE_TRIGGER         기본값 auto. manual 이면 READY 일 때 뷰어에서 마우스 왼쪽 클릭·스페이스바를 누른 한 번에 한 발만 나간다
+#   SMASH_OPERATOR_FCS_LEAD    기본값 true. 사수 에뮬레이션이 조준선을 FCS 리드점(HUD LEAD)에 올린다. false 면 표적 중심
+#   SMASH_OPERATOR_LEAD_S      기본값 0.16 s. 사수 에뮬레이션이 표적 앞을 겨냥하는 시간(포탑 지연을 상쇄해 표적을 화면 중심에 둔다)
+#   SMASH_MANEUVER_RESET       기본값 true (방향 전환 시 오래된 운동 이력을 비워 리드 지연 방지)
+#   SMASH_TARGET_START_DELAY   기본값 -1 (FCS 가 표적을 잡으면(STABLE 1초) 출발. 그전에 M 을 누르면 바로
+#                              출발. 다시 누르면 정지/재개). 0 이상이면 기동 뒤 그 모의 초만큼 지나 자동 출발
+#   SMASH_TARGET_START_ON_LOCK 기본값 true (위 "잡으면 출발". 실행 중 0~4 키로 방식을 바꿀 때도 같다)
+#   SMASH_ENABLE_LIDAR         미지정 시 정지 근거리 표적은 true, 35 m 기동 표적은 false.
+#                              현재 LiDAR 최대 유효거리는 15 m라 35 m에서는 끄는 것이 정상이다.
+#   SMASH_GL_BACKEND           미지정 시 d3d12. 단, CUDA 추론과 GPU LiDAR를 동시에 켜면
+#                              확인된 WSL 정지 현상을 피하기 위해 software를 선택한다.
 #   MESA_D3D12_DEFAULT_ADAPTER_NAME  기본값 NVIDIA (내장 Intel GPU 대신 외장 GPU 선택)
 
 set +u
@@ -54,14 +85,14 @@ done
 SMASH_CORE_PATH="${SMASH_CORE_PATH:-/mnt/d/Aiming}"
 ROS2_WS="${ROS2_WS:-$HOME/ros2_ws}"
 SMASH_DEVICE="${SMASH_DEVICE:-cuda:0}"
-SMASH_ENABLE_FIRE_CONTROL="${SMASH_ENABLE_FIRE_CONTROL:-false}"
-SMASH_FIRE_MODE="${SMASH_FIRE_MODE:-manual}"
+SMASH_ENABLE_FIRE_CONTROL="${SMASH_ENABLE_FIRE_CONTROL:-true}"
 # 헤더 주석에 기본값이 적혀 있었으나 실제로는 설정되지 않아, 빈 문자열이
 # ground_truth_pose_topic:= 로 넘어가 런치가 거부되던 문제를 바로잡는다.
 SMASH_GT_POSE_TOPIC="${SMASH_GT_POSE_TOPIC:-/model/drone/pose}"
 # true 면 Gazebo GUI 없이 서버만 띄운다. WSLg 처럼 GUI 렌더링이 안 되는 환경에서는
 # 화면을 8번 스코프 뷰어(OpenCV 창)로 확인한다.
 SMASH_HEADLESS="${SMASH_HEADLESS:-false}"
+SMASH_TARGET_MOTION="${SMASH_TARGET_MOTION:-none}"
 if [ -d "$SMASH_CORE_PATH/simulation/ciws_turret_aerial_object_detection-main" ]; then
     REPO_DIR="$SMASH_CORE_PATH/simulation/ciws_turret_aerial_object_detection-main"
 else
@@ -283,10 +314,31 @@ build() {
 # Match only this repository's simulation launch tree. Do not use broad
 # patterns such as "pkill -f ros2", "pkill -f gz", or "killall python3":
 # another ROS/Gazebo project may be running in the same WSL distribution.
-SMASH_SIM_PROCESS_PATTERN='ros2 launch drone_sim smash_scene\.launch\.py|gz sim .*turret_world\.sdf|drone_sim/smash_fcs|drone_sim/smash_scope_viewer|ros_gz_bridge.*parameter_bridge.*(turret_camera|model/drone/pose|/clock@)|controller_manager/spawner.*(joint_state_broadcaster|turret_controller)|ros_gz_sim.*create.*(ciws_turret|drone)'
+# drone_sim/demo_director, drone_sim/target_mover, set_pose 브리지는 2026-09-22 에 추가했다. 빠져 있어서
+# 런처 프로세스가 먼저 죽으면 고아로 남아 다음 실행의 시뮬레이터에 붙어 표적을 움직였다.
+SMASH_SIM_PROCESS_PATTERN='ros2 launch drone_sim smash_scene\.launch\.py|gz sim .*turret_world\.sdf|drone_sim/smash_fcs|drone_sim/smash_scope_viewer|drone_sim/demo_director|drone_sim/target_mover|drone_sim/turret_command|ros_gz_bridge.*parameter_bridge.*(turret_camera|model/drone/pose|/clock@|set_pose)|controller_manager/spawner.*(joint_state_broadcaster|turret_controller)|ros_gz_sim.*create.*(ciws_turret|drone)'
+
+# 부모 런처가 죽어 고아가 된 robot_state_publisher 를 정리한다. 명령줄이 흔한 형태라 패턴으로 잡으면
+# 다른 프로젝트 것까지 죽이므로, 부모가 init 인 것(=고아)만 대상으로 한다. WSL2 는 세션마다 /init 이
+# 고아를 넘겨받으므로 부모가 PID 1 이 아닐 수 있다(2026-09-22: 고아가 살아남아 다음 실행의 TF 에 섞였다).
+reap_orphan_rsp() {
+    local pid ppid pargs
+    # 실행 파일(argv[0])이 robot_state_publisher 인 것만. 명령줄 어딘가에 문자열이 든 셸 등은 제외한다.
+    for pid in $(ps -eo pid=,args= | awk '$2 ~ /\/robot_state_publisher\/robot_state_publisher$/ {print $1}'); do
+        ppid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+        [ -z "$ppid" ] && continue
+        # WSL2 에서 고아의 부모는 세션의 /init (comm 은 "Relay(N)", args 는 "/init") 이다.
+        pargs=$(ps -o args= -p "$ppid" 2>/dev/null)
+        if [ "$ppid" = 1 ] || [ "$pargs" = /init ]; then
+            kill -TERM "$pid" 2>/dev/null || true
+        fi
+    done
+}
 
 cleanup_smash_sim() {
     head_ "SMASH simulation cleanup"
+    # 어느 경로로 끝나든 고아 정리를 거친다. 런처가 죽은 뒤에야 고아가 되므로 맨 끝에서 한다.
+    trap 'sleep 0.3; reap_orphan_rsp' RETURN
 
     # `killall -9 gz_sim` cannot match the observed command line:
     # `gz sim ... turret_world.sdf`. Stop the owning launch process first,
@@ -323,10 +375,27 @@ run() {
     # 헤드리스 측정 (GTX 1050 Ti, 4코어):
     #   월드만:        카메라 12.2 -> 18.0 Hz, 레이저 18.5 -> 28.6 Hz, gz 서버 CPU 200% -> 120%
     #   FCS 포함 전체: 카메라 5.6 -> 13.1 Hz, FCS 처리율 3.8 -> 10.2 Hz
-    # SMASH_GL_BACKEND=software 면 이전 동작(CPU 렌더링)으로 돌아간다.
-    SMASH_GL_BACKEND="${SMASH_GL_BACKEND:-d3d12}"
+    # 35 m 기동 시험에서는 최대 15 m인 LiDAR가 항상 무반사이면서 GPU 렌더링만
+    # 소모하므로 끈다. 10 m 정지 표적은 레이저 거리 보정을 위해 유지한다.
+    if [ -z "${SMASH_ENABLE_LIDAR:-}" ]; then
+        if [ "$SMASH_TARGET_MOTION" = "none" ]; then
+            SMASH_ENABLE_LIDAR=true
+        else
+            SMASH_ENABLE_LIDAR=false
+        fi
+    fi
+    # CUDA + D3D12 자체는 LiDAR를 끈 3회 시험에서 안정적이었다. CUDA 추론과
+    # GPU LiDAR를 함께 켠 경우에만 /clock 정지가 재현되어 software로 우회한다.
+    if [ -z "${SMASH_GL_BACKEND:-}" ]; then
+        if [ "$SMASH_DEVICE" != "cpu" ] && [ "$SMASH_ENABLE_LIDAR" = "true" ]; then
+            SMASH_GL_BACKEND=software
+        else
+            SMASH_GL_BACKEND=d3d12
+        fi
+    fi
     if [ "$SMASH_GL_BACKEND" = "software" ]; then
         export LIBGL_ALWAYS_SOFTWARE=1
+        unset GALLIUM_DRIVER MESA_D3D12_DEFAULT_ADAPTER_NAME
     else
         unset LIBGL_ALWAYS_SOFTWARE
         export GALLIUM_DRIVER=d3d12
@@ -353,12 +422,57 @@ run() {
     echo "  SMASH_CORE_PATH=$SMASH_CORE_PATH"
     echo "  model_path=$SMASH_MODEL_PATH"
     echo "  device=$SMASH_DEVICE   headless=$SMASH_HEADLESS"
-    echo "  enable_fire_control=$SMASH_ENABLE_FIRE_CONTROL  fire_mode=$SMASH_FIRE_MODE"
+    echo "  gl_backend=$SMASH_GL_BACKEND   lidar=$SMASH_ENABLE_LIDAR"
+    echo "  enable_fire_control=$SMASH_ENABLE_FIRE_CONTROL"
     if [ "$SMASH_ENABLE_FIRE_CONTROL" = "true" ]; then
         echo "  ground_truth_pose_topic=$SMASH_GT_POSE_TOPIC"
         echo "  (주의) 이 토픽이 실제로 발행되는지 다른 터미널에서 'gz topic -l' 로"
         echo "  확인할 것. 확인 전에는 Hit/Kill 판정이 전부 UNVERIFIED 로 남는다."
     fi
+    local target_args=()
+    if [ "$SMASH_TARGET_MOTION" != "none" ]; then
+        local default_half=3.0
+        case "$SMASH_TARGET_MOTION" in straight|approach) default_half=15.0 ;; esac
+        target_args=(
+            target_motion:="$SMASH_TARGET_MOTION"
+            target_speed_kmh:="${SMASH_TARGET_SPEED_KMH:-30}"
+            target_half_length:="${SMASH_TARGET_HALF_LENGTH:-$default_half}"
+            target_half_height:="${SMASH_TARGET_HALF_HEIGHT:-1.8}"
+            maneuver_reset:="${SMASH_MANEUVER_RESET:-true}"
+            target_start_delay:="${SMASH_TARGET_START_DELAY:--1}"
+            target_x:=33.0 target_y:=0.0 target_z:=12.5
+        )
+
+        echo "  표적: $SMASH_TARGET_MOTION ${SMASH_TARGET_SPEED_KMH:-30} km/h, FCS 가 잡으면 출발 (M: 바로 출발/정지)"
+        echo "  (표적 중심 거리는 화각별 포착 가능 거리 안으로 제한된다. 해제: SMASH_ENFORCE_ENVELOPE=false)"
+    else
+        target_args=(target_speed_kmh:="${SMASH_TARGET_SPEED_KMH:-30}")
+        echo "  표적: 정지 호버링"
+    fi
+    # 표적 시작 위치 "x,y,z"(world, m). 거리별 포착 시험용. 비우면 위 기본값(정지 호버링은 launch 기본값)
+    if [ -n "${SMASH_TARGET_POS:-}" ]; then
+        IFS=, read -r _tx _ty _tz <<< "$SMASH_TARGET_POS"
+        target_args+=(target_x:="$_tx" target_y:="$_ty" target_z:="$_tz")
+        echo "  표적 시작 위치: $_tx $_ty $_tz"
+    fi
+    # 이동 표적은 시작 거리(약 35 m)와 비슷한 곳에 다시 나타나게 한다. launch 기본 목록(17/13/16/9 m)은 광각 0.4 rad 용이라
+    # 화각 0.12 rad 에서는 9 m 표적이 화면에서 너무 커서(약 300 px) 탐지기가 못 잡아 4번째 재출현부터 멈췄다(2026-10-19 시험).
+    # 화각이 넓어 범위를 넘으면 enforce_envelope 가 시작 시 가까이 당겨 준다.
+    if [ -z "${SMASH_RESPAWN_POSITIONS:-}" ] && [ "$SMASH_TARGET_MOTION" != "none" ]; then
+        SMASH_RESPAWN_POSITIONS="[33.0, 0.0, 12.5, 30.0, 3.0, 11.5, 34.0, -3.0, 13.0, 32.0, 1.0, 12.0]"
+    fi
+    # 재출현 위치 목록 [x,y,z, ...] (world). 거리별 포착 시험용. 비우면 launch 기본값
+    if [ -n "${SMASH_RESPAWN_POSITIONS:-}" ]; then
+        target_args+=(respawn_positions:="$SMASH_RESPAWN_POSITIONS")
+        echo "  재출현 위치: $SMASH_RESPAWN_POSITIONS"
+    fi
+    echo "  실행 중 스코프 뷰어 키: 0~4 기동 방식(0 호버링 1 직선 2 왕복 3 8자 4 접근), +/- 속도, M 정지/재개"
+    target_args+=(
+        camera_hfov:="${SMASH_CAMERA_HFOV:-0.4}"
+        target_control:=true
+        target_start_on_lock:="${SMASH_TARGET_START_ON_LOCK:-true}"
+    )
+    echo "  카메라 수평 화각: ${SMASH_CAMERA_HFOV:-0.4} rad"
     echo
     # ros2 launch normally tears down its children on Ctrl+C. The EXIT trap
     # also removes a detached Gazebo / ros2_control tree if that is incomplete.
@@ -372,9 +486,23 @@ run() {
         model_path:="$SMASH_MODEL_PATH" \
         device:="$SMASH_DEVICE" \
         enable_fire_control:="$SMASH_ENABLE_FIRE_CONTROL" \
-        fire_mode:="$SMASH_FIRE_MODE" \
+        aim_max_goal_jump_rad:="${SMASH_AIM_MAX_GOAL_JUMP:-0.012}" \
+        aim_acquire_envelope_rad:="${SMASH_AIM_ACQUIRE_ENVELOPE:-0.08}" \
+        operator_follow:="${SMASH_OPERATOR_FOLLOW:-false}" \
+        operator_lead_s:="${SMASH_OPERATOR_LEAD_S:-0.16}" \
+        operator_lateral_m:="${SMASH_OPERATOR_LATERAL_M:-0.21}" \
+        operator_fcs_lead:="${SMASH_OPERATOR_FCS_LEAD:-true}" \
+        trigger_mode:="${SMASH_FIRE_TRIGGER:-auto}" \
+        motion_measurement_lag_s:="${SMASH_MOTION_LAG_S:-0.17}" \
+        motion_ready_max_fit_rmse_m:="${SMASH_MOTION_FIT_RMSE_M:-0.20}" \
+        motion_ready_max_velocity_disagreement_mps:="${SMASH_MOTION_VEL_DISAGREE_MPS:-0.75}" \
+        aim_follow_mode:="${SMASH_AIM_FOLLOW_MODE:-lead}" \
+        aim_offset_smoothing:="${SMASH_AIM_OFFSET_SMOOTHING:-0.8}" \
+        aim_follower_rate_smoothing:="${SMASH_AIM_RATE_SMOOTHING:-0.0}" \
+        demo_kill:="${SMASH_DEMO_KILL:-false}" \
+        enable_lidar:="$SMASH_ENABLE_LIDAR" \
         ground_truth_pose_topic:="$SMASH_GT_POSE_TOPIC" \
-        launch_viewer:="${SMASH_LAUNCH_VIEWER:-false}"
+        enforce_envelope:="${SMASH_ENFORCE_ENVELOPE:-true}"         launch_viewer:="${SMASH_LAUNCH_VIEWER:-false}"         "${target_args[@]}"
     local rc=$?
     trap - INT TERM EXIT
     cleanup_smash_sim || true
@@ -388,7 +516,7 @@ verify_fire_control() {
 }
 
 viewer() {
-    head_ "SMASH 대화형 스코프 뷰어 실행 (마우스 좌클릭 및 스페이스바 격발)"
+    head_ "SMASH 스코프 영상 중계 서버 실행"
     if [ ! -f "$ROS2_WS/install/setup.bash" ]; then
         bad "$ROS2_WS/install/setup.bash 가 없다. 먼저 build 를 실행할 것."
         return 1

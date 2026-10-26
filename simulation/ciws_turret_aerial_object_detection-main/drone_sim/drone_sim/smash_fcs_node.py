@@ -18,15 +18,17 @@
     Gazebo 포탑 메시의 포신 끝 좌표는 쓰지 않는다.
 
 
-기존 오픈소스의 단순 YOLO 탐지기(drone_detector) + 단순 비례제어 추종기
-(turret_tracker) 경로를 대체한다. 이 노드 하나가 다음을 모두 수행한다.
+이 노드 하나가 다음을 모두 수행한다.
 
     /turret_camera/image_raw
         -> cv_bridge -> OpticalFlowTracker (YOLO11s + Lucas-Kanade)
         -> 거리 추정 (동축 광각 레이저 우선 / 바운딩박스 기하 역추정 폴백)
         -> TF 기반 포구(scope) 외부파라미터 산출
         -> aiming_engine.AimingManager (좌표변환 -> 표적상태 -> 뉴턴 탄도 리드 솔버)
-        -> 포탑 Pan/Tilt 관절 명령 -> /turret_controller/commands
+        -> 조준 상태/HUD 산출
+
+    Gazebo Pan/Tilt 관절 명령(리드점 추종)은 별도 turret_command 노드가 담당한다.
+    영상 추론이 제어 주기를 막지 않도록 의도적으로 프로세스를 분리했다.
         -> 기본 HUD 오버레이 -> /turret_camera/image_annotated
 
 ■ 1단계 범위와 경계 (투명성)
@@ -42,9 +44,9 @@
        다중표적 우선순위 결정 로직은 포함하지 않는다.
 
 ■ 3단계 범위와 경계 (가상 탄환 격발 및 Hit/Kill 판정, 투명성)
-    enable_fire_control 파라미터로 켠다(기본값 false — 1/2단계 검증 결과에
-    회귀가 없도록 기본 동작은 이전과 동일하게 유지한다). 자세한 설계 근거와
-    한계는 smash_fcs/fire_control.py 모듈 docstring 을 반드시 함께 읽을 것.
+    enable_fire_control 파라미터(기본값 true)로 켠다. READY 에서 자동으로 격발하며,
+    false 면 탐지·조준만 한다. 자세한 설계 근거와 한계는 smash_fcs/fire_control.py
+    모듈 docstring 을 반드시 함께 읽을 것.
     핵심만 요약하면 다음과 같다.
 
     1. Hit/Kill 판정은 FCS 자신의 표적 추정치가 아니라 Gazebo 가 world 프레임
@@ -99,6 +101,7 @@ from __future__ import annotations
 
 import json
 import math
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -108,12 +111,17 @@ from geometry_msgs.msg import PoseStamped
 from rclpy.node import Node
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
 from sensor_msgs.msg import CameraInfo, Image, PointCloud2
-from std_msgs.msg import Bool, Float64MultiArray, String
+from std_msgs.msg import Float64MultiArray, String
 
 import tf2_ros
 
 from drone_sim.smash_fcs import turret_kinematics as tk
-from drone_sim.smash_fcs.hud import HudFrame, HudRenderer, impact_mark
+from drone_sim.smash_fcs.engagement_gate import (
+    SpeedCollapseDetector,
+    motion_allows_fire,
+    motion_solution_is_stable,
+)
+from drone_sim.smash_fcs.hud import Engagement, HudFrame, HudRenderer, impact_mark
 from drone_sim.smash_fcs.engine_bootstrap import build_aim_config, ensure_core_on_path
 from drone_sim.smash_fcs.pointcloud_utils import field_offsets, ranges_from_xyz_buffer
 from drone_sim.smash_fcs.range_estimator import (
@@ -131,17 +139,24 @@ SENSOR_QOS = QoSProfile(
     durability=QoSDurabilityPolicy.VOLATILE,
 )
 
-# pan 명령에 얹는 흔들림의 진폭(rad). 포탑이 아예 움직이지 않는 문제를 우회하기
-# 위한 필수 값이며, 근거와 실측 기록은 SmashFcsNode._publish_command 에 있다.
-# 5e-4 rad 은 카메라 화각 기준 약 0.8픽셀(0.4 rad / 640 px)로 조준·판정에 영향이 없다.
-PAN_DITHER_RAD = 5.0e-4
-
-
 def _stamp_to_seconds(stamp) -> float:
     return float(stamp.sec) + float(stamp.nanosec) * 1e-9
 
 
+def _transform_to_pose(transform) -> np.ndarray:
+    """geometry_msgs/Transform 을 4x4 동차변환으로."""
+    t = transform.translation
+    q = transform.rotation
+    pose = np.eye(4, dtype=np.float64)
+    pose[:3, :3] = tk.quaternion_to_rotation_matrix(q.x, q.y, q.z, q.w)
+    pose[:3, 3] = np.array([t.x, t.y, t.z], dtype=np.float64)
+    return pose
+
+
 class SmashFcsNode(Node):
+    TRAIL_S = 1.2  # HUD 표적 궤적 꼬리 길이(영상 시각 초)
+    TRAIL_JUMP_PX = 40.0  # 한 프레임에 이만큼 튀면 꼬리를 끊는다
+
     def __init__(self) -> None:
         super().__init__("smash_fcs")
 
@@ -151,20 +166,31 @@ class SmashFcsNode(Node):
         self.declare_parameter("model_path", "")
         self.declare_parameter("device", "cpu")
         self.declare_parameter("conf_thres", 0.25)
+        self.declare_parameter("detector_warmup", True)
+        self.declare_parameter("detector_result_max_age_s", 1.0)
+        # 주기 검출 간격(프레임)과 비동기 결과 보정 상한(px). 기본값은 추적기 상수와 같다.
+        self.declare_parameter("detector_periodic_interval_frames", 10)
+        self.declare_parameter("detector_async_compensation_max_px", 6.0)
+        # 0 이면 추적기 내장 기본값(qualityLevel 0.01, blockSize 7). smash_fcs.yaml 과 같은 값을 기본으로 둔다.
+        self.declare_parameter("detector_feature_quality_level", 0.0005)
+        self.declare_parameter("detector_feature_block_size", 3)
 
         self.declare_parameter("image_topic", "/turret_camera/image_raw")
         self.declare_parameter("camera_info_topic", "/turret_camera/camera_info")
         self.declare_parameter("laser_topic", "/turret_camera/boresight_range/points")
-        self.declare_parameter("command_topic", "/turret_controller/commands")
         self.declare_parameter("annotated_topic", "/turret_camera/image_annotated")
         self.declare_parameter("state_topic", "/smash_fcs/state")
+        # 조준 기하(리드 방향·총구 방향·정렬 오차) JSON. 측정 도구가 이동 표적을 따라가는 데 쓴다.
+        self.declare_parameter("aim_track_topic", "/smash_fcs/aim_track")
+        # 재출현한 표적의 base 프레임 위치를 turret_command 에 알려 포를 미리 돌려 놓는 토픽.
+        self.declare_parameter("cue_topic", "/smash_fcs/cue_cmd")
         self.declare_parameter("reliability_state_topic", "/smash_fcs/reliability_state")
         self.declare_parameter("reliability_hold_aim_duration_s", 0.4)
 
         self.declare_parameter("base_frame", "base_footprint")
         self.declare_parameter("camera_optical_frame", "camera_link_optical")
         # 0 이 기본이다. 기다려 봐야 소용없는 이유는 _lookup_camera_pose 참고.
-        self.declare_parameter("tf_timeout_s", 0.0)
+        self.declare_parameter("tf_timeout_s", 0.03)
 
         # 5.56 x 45mm M855 (62 gr) 기준. 총열 길이에 따라 포구초속이 달라진다.
         self.declare_parameter("muzzle_velocity_mps", 920.0)
@@ -191,14 +217,6 @@ class SmashFcsNode(Node):
         self.declare_parameter("laser_cross_check_sigma", 3.0)
         self.declare_parameter("max_range_rate_mps", 60.0)
 
-        self.declare_parameter("command_rate_hz", 30.0)
-        self.declare_parameter("pan_max_rate_rad_s", tk.PAN_MAX_RATE_RAD_S)
-        self.declare_parameter("tilt_max_rate_rad_s", tk.TILT_MAX_RATE_RAD_S)
-        self.declare_parameter("tilt_min_rad", tk.TILT_MIN_RAD)
-        self.declare_parameter("tilt_max_rad", tk.TILT_MAX_RAD)
-        self.declare_parameter("search_pan_rad", 0.0)
-        self.declare_parameter("search_tilt_rad", 0.0)
-        self.declare_parameter("command_feedforward_s", 0.0)
         # 정렬 허용오차의 상한/하한(화소). 실제 값은 표적 거리에서 유도한다.
         self.declare_parameter("align_tolerance_max_px", 35.0)
         self.declare_parameter("align_tolerance_min_px", 3.0)
@@ -210,21 +228,46 @@ class SmashFcsNode(Node):
         self.declare_parameter("hud_debug", False)
 
         # ── 3단계: 가상 탄환 격발 및 Hit/Kill 판정 ─────────────────────
-        # 기본값 false. 1/2단계 검증에는 아무 영향이 없다(설계 근거는 위
+        # 기본값 true: READY 에서 자동 격발. false 면 탐지·조준만 한다(설계 근거는 위
         # 모듈 docstring 및 smash_fcs/fire_control.py 참고).
-        self.declare_parameter("enable_fire_control", False)
-        # "auto": READY 인 동안 fire_rate_rpm 쿨다운으로 자동 격발.
-        # "manual": trigger_topic 상승 엣지에서만 격발(반자동 방아쇠 근사).
-        self.declare_parameter("fire_mode", "manual")
+        self.declare_parameter("enable_fire_control", True)
+        # READY 인 동안 fire_rate_rpm 쿨다운으로 자동 격발한다.
         self.declare_parameter("fire_rate_rpm", 700.0)
         # 0 이하이면 target_characteristic_size_m / 2 로 자동 유도한다.
         self.declare_parameter("target_hit_radius_m", -1.0)
-        self.declare_parameter("trigger_topic", "/smash_fcs/trigger")
         self.declare_parameter("fire_event_topic", "/smash_fcs/fire_event")
         self.declare_parameter("hit_result_topic", "/smash_fcs/hit_result")
         self.declare_parameter("engagement_stats_topic", "/smash_fcs/engagement_stats")
         self.declare_parameter("fire_control_rate_hz", 60.0)
+        self.declare_parameter("target_motion_status_topic", "/target_mover/status")
+        self.declare_parameter("auto_fire_requires_target_move", False)
         self.declare_parameter("impact_effect_hold_s", 0.35)
+        # 지연 보정. 켜면 격발 순간 조준해를 그 시각 기준으로 다시 풀고, 그 순간의 총구 방향으로
+        # 정렬을 다시 판정한 뒤 쏜다. 끄면 예전처럼 마지막 영상의 판정으로 쏜다(보정 전후 비교용).
+        self.declare_parameter("latency_compensation", True)
+        # 격발 방식. auto = READY 이면 자동 격발(시험·헤드리스 기본), manual = READY 일 때 사용자가 방아쇠(뷰어의
+        # 마우스 왼쪽 클릭·스페이스바 → ui_command "fire")를 당긴 한 번에 한 발만 나간다. READY 가 아니면 눌러도 나가지 않는다.
+        self.declare_parameter("trigger_mode", "auto")
+        # 방아쇠 입력의 유효 시간(모의 시각 s). 이 안에 READY 가 되지 않으면 입력은 버린다(나중에 뜬금없이 발사되지 않게).
+        # 실제 사용자 녹화(2026-10-19)에서 READY 는 전체의 약 20 %, 한 번에 0.2~0.7 s 만 켜졌다(속도 안정화 대기로 자주 보류).
+        # 0.3 s 로는 클릭이 대부분 READY 창을 놓쳐 1.5 s 로 늘렸다. 그래도 발사는 READY 일 때만 나간다.
+        self.declare_parameter("trigger_window_s", 1.5)
+        self.declare_parameter("motion_measurement_lag_s", 0.17)
+        self.declare_parameter("motion_ready_max_velocity_disagreement_mps", 0.75)
+        self.declare_parameter("motion_ready_max_fit_rmse_m", 0.20)
+        self.declare_parameter("motion_ready_min_history_count", 6)
+        # <0 이면 장기/최근 횡속도 부호 일관성 검사를 끈다.
+        self.declare_parameter("motion_ready_lateral_sign_deadband_mps", 0.15)
+        # 추정 횡속도가 직전 window 의 75퍼센타일 대비 이 비율 아래로 급락하면 READY 차단. <=0 이면 끔.
+        self.declare_parameter("motion_ready_speed_collapse_ratio", 0.0)
+        self.declare_parameter("motion_ready_speed_collapse_window_s", 2.0)
+        # 표적 운동 추정기의 기동 감지(aiming_engine target_state.maneuver_reset). 방향을 바꾼 뒤
+        # 오래된 기록을 버려 리드가 빨리 따라오게 한다. 문턱은 시선에 수직인 각도(mrad).
+        self.declare_parameter("maneuver_reset", False)
+        self.declare_parameter("maneuver_gate_mrad", 10.0)
+        # 격발 순간 마지막 영상 나이의 이동평균 초기값(초)과 계수. 진단용(격발 이벤트에 실린다).
+        self.declare_parameter("fire_latency_initial_s", 0.04)
+        self.declare_parameter("fire_latency_ema_alpha", 0.05)
         # Gazebo PosePublisher 가 발행하는(가정) 표적 실측 자세 토픽. 실제 이름은
         # gz-sim 버전에 따라 다를 수 있으므로 WSL2 에서 `gz topic -l` 로 확인할 것
         # (drone_sim/models/drone/model.sdf 의 PosePublisher 플러그인 참고).
@@ -240,10 +283,6 @@ class SmashFcsNode(Node):
         self._base_frame = str(self.get_parameter("base_frame").value)
         self._camera_frame = str(self.get_parameter("camera_optical_frame").value)
         self._tf_timeout_s = float(self.get_parameter("tf_timeout_s").value)
-        self._tilt_min = float(self.get_parameter("tilt_min_rad").value)
-        self._tilt_max = float(self.get_parameter("tilt_max_rad").value)
-        self._pan_max_rate = float(self.get_parameter("pan_max_rate_rad_s").value)
-        self._tilt_max_rate = float(self.get_parameter("tilt_max_rate_rad_s").value)
         self._border_margin_px = int(self.get_parameter("border_margin_px").value)
         self._border_frames_limit = int(self.get_parameter("border_frames_before_reset").value)
         self._publish_annotated = bool(self.get_parameter("publish_annotated").value)
@@ -274,6 +313,13 @@ class SmashFcsNode(Node):
             projectile_mass_kg=float(self.get_parameter("projectile_mass_kg").value),
             projectile_diameter_m=float(self.get_parameter("projectile_diameter_m").value),
             drag_model=str(self.get_parameter("drag_model").value),
+            maneuver_reset=bool(self.get_parameter("maneuver_reset").value),
+            maneuver_gate_mrad=float(self.get_parameter("maneuver_gate_mrad").value),
+        )
+        ts_cfg = self._aim_config.target_state
+        self.get_logger().info(
+            f"표적 추정기: {ts_cfg.estimator}, 기록 {ts_cfg.history_length}개, 기동 감지 "
+            + (f"켬 ({ts_cfg.maneuver_gate_mrad:.1f} mrad)" if ts_cfg.maneuver_reset else "끔")
         )
         self.get_logger().info(
             "탄도 설정: 포구초속 {:.1f} m/s, 질량 {:.5f} kg, 직경 {:.5f} m, 힘 모델 {} ({})".format(
@@ -312,22 +358,36 @@ class SmashFcsNode(Node):
 
         model_path = str(self.get_parameter("model_path").value)
         if not model_path or model_path.strip() == "":
-            candidate = os.path.join(
-                self._core_path,
-                "detector+tracker", "ga_results", "yolo11s_ga_final" + chr(45) + "3", "weights", "best.pt"
+            candidate = (
+                Path(self._core_root)
+                / "detector+tracker" / "ga_results" / "yolo11s_ga_final-3" / "weights" / "best.pt"
             )
-            if os.path.exists(candidate):
-                model_path = candidate
+            if candidate.exists():
+                model_path = str(candidate)
                 self.get_logger().info(f"model_path 미지정으로 기본 GA 가중치 자동 채택: {model_path}")
             else:
                 raise RuntimeError(
-                    "model_path 파라미터가 비어 있고 기본 가중치를 찾을 수 없습니다: " + candidate
+                    f"model_path 파라미터가 비어 있고 기본 가중치를 찾을 수 없습니다: {candidate}"
                 )
         self.get_logger().info(f"추적기 가중치 로딩: {model_path}")
         self._tracker = OpticalFlowTracker(
             model_path=model_path,
             device=str(self.get_parameter("device").value),
             conf_thres=float(self.get_parameter("conf_thres").value),
+            warmup=bool(self.get_parameter("detector_warmup").value),
+            async_result_max_age_s=float(
+                self.get_parameter("detector_result_max_age_s").value
+            ),
+            periodic_detect_interval=int(
+                self.get_parameter("detector_periodic_interval_frames").value
+            ),
+            async_compensation_max_px=float(
+                self.get_parameter("detector_async_compensation_max_px").value
+            ),
+            feature_quality_level=float(
+                self.get_parameter("detector_feature_quality_level").value
+            ),
+            feature_block_size=int(self.get_parameter("detector_feature_block_size").value),
         )
         from jun_reliability.bridge_adapter import SingleFrameTrackerFanout  # noqa: E402
         from jun_reliability.engine import TrackingReliabilityEngine  # noqa: E402
@@ -365,8 +425,37 @@ class SmashFcsNode(Node):
 
         # ── 3단계: 격발 제어 (기본 비활성) ──────────────────────────────
         self._enable_fire_control = bool(self.get_parameter("enable_fire_control").value)
-        self._fire_mode = str(self.get_parameter("fire_mode").value)
+        self._auto_fire_requires_target_move = bool(
+            self.get_parameter("auto_fire_requires_target_move").value
+        )
         self._fire_control = None
+        self._latency_compensation = bool(self.get_parameter("latency_compensation").value)
+        self._trigger_manual = str(self.get_parameter("trigger_mode").value).strip().lower() == "manual"
+        self._trigger_window_s = max(0.0, float(self.get_parameter("trigger_window_s").value))
+        self._trigger_time = None  # 마지막 방아쇠 입력의 모의 시각. 한 발을 쏘면 비운다
+        self._motion_measurement_lag_s = max(
+            0.0, float(self.get_parameter("motion_measurement_lag_s").value)
+        )
+        self._motion_ready_max_velocity_disagreement = max(
+            0.0, float(self.get_parameter("motion_ready_max_velocity_disagreement_mps").value)
+        )
+        self._motion_ready_max_fit_rmse = max(
+            0.0, float(self.get_parameter("motion_ready_max_fit_rmse_m").value)
+        )
+        _sign_deadband = float(self.get_parameter("motion_ready_lateral_sign_deadband_mps").value)
+        self._motion_ready_lateral_sign_deadband = _sign_deadband if _sign_deadband >= 0.0 else None
+        self._speed_collapse = SpeedCollapseDetector(
+            ratio=float(self.get_parameter("motion_ready_speed_collapse_ratio").value),
+            window_s=float(self.get_parameter("motion_ready_speed_collapse_window_s").value),
+        )
+        self._speed_collapsed = False
+        self._motion_ready_min_history = max(
+            1, int(self.get_parameter("motion_ready_min_history_count").value)
+        )
+        # 격발 순간 마지막 영상이 몇 초 묵었는지의 이동평균(진단용).
+        self._fire_latency_est_s = float(self.get_parameter("fire_latency_initial_s").value)
+        self._fire_latency_alpha = float(self.get_parameter("fire_latency_ema_alpha").value)
+        self._last_fire_diag: dict = {}
         self._turret_world_translation = np.array(
             [float(v) for v in self.get_parameter("turret_world_translation_m").value], dtype=np.float64
         )
@@ -378,15 +467,14 @@ class SmashFcsNode(Node):
             self._fire_control = FireController(
                 projectile_config=self._aim_config.projectile,
                 muzzle_velocity_mps=self._aim_config.projectile.muzzle_velocity,
-                fire_mode=self._fire_mode,
                 fire_rate_rpm=float(self.get_parameter("fire_rate_rpm").value),
                 target_radius_m=target_hit_radius_m,
                 ground_truth_timeout_s=float(self.get_parameter("ground_truth_timeout_s").value),
                 impact_effect_hold_s=float(self.get_parameter("impact_effect_hold_s").value),
             )
             self.get_logger().info(
-                "격발 제어 활성화: mode={} target_hit_radius={:.3f}m ground_truth_topic={}".format(
-                    self._fire_mode, target_hit_radius_m, str(self.get_parameter("ground_truth_pose_topic").value)
+                "자동 격발 제어 활성화: target_hit_radius={:.3f}m ground_truth_topic={}".format(
+                    target_hit_radius_m, str(self.get_parameter("ground_truth_pose_topic").value)
                 )
             )
             self.get_logger().warn(
@@ -401,31 +489,12 @@ class SmashFcsNode(Node):
         # ── 런타임 상태 ─────────────────────────────────────────────────
         self._bridge_cv = CvBridge()
         self._intrinsics: Optional[np.ndarray] = None
-        self._pan_cmd = float(self.get_parameter("search_pan_rad").value)
-        self._tilt_cmd = tk.clamp(
-            float(self.get_parameter("search_tilt_rad").value), self._tilt_min, self._tilt_max
-        )
-        self._user_pan = self._pan_cmd
-        self._user_tilt = self._tilt_cmd
-        self._pan_goal = self._user_pan
-        self._tilt_goal = self._user_tilt
-        self._search_pan = self._user_pan
-        self._search_tilt = self._user_tilt
-        self._manual_pan_offset = 0.0
-        self._manual_tilt_offset = 0.0
         self._aim_aligned = False
         self._align_err_px = 999.0
         # 정렬 허용오차는 고정 화소값이 아니라 표적 거리에서 유도한다.
         # 아래 _align_tolerance_for_range 참고. 여기 값은 거리를 모를 때의 상한이다.
         self._align_tolerance_px = float(self.get_parameter("align_tolerance_max_px").value)
         self._align_tolerance_min_px = float(self.get_parameter("align_tolerance_min_px").value)
-        self._feedforward = tk.GoalFeedForward(
-            lead_time_s=float(self.get_parameter("command_feedforward_s").value),
-            max_rate_rad_s=max(self._pan_max_rate, self._tilt_max_rate),
-        )
-        self._last_command_time: Optional[float] = None
-        # pan 명령 흔들림의 현재 부호. 상세한 이유는 _publish_command 참고.
-        self._pan_dither = PAN_DITHER_RAD
         self._border_frames = 0
         self._state_label = "SEARCH"
         self._last_output = None
@@ -456,11 +525,17 @@ class SmashFcsNode(Node):
         self._kills = 0
         self._target_down = False
         self._impacts: list = []
+        # 표적 궤적(HUD 꼬리). (영상 시각 s, x, y). TRAIL_S 보다 오래된 점은 버린다.
+        self._trail: list = []
+        # 교전 1건 요약: 처음 잠근 시각과 그때의 누적 사격·명중
+        self._engagement_start: Optional[float] = None
+        self._engagement_shots0 = 0
+        self._engagement_hits0 = 0
+        self._engagement: Optional[Engagement] = None
         self._shot_launch_points: dict[int, np.ndarray] = {}
-        self._trigger_reject_time: Optional[float] = None
 
         # 3단계 격발 제어 런타임 상태
-        self._trigger_pressed = False
+        self._target_motion_state: Optional[str] = None
         self._gt_position_base: Optional[np.ndarray] = None
         self._gt_timestamp: Optional[float] = None
 
@@ -471,16 +546,24 @@ class SmashFcsNode(Node):
         #   과 충돌해 영상/타이머 콜백이 굶어 죽는다(2026-09-12 실측: 상태 토픽 발행이
         #   통째로 멎었다). TF 수신은 기본 실행기에 맡긴다.
         self._tf_listener = tf2_ros.TransformListener(self._tf_buffer, self)
+        self._tf_exact_count = 0
+        self._tf_fallback_count = 0
+        self._last_tf_exact = False
 
-        self._cmd_pub = self.create_publisher(
-            Float64MultiArray, str(self.get_parameter("command_topic").value), 10
-        )
         self._state_pub = self.create_publisher(String, str(self.get_parameter("state_topic").value), 10)
+        self._aim_track_pub = self.create_publisher(String, str(self.get_parameter("aim_track_topic").value), 10)
+        self._cue_pub = self.create_publisher(Float64MultiArray, str(self.get_parameter("cue_topic").value), 10)
+        self._cue_time: Optional[float] = None
         self._reliability_state_pub = self.create_publisher(
             String, str(self.get_parameter("reliability_state_topic").value), 10
         )
+        # HUD 에 그린 거리·격추 수를 그대로 내보낸다. 윈도우 뷰어 패널이 HUD 와 같은 숫자를 보이게 하는 용도.
+        self._hud_summary_pub = self.create_publisher(String, "/smash_fcs/hud_summary", 10)
         self._annotated_pub = self.create_publisher(
-            Image, str(self.get_parameter("annotated_topic").value), 10
+            # 표시 영상은 제어 데이터가 아니며 오래된 프레임을 재전송할 가치가 없다.
+            # reliable depth 10은 느린 viewer가 붙을 때 대용량 프레임 backlog와
+            # publisher 역압력을 만들므로 카메라와 같은 latest-only QoS를 쓴다.
+            Image, str(self.get_parameter("annotated_topic").value), SENSOR_QOS
         )
 
         self.create_subscription(
@@ -492,16 +575,15 @@ class SmashFcsNode(Node):
         self.create_subscription(
             Image, str(self.get_parameter("image_topic").value), self._on_image, SENSOR_QOS
         )
-        self.create_subscription(
-            Float64MultiArray, "/smash_fcs/manual_slew", self._on_manual_slew, 10
-        )
-
         # 뷰어 명령(HUD 상세 토글, 통계 초기화)과 시연 연출 노드의 표적 격추/재출현 알림
         self.create_subscription(String, "/smash_fcs/ui_command", self._on_ui_command, 10)
         self.create_subscription(String, "/smash_fcs/target_event", self._on_target_event, 10)
-
-        rate = max(1.0, float(self.get_parameter("command_rate_hz").value))
-        self.create_timer(1.0 / rate, self._publish_command)
+        self.create_subscription(
+            String,
+            str(self.get_parameter("target_motion_status_topic").value),
+            self._on_target_motion_status,
+            10,
+        )
 
         if self._enable_fire_control:
             self.create_subscription(
@@ -509,9 +591,6 @@ class SmashFcsNode(Node):
                 str(self.get_parameter("ground_truth_pose_topic").value),
                 self._on_ground_truth_pose,
                 SENSOR_QOS,
-            )
-            self.create_subscription(
-                Bool, str(self.get_parameter("trigger_topic").value), self._on_trigger, 10
             )
             self._fire_event_pub = self.create_publisher(
                 String, str(self.get_parameter("fire_event_topic").value), 10
@@ -610,10 +689,23 @@ class SmashFcsNode(Node):
 
         if self._lock_start_time is None:
             self._lock_start_time = timestamp
+            self._cue_time = None
+            if self._engagement_start is None:
+                self._engagement_start = timestamp
+                if self._fire_control is not None:
+                    stats = self._fire_control.stats()
+                    self._engagement_shots0, self._engagement_hits0 = stats["shots_fired"], stats["hits"]
         x, y, w, h = result.bbox
         bbox = (float(x), float(y), float(x + w), float(y + h))
         center_px = (float(x + w / 2.0), float(y + h / 2.0))
         self._last_bbox = bbox
+        tx, ty = int(round(center_px[0])), int(round(center_px[1]))
+        if self._trail and math.hypot(tx - self._trail[-1][1], ty - self._trail[-1][2]) > self.TRAIL_JUMP_PX:
+            # 포 선회·재획득으로 화면 좌표가 튄 것이지 표적 궤적이 아니다. 이어 그리면 긴 줄이 생긴다.
+            self._trail.clear()
+        self._trail.append((timestamp, tx, ty))
+        while self._trail and timestamp - self._trail[0][0] > self.TRAIL_S:
+            del self._trail[0]
 
         # 화면 이탈 판정: 로드맵 2단계 요구사항("이탈 시 즉시 SEARCH 초기화")의
         # 실행 지점. OpticalFlowTracker 는 한 번 초기화되면 표적을 잃어도 계속
@@ -670,6 +762,17 @@ class SmashFcsNode(Node):
             laser_range_m=float(range_estimate.distance_m),
         )
 
+        # 레티클과 영상 내 정렬은 촬영 시각 기준으로 둔다. 같은 영상 속 총구도 촬영 시각의 것이라,
+        # 사수가 표적을 따라 포탑을 돌리는 중이면 둘의 상대 정렬은 격발 순간까지 그대로 유지된다.
+        # 레티클만 "촬영 + 지연" 시각으로 옮기면 ω×지연만큼 과보정된다(2026-09-21 이동 표적 실측:
+        # READY 50 % -> 21 %). 지연 보정은 격발 순간의 재계산·재판정(_fire_control_tick)이 맡는다.
+        # LK/검출 bbox의 중심은 실제 표적 위치보다 진행방향 뒤에 남는다. 35 m,
+        # 3 km/h 실격발의 signed 탄착오차(+0.177/-0.114 m)는 약 0.17초
+        # 측정 지연과 일치했다. 처리 프레임 나이와 별개인 이 위치 지연만큼
+        # TargetState를 추가 예측해 HUD 리드점을 만든다.
+        motion_lag_s = self._motion_measurement_lag_s if self._target_motion_state == "MOVE" else 0.0
+        expected_fire_time = timestamp + motion_lag_s
+
         output = None
         if self._reliability_state == "STABLE":
             if self._motion_reseed_required:
@@ -677,11 +780,17 @@ class SmashFcsNode(Node):
                 self._aiming_manager = self._AimingManager(config=self._aim_config)
                 self._motion_reseed_required = False
                 self.get_logger().info("[MEAS] estimator reseed on STABLE reacquisition")
-            output = self._aiming_manager.update(tracker_frame, measurement_admitted=True)
+            output = self._aiming_manager.update(
+                tracker_frame,
+                measurement_admitted=True,
+                fire_time=expected_fire_time,
+            )
             self._motion_state_initialized = True
             self._measurement_mode = "ACCEPT"
         elif self._reliability_state == "HOLD" and self._motion_state_initialized:
-            output = self._aiming_manager.update(tracker_frame, measurement_admitted=False)
+            output = self._aiming_manager.update(
+                tracker_frame, measurement_admitted=False, fire_time=expected_fire_time
+            )
             self._measurement_mode = "PREDICT"
 
         if output is None:
@@ -698,13 +807,14 @@ class SmashFcsNode(Node):
         self._last_output = output
         self._last_frame_timestamp = timestamp
         self._frames_solved += 1
+        self._speed_collapsed = (
+            self._speed_collapse.update(timestamp, output.debug.get("lateral_velocity_long_mps"))
+            if self._target_motion_state == "MOVE"
+            else False
+        )
 
         aim_dir_base = self._aim_direction_in_base(output.aim_solution, scope_pose)
         self._last_aim_dir_base = aim_dir_base
-
-        # 사수 수동 조준: 포탑은 드론을 자동 추종하지 않고, 오직 사수가 조작한 각도를 유지한다.
-        self._pan_goal = self._user_pan
-        self._tilt_goal = self._user_tilt
 
         # 사수 조준선(보어사이트 십자선)과 탄착 리드각 레티클 간 정렬 오차 판정
         cx = int(round(self._intrinsics[0, 2])) if self._intrinsics is not None else frame_bgr.shape[1] // 2
@@ -735,8 +845,60 @@ class SmashFcsNode(Node):
             self._align_err_px = 999.0
             self._aim_aligned = False
 
+        if aim_dir_base is not None:
+            target_snapshot = self._aiming_manager.target_snapshot_at(timestamp)
+            # bbox 중심이 가리키는 방향(base). 포탑 추종이 리드점 대신 이 위치를 따라가는 옵션(aim_follow_mode=bbox)용.
+            bbox_dir_base = None
+            if self._intrinsics is not None:
+                d_flu = np.array([
+                    1.0,
+                    -(center_px[0] - float(self._intrinsics[0, 2])) / float(self._intrinsics[0, 0]),
+                    -(center_px[1] - float(self._intrinsics[1, 2])) / float(self._intrinsics[1, 1]),
+                ])
+                d_base = np.asarray(scope_pose, dtype=np.float64)[:3, :3] @ (d_flu / np.linalg.norm(d_flu))
+                bbox_dir_base = [float(v) for v in d_base]
+            track = String()
+            track.data = json.dumps({
+                "stamp": timestamp,
+                "fire_time": expected_fire_time if expected_fire_time is not None else timestamp,
+                "lead_dir_base": [float(v) for v in aim_dir_base],
+                "bbox_dir_base": bbox_dir_base,
+                "bore_dir_base": [float(v) for v in np.asarray(scope_pose, dtype=np.float64)[:3, 0]],
+                "align_err_px": float(self._align_err_px),
+                "align_tol_px": float(self._align_tolerance_px),
+                "reliability": self._reliability_state,
+                "aim_ready": bool(output.aim_ready),
+                "motion_solution_ready": bool(self._motion_solution_ready()),
+                "detector_refresh": bool(result.used_yolo),
+                "bbox_xywh": [float(x), float(y), float(w), float(h)],
+                "detector_score": float(result.score),
+                "reliability_reason": str(self._reliability_reason),
+                "tf_exact": bool(self._last_tf_exact),
+                "measurement_admitted": bool(output.debug.get("measurement_admitted", False)),
+                "target_speed_mps": float(output.debug.get("target_speed", 0.0)),
+                "motion_fit_rmse_m": output.debug.get("fit_rmse_m"),
+                "motion_recent_velocity_world_mps": output.debug.get("recent_velocity_world_mps"),
+                "motion_velocity_disagreement_mps": output.debug.get("velocity_disagreement_mps"),
+                "motion_history_count": output.debug.get("history_count"),
+                "motion_speed_collapsed": bool(self._speed_collapsed),
+                "meas_pos_world_m": output.debug.get("measurement_position_world"),
+                "observer_world_m": output.debug.get("observer_world"),
+                "motion_lateral_velocity_long_mps": output.debug.get("lateral_velocity_long_mps"),
+                "motion_lateral_velocity_recent_mps": output.debug.get("lateral_velocity_recent_mps"),
+                "motion_maneuver_resets": output.debug.get("maneuver_resets"),
+                "target_position_world_m": (
+                    None if target_snapshot is None else target_snapshot.position.to_array().tolist()
+                ),
+                "target_velocity_world_mps": (
+                    None if target_snapshot is None else target_snapshot.velocity.to_array().tolist()
+                ),
+            })
+            self._aim_track_pub.publish(track)
+
         if self._effective_aim_ready():
             self._state_label = "READY"
+        elif output.aim_ready and self._aim_aligned and not self._motion_solution_ready():
+            self._state_label = "READY BLOCK: MOTION FIT"
         elif output.aim_ready and self._aim_aligned:
             self._state_label = f"READY BLOCK: REL {self._reliability_state}"
         elif output.aim_solution is not None and output.aim_solution.solver_converged:
@@ -756,6 +918,20 @@ class SmashFcsNode(Node):
             and self._last_output.aim_ready
             and self._aim_aligned
             and self._reliability_state == "STABLE"
+            and self._motion_solution_ready()
+        )
+
+    def _motion_solution_ready(self) -> bool:
+        diagnostics = None if self._last_output is None else self._last_output.debug
+        if self._speed_collapsed:
+            return False
+        return motion_solution_is_stable(
+            self._target_motion_state,
+            diagnostics,
+            max_velocity_disagreement_mps=self._motion_ready_max_velocity_disagreement,
+            max_fit_rmse_m=self._motion_ready_max_fit_rmse,
+            min_history_count=self._motion_ready_min_history,
+            lateral_sign_deadband_mps=self._motion_ready_lateral_sign_deadband,
         )
 
     def _hud_lead(self, timestamp: float) -> tuple[Optional[np.ndarray], str, Optional[tuple[float, float]]]:
@@ -803,44 +979,52 @@ class SmashFcsNode(Node):
         모델 로딩이 없는 가벼운 객체라 매 초기화마다 재생성해도 비용이 무시할 만하다.
         """
 
-        if self._state_label != "SEARCH":
+        transitioning = self._state_label != "SEARCH"
+        if transitioning:
             self.get_logger().info(f"상태 초기화 -> SEARCH ({reason})")
-        self._tracker.reset()
+            # SEARCH 중에는 비동기 첫 포착이 진행 중일 수 있다. 매 프레임
+            # reset() 하면 그 결과의 generation 이 계속 무효화되므로 실제 상태
+            # 전이에서만 취소한다.
+            self._tracker.reset()
         self._aiming_manager = self._AimingManager(config=self._aim_config)
         self._motion_state_initialized = False
         self._motion_reseed_required = True
         self._measurement_mode = "REJECT"
         self._range_estimator.reset()
-        self._feedforward.reset()
         self._border_frames = 0
         self._state_label = "SEARCH"
         self._lock_start_time = None
+        self._trail.clear()
         self._last_output = None
         self._last_bbox = None
         self._last_range = None
         self._last_aim_dir_base = None
-        # 사수가 조준하고 있는 현재 지향각을 그대로 유지
-        self._pan_goal = self._user_pan
-        self._tilt_goal = self._user_tilt
         self._aim_aligned = False
         self._align_err_px = 999.0
-        if self._fire_control is not None:
-            # 트리거 엣지 검출만 초기화한다. 이미 발사되어 비행 중인 탄환은
-            # 취소하지 않는다 — 표적 추적 상실과 무관하게 물리적으로 계속
-            # 날아가는 것이 맞고, 판정은 예정대로 진행된다(fire_control.py
-            # FireController.reset_trigger_edge 참고).
-            self._fire_control.reset_trigger_edge()
+        # 이미 발사되어 비행 중인 탄환은 취소하지 않는다 — 표적 추적 상실과 무관하게
+        # 물리적으로 계속 날아가는 것이 맞고, 판정은 예정대로 진행된다.
+
+    def _current_scope_pose(self) -> np.ndarray:
+        """격발 순간의 총구 자세. TF 의 최신 변환으로 구하고, 없으면 마지막 영상 때 자세를 쓴다."""
+
+        try:
+            tf = self._tf_buffer.lookup_transform(
+                self._base_frame, self._camera_frame, rclpy.time.Time(),
+                timeout=rclpy.duration.Duration(seconds=0.0),
+            )
+        except (tf2_ros.ExtrapolationException, tf2_ros.LookupException, tf2_ros.ConnectivityException):
+            return self._last_scope_pose
+        camera_pose = _transform_to_pose(tf.transform)
+        return tk.muzzle_pose_from_camera_pose(
+            camera_pose, gun_to_muzzle_m=self._gun_to_muzzle, gun_to_camera_m=self._gun_to_camera
+        )
 
     def _lookup_camera_pose(self, stamp) -> Optional[np.ndarray]:
         """base_frame <- camera_optical_frame 4x4 동차변환을 TF 에서 가져온다.
 
-        tf_timeout_s 는 0(대기 없음)으로 둘 것. rclpy tf2 Buffer 는 timeout 동안
-        sleep(0.02) 로 폴링하며 호출 스레드를 막는다. 이 노드는 단일 스레드 실행기라
-        그동안 /tf 구독 콜백이 실행되지 못하므로 버퍼는 절대 채워지지 않고, 대기는
-        매번 timeout 을 다 쓰고 실패한 뒤 아래 최신 변환 재시도로 넘어간다.
-        2026-09-18 실측: 0.05 에서 이 함수가 프레임당 평균 54~70 ms(영상 콜백의 절반)를
-        먹었고 명령 발행(목표 30 Hz)이 6 Hz, 격발 판정 타이머가 7 Hz 로 굶었다.
-        0 으로 바꾸자 0.3 ms 가 됐다. 결과(최신 변환 사용)는 이전과 같다.
+        영상 시각과 포탑 자세가 어긋나면 포탑 회전량이 표적 속도로 섞여 리드가
+        틀어진다. main()은 TF 콜백을 함께 처리할 수 있는 MultiThreadedExecutor를
+        사용하므로 짧은 timeout 동안 해당 timestamp의 변환 도착을 기다린다.
         """
 
         try:
@@ -850,6 +1034,8 @@ class SmashFcsNode(Node):
                 stamp,
                 timeout=rclpy.duration.Duration(seconds=self._tf_timeout_s),
             )
+            self._last_tf_exact = True
+            self._tf_exact_count += 1
         except (
             tf2_ros.ExtrapolationException,
             tf2_ros.LookupException,
@@ -868,6 +1054,8 @@ class SmashFcsNode(Node):
                     rclpy.time.Time(),
                     timeout=rclpy.duration.Duration(seconds=self._tf_timeout_s),
                 )
+                self._last_tf_exact = False
+                self._tf_fallback_count += 1
             except Exception:
                 self.get_logger().warn(
                     f"TF 조회 실패: {first_exc}. "
@@ -878,12 +1066,7 @@ class SmashFcsNode(Node):
                 )
                 return None
 
-        t = tf.transform.translation
-        q = tf.transform.rotation
-        pose = np.eye(4, dtype=np.float64)
-        pose[:3, :3] = tk.quaternion_to_rotation_matrix(q.x, q.y, q.z, q.w)
-        pose[:3, 3] = np.array([t.x, t.y, t.z], dtype=np.float64)
-        return pose
+        return _transform_to_pose(tf.transform)
 
     def _aim_direction_in_base(self, aim_solution, scope_pose: np.ndarray) -> Optional[np.ndarray]:
         """AimSolution 의 scope 프레임 방위/앙각을 base 프레임 방향벡터로 되돌린다.
@@ -942,59 +1125,6 @@ class SmashFcsNode(Node):
         upper = float(self.get_parameter("align_tolerance_max_px").value)
         return float(min(upper, max(self._align_tolerance_min_px, needed_px)))
 
-    def _publish_command(self) -> None:
-        now = self.get_clock().now().nanoseconds * 1e-9
-        dt = 1.0 / 30.0 if self._last_command_time is None else max(1e-3, now - self._last_command_time)
-        self._last_command_time = now
-
-        self._pan_cmd = tk.rate_limit(self._pan_goal, self._pan_cmd, self._pan_max_rate, dt)
-        self._tilt_cmd = tk.clamp(
-            tk.rate_limit(self._tilt_goal, self._tilt_cmd, self._tilt_max_rate, dt),
-            self._tilt_min,
-            self._tilt_max,
-        )
-
-        # pan 명령에 매 발행마다 부호가 뒤집히는 아주 작은 흔들림을 얹는다.
-        # 미세조정이 아니라, 포탑이 아예 움직이지 않는 문제를 막기 위한 것이다.
-        #
-        # 증상 (2026-09-12 실측, ciws_turret 단독으로도 재현). pan 명령이 pan 관절의
-        # 현재 위치와 정확히 같으면(둘 다 0.0 인 기동 직후가 대표적) tilt 관절이
-        # 명령을 전혀 따르지 않는다. 토픽에는 명령이 20~30 Hz 로 정상적으로 흐르고,
-        # 컨트롤러는 active, command interface 도 claimed 이며 로그에 오류가 하나도
-        # 없는데 관절만 0 도에 붙어 있다. 조용해서 원인 추적이 매우 어렵다.
-        #
-        #   명령 [0.00, 0.38] 8초 -> 무반응        (pan 오차 0)
-        #   명령 [0.00, 0.58] 8초 -> 무반응        (pan 오차 0)
-        #   명령 [0.30, 0.28]     -> 두 관절 즉시 정상
-        #   명령 [0.00, 0.38] (pan 이 0.3 에 있을 때) -> 정상 (pan 오차 -0.3)
-        #
-        # pan 과 tilt 의 명령 순서를 뒤집으면 막히는 쪽도 따라 바뀌지 않고, 언제나
-        # pan 오차가 0 인 경우만 막힌다. 즉 컨트롤러 목록 순서가 아니라 pan 관절
-        # 자체가 조건이다. 일회성 잠금 해제가 아니라 동시 조건이라는 점도 확인했다 —
-        # 기동 직후 pan 을 0.05 rad 슬루시켰다 되돌려도(실제로 관절이 움직였다)
-        # 그 뒤 pan 오차가 다시 0 이 되면 tilt 는 그대로 얼어붙는다.
-        #
-        # 기각된 원인(재조사 금지): FCS 노드/표적 스폰/전체 장면 구성, CPU 부하,
-        # DDS 매칭 및 QoS(발행자와 컨트롤러 구독은 처음부터 정상 연결되어 있었다),
-        # position_proportional_gain, 컨트롤러 joints 순서, pan 의 continuous/revolute
-        # 관절 종류, tilt command_interface 의 min/max, URDF 의 initial_value,
-        # 컨트롤러 활성화 직후의 일회성 슬루.
-        #
-        # gz_ros2_control / DART 쪽 상류 동작으로 보이며 근본 원인까지는 규명하지
-        # 못했다. 그래서 pan 오차가 0 이 되는 상태 자체를 만들지 않는 것으로 우회한다.
-        # 진폭 PAN_DITHER_RAD 는 카메라 화각 기준 1픽셀 미만(0.4 rad / 640 px =
-        # 6.25e-4 rad/px)이라 조준·판정에 영향이 없다. 줄이려면 반드시 다시 실측할 것 —
-        # 임계값 아래로 내려가면 아무 오류 없이 조용히 재발한다.
-        self._pan_dither = -self._pan_dither
-
-        msg = Float64MultiArray()
-        msg.data = [float(self._pan_cmd + self._pan_dither), float(self._tilt_cmd)]
-        self._cmd_pub.publish(msg)
-
-        state = String()
-        state.data = self._state_label
-        self._state_pub.publish(state)
-
     # ── 3단계: 격발 제어 ───────────────────────────────────────────────
 
     def _world_to_base(self, world_pos: np.ndarray) -> np.ndarray:
@@ -1014,34 +1144,19 @@ class SmashFcsNode(Node):
         c, s = math.cos(yaw), math.sin(yaw)
         return np.array([c * rel[0] + s * rel[1], -s * rel[0] + c * rel[1], rel[2]], dtype=np.float64)
 
-    def _on_manual_slew(self, msg: Float64MultiArray) -> None:
-        if len(msg.data) >= 2:
-            d_pan = float(msg.data[0])
-            d_tilt = float(msg.data[1])
-            if abs(d_pan - 999.0) < 1e-3:
-                self._user_pan = 0.0
-                self._user_tilt = 0.0
-                self.get_logger().info("[MANUAL SLEW] 사수 조준 수평 정렬 초기화 (PAN 0.0deg, TILT 0.0deg)")
-            elif abs(d_pan - 888.0) < 1e-3:
-                self._user_pan = 0.0
-                self._user_tilt = 0.38
-                self.get_logger().info("[MANUAL SLEW] 대공 경계 자세 프리셋 가동 -> PAN 0.0deg, TILT 21.8deg (드론 정면 직시)")
-            else:
-                self._user_pan += d_pan
-                self._user_tilt = float(np.clip(self._user_tilt + d_tilt, self._tilt_min, self._tilt_max))
-                self.get_logger().info(
-                    f"[MANUAL SLEW] 사수 수동 조작 -> 지향각 PAN: {math.degrees(self._user_pan):+.1f}deg, TILT: {math.degrees(self._user_tilt):+.1f}deg"
-                )
-            self._pan_goal = self._user_pan
-            self._tilt_goal = self._user_tilt
-
     def _on_ui_command(self, msg: String) -> None:
         cmd = msg.data.strip()
         if cmd == "toggle_debug":
             self._hud_debug = not self._hud_debug
             self.get_logger().info(f"[HUD] 상세 표시 {'켬' if self._hud_debug else '끔'}")
+        elif cmd == "fire":
+            if self._trigger_manual:
+                self._trigger_time = self.get_clock().now().nanoseconds * 1e-9
+            # auto 모드에서는 방아쇠 입력을 쓰지 않는다(조용히 무시)
         elif cmd == "reset_stats":
             self._impacts.clear()
+            self._engagement = None
+            self._engagement_start = None
             self._kills = 0
             if self._fire_control is not None:
                 fc = self._fire_control
@@ -1058,27 +1173,69 @@ class SmashFcsNode(Node):
             self._target_down = True
             self._kills += 1
             self._kill_time = self.get_clock().now().nanoseconds * 1e-9
+            self._summarize_engagement(self._kill_time)
             self.get_logger().info(f"[DEMO] 표적 격추 (누적 {self._kills})")
         elif kind == "respawn":
             self._target_down = False
             self._enter_search("표적 재출현")
             self.get_logger().info("[DEMO] 새 표적 출현")
+            self._cue_to_position(ev.get("position"))
+
+    def _summarize_engagement(self, kill_time: float) -> None:
+        """잠금부터 격추까지의 시간·사격·명중을 교전 요약 카드용으로 남긴다."""
+
+        if self._engagement_start is None:
+            return
+        shots = hits = 0
+        if self._fire_control is not None:
+            stats = self._fire_control.stats()
+            shots = max(0, stats["shots_fired"] - self._engagement_shots0)
+            hits = max(0, stats["hits"] - self._engagement_hits0)
+        self._engagement = Engagement(
+            index=self._kills,
+            seconds=max(0.0, kill_time - self._engagement_start),
+            shots=shots,
+            hits=hits,
+        )
+        self._engagement_start = None
+
+    def _cue_to_position(self, position) -> None:
+        """재출현 위치(world)로 포를 먼저 돌려 최초 포착 게이트 안에 표적이 들어오게 한다.
+
+        게이트(추적기 SEARCH_CENTER_GATE_FRACTION)는 화면 중심 근처 후보만 받는다. 격추 뒤
+        포는 마지막 자리에 남으므로, 재출현 위치가 게이트 밖이면 영원히 포착되지 않는다.
+        """
+
+        try:
+            world = np.array([float(v) for v in position], dtype=np.float64)
+        except (TypeError, ValueError):
+            return
+        if world.shape != (3,) or not np.all(np.isfinite(world)):
+            return
+        base = self._world_to_base(world)
+        msg = Float64MultiArray()
+        msg.data = [float(v) for v in base]
+        self._cue_pub.publish(msg)
+        self._cue_time = self.get_clock().now().nanoseconds * 1e-9
+        self.get_logger().info("[DEMO] 신규 접촉 방향으로 포 선회 지시 (base {:.1f}, {:.1f}, {:.1f} m)".format(*base))
+
+    def _on_target_motion_status(self, msg: String) -> None:
+        try:
+            status = json.loads(msg.data)
+        except (TypeError, ValueError):
+            return
+        state = status.get("state") if isinstance(status, dict) else None
+        if isinstance(state, str):
+            self._target_motion_state = state
 
     def _on_ground_truth_pose(self, msg: PoseStamped) -> None:
         p = msg.pose.position
         world_pos = np.array([p.x, p.y, p.z], dtype=np.float64)
         self._gt_position_base = self._world_to_base(world_pos)
         self._gt_timestamp = _stamp_to_seconds(msg.header.stamp)
-
-    def _on_trigger(self, msg: Bool) -> None:
-        # 방아쇠는 "한 번 당김" 사건으로 다룬다. 뷰어는 당길 때 True 만 보내고 놓는
-        # 메시지를 보내지 않는다. 이전에는 이 값을 그대로 눌림 상태로 들고 있어서
-        # 첫 발 이후 영영 눌린 채로 남았고, manual 모드의 상승 엣지 검출 때문에 두 번째
-        # 당김부터 전부 무시됐다. 게다가 SEARCH 재진입으로 엣지 상태가 초기화되면
-        # 아무도 당기지 않았는데 다음 READY 에서 한 발이 저절로 나갔다(2026-09-18 실측).
-        # 여기서는 당김을 기록만 하고, _fire_control_tick 이 한 번 소비한 뒤 지운다.
-        if msg.data:
-            self._trigger_pressed = True
+        if self._fire_control is not None:
+            # 판정은 탄착 시각으로 보간하므로 받은 샘플을 빠짐없이 이력에 넣는다.
+            self._fire_control.record_ground_truth(self._gt_position_base, self._gt_timestamp)
 
     def _fire_control_tick(self) -> None:
         """command 타이머와 별개의 고정 주기 타이머. 새 영상 프레임이 없어도
@@ -1089,10 +1246,10 @@ class SmashFcsNode(Node):
             return
 
         now = self.get_clock().now().nanoseconds * 1e-9
-        # 방아쇠 당김은 이번 틱에서 한 번만 쓴다(_on_trigger 참고).
-        pull = self._trigger_pressed and not self._target_down
-        if self._fire_mode == "manual":
-            self._trigger_pressed = False
+        motion_fire_allowed = motion_allows_fire(
+            self._auto_fire_requires_target_move,
+            self._target_motion_state,
+        )
         shot = None
 
         if (
@@ -1100,30 +1257,102 @@ class SmashFcsNode(Node):
             and self._last_output is not None
             and self._last_frame_timestamp is not None
         ):
-            # 격추된 표적이 떨어지는 동안에는 쏘지 않는다(시연 연출 노드가 알려 준다).
-            actual_ready = self._effective_aim_ready() and not self._target_down
-            actual_bore_dir_base = np.asarray(self._last_scope_pose, dtype=np.float64)[:3, 0]
+            # 격발 순간 마지막 영상이 묵은 시간. 다음 프레임의 예상 발사 시각에 쓴다.
+            frame_age = now - self._last_frame_timestamp
+            if 0.0 <= frame_age < 1.0:
+                a = self._fire_latency_alpha
+                self._fire_latency_est_s = (1.0 - a) * self._fire_latency_est_s + a * frame_age
+
+            # 가상 탄은 "지금" 총구가 향한 방향으로 "지금" 나간다. 예전에는 마지막 영상의 촬영
+            # 시각과 그때의 포탑 자세로 쐈는데, 그러면 촬영 → 격발 지연(모의 시각 중앙값 약
+            # 36 ms)이 결과에서 사라져 이동 표적에서도 지연이 없는 것처럼 보인다.
+            fire_scope_pose = self._current_scope_pose()
+            actual_bore_dir_base = np.asarray(fire_scope_pose, dtype=np.float64)[:3, 0]
             norm = float(np.linalg.norm(actual_bore_dir_base))
             bore_dir = actual_bore_dir_base / norm if norm > 1e-6 else self._last_aim_dir_base
 
+            # 격추된 표적이 떨어지는 동안에는 쏘지 않는다(시연 연출 노드가 알려 준다).
+            aim_solution = self._last_output.aim_solution
+            fire_align_err_px = None
+            if self._latency_compensation:
+                # 조준해를 지금(발사 시각) 기준으로 다시 풀고, 정렬도 영상 때가 아니라 지금의
+                # 총구 방향으로 다시 판정한다. 쏠 수 없는 틱에서는 풀지 않는다.
+                candidate = (
+                    self._last_output.aim_ready
+                    and self._reliability_state == "STABLE"
+                    and self._motion_solution_ready()
+                    and not self._target_down
+                    and motion_fire_allowed
+                    and bore_dir is not None
+                )
+                actual_ready = False
+                if candidate:
+                    fire_motion_lag_s = (
+                        self._motion_measurement_lag_s
+                        if self._target_motion_state == "MOVE"
+                        else 0.0
+                    )
+                    fire_solution = self._aiming_manager.solve_at(
+                        now + fire_motion_lag_s, fire_scope_pose
+                    )
+                    lead_dir = self._aim_direction_in_base(fire_solution, fire_scope_pose)
+                    if lead_dir is not None and fire_solution.solver_converged:
+                        aim_solution = fire_solution
+                        angle = math.acos(float(np.clip(np.dot(bore_dir, lead_dir), -1.0, 1.0)))
+                        fx = float(self._intrinsics[0, 0]) if self._intrinsics is not None else 0.0
+                        fire_align_err_px = angle * fx
+                        actual_ready = fire_align_err_px <= self._align_tolerance_px
+            else:
+                actual_ready = self._effective_aim_ready() and not self._target_down and motion_fire_allowed
+            self._last_fire_diag = {
+                "frame_age_s": frame_age,
+                "fire_align_err_px": fire_align_err_px,
+                "latency_compensation": self._latency_compensation,
+                "fire_latency_est_s": self._fire_latency_est_s,
+                "motion_measurement_lag_s": self._motion_measurement_lag_s,
+                "target_motion_state": self._target_motion_state,
+                "motion_fire_allowed": motion_fire_allowed,
+            }
+            fire_target_snapshot = self._aiming_manager.target_snapshot_at(now)
+            if fire_target_snapshot is not None:
+                self._last_fire_diag["target_position_est_world_m"] = (
+                    fire_target_snapshot.position.to_array().tolist()
+                )
+                self._last_fire_diag["target_velocity_est_world_mps"] = (
+                    fire_target_snapshot.velocity.to_array().tolist()
+                )
+            if aim_solution is not None:
+                self._last_fire_diag["lead_point_est_world_m"] = (
+                    aim_solution.lead_point_world.to_array().tolist()
+                )
+            if self._last_output is not None:
+                self._last_fire_diag["motion_fit_rmse_m"] = self._last_output.debug.get("fit_rmse_m")
+                self._last_fire_diag["motion_recent_velocity_world_mps"] = self._last_output.debug.get(
+                    "recent_velocity_world_mps"
+                )
+                self._last_fire_diag["motion_velocity_disagreement_mps"] = self._last_output.debug.get(
+                    "velocity_disagreement_mps"
+                )
+                self._last_fire_diag["motion_history_count"] = self._last_output.debug.get("history_count")
+                self._last_fire_diag["motion_maneuver_resets"] = self._last_output.debug.get("maneuver_resets")
+
+            fire_allowed = actual_ready
+            if self._trigger_manual:
+                if self._trigger_time is not None and now - self._trigger_time > self._trigger_window_s:
+                    self._trigger_time = None  # 유효 시간이 지난 입력은 버린다
+                fire_allowed = actual_ready and self._trigger_time is not None
             shot = self._fire_control.maybe_fire(
-                now=self._last_frame_timestamp,
-                aim_ready=actual_ready,
-                trigger_pressed=pull,
-                aim_solution=self._last_output.aim_solution,
-                launch_point_world=self._last_scope_pose[:3, 3],
+                now=now,
+                aim_ready=fire_allowed,
+                aim_solution=aim_solution,
+                launch_point_world=fire_scope_pose[:3, 3],
                 direction_world=bore_dir,
             )
             if shot is not None:
+                if self._trigger_manual:
+                    self._trigger_time = None  # 한 번 누르면 한 발
                 self._publish_fire_event(shot)
                 self._publish_engagement_stats()
-
-        if pull and shot is None and str(self.get_parameter("fire_mode").value) == "manual":
-            # READY 가 아닐 때 당긴 방아쇠는 설계상 거부된다. 사수가 모르고 지나가지 않도록
-            # HUD 에 잠깐 알린다.
-            self._trigger_reject_time = now
-        if self._fire_mode == "manual" and pull:
-            self._fire_control.reset_trigger_edge()
 
         results = self._fire_control.update(
             now=now,
@@ -1140,7 +1369,6 @@ class SmashFcsNode(Node):
         payload = {
             "event": "fire",
             "shot_id": shot.shot_id,
-            "trigger_mode": shot.trigger_mode,
             "fire_time_s": shot.fire_time,
             "muzzle_world_m": shot.launch_point_world.tolist(),
             "launch_azimuth_deg": math.degrees(shot.azimuth_world),
@@ -1149,12 +1377,14 @@ class SmashFcsNode(Node):
             "predicted_tof_s": shot.predicted_tof_s,
             "predicted_impact_world_m": shot.predicted_impact_point_world.tolist(),
             "target_radius_m": shot.target_radius_m,
+            # 지연 보정 진단: 격발 순간 마지막 영상의 나이, 발사 시각 기준 정렬 오차(보정 시)
+            **self._last_fire_diag,
         }
         msg = String()
         msg.data = json.dumps(payload, ensure_ascii=False)
         self._fire_event_pub.publish(msg)
         self.get_logger().info(
-            "격발 #{} ({}): TOF {:.1f}ms".format(shot.shot_id, shot.trigger_mode, shot.predicted_tof_s * 1000.0)
+            "격발 #{}: TOF {:.1f}ms".format(shot.shot_id, shot.predicted_tof_s * 1000.0)
         )
 
     def _publish_hit_result(self, result) -> None:
@@ -1241,6 +1471,12 @@ class SmashFcsNode(Node):
     def _render(self, msg: Image, frame_bgr: np.ndarray) -> None:
         """시연용 HUD 를 그려 image_annotated 로 발행한다. 그리기는 smash_fcs/hud.py 담당."""
 
+        # 상태는 HUD 영상 발행 여부나 조준해 산출 성공 여부와 무관한 제어/진단
+        # 토픽이다. SEARCH와 NO RANGE/NO TF 조기 반환 경로에서도 매 프레임 낸다.
+        state_msg = String()
+        state_msg.data = self._state_label
+        self._state_pub.publish(state_msg)
+
         if not self._publish_annotated:
             return
 
@@ -1261,6 +1497,9 @@ class SmashFcsNode(Node):
             state, detail = "ALIGN", label[6:-1]
         elif label == "SEARCH":
             state = "SEARCH"
+            # 격추 직후 재출현 표적을 향해 포를 돌리는 동안은 외부 지시 표시를 띄운다.
+            if self._cue_time is not None and now - self._cue_time < 4.0:
+                detail = "NEW CONTACT CUED"
         else:
             state = "TRACK"
             if label.startswith("TRACK(") and label.endswith(")"):
@@ -1289,9 +1528,7 @@ class SmashFcsNode(Node):
                 f"REL {self._reliability_state} Q {quality} {self._reliability_reason[:24]}"
             )
             debug_lines.append(f"MEAS {self._measurement_mode} LEAD {lead_mode}")
-            debug_lines.append(
-                "AIM PAN {:+6.2f}deg TILT {:+5.2f}deg".format(math.degrees(self._user_pan), math.degrees(self._user_tilt))
-            )
+            debug_lines.append("TURRET CTRL EXTERNAL 60Hz")
             if self._last_range is not None and self._last_range.valid:
                 debug_lines.append(f"RNG {self._last_range.distance_m:6.2f}m +-{self._last_range.sigma_m:4.2f}")
             if out is not None and out.aim_solution is not None:
@@ -1321,17 +1558,25 @@ class SmashFcsNode(Node):
             tof_ms=tof_ms,
             hit_probability=phit,
             fire_enabled=self._fire_control is not None,
-            fire_mode=str(self.get_parameter("fire_mode").value),
             kills=self._kills,
             target_down=self._target_down,
             last_hit_age_s=(now - self._last_hit_time) if self._last_hit_time is not None else None,
             kill_banner_age_s=(now - self._kill_time) if self._kill_time is not None else None,
-            trigger_reject_age_s=(now - self._trigger_reject_time) if self._trigger_reject_time is not None else None,
             impacts=self._impacts,
             hit_radius_m=self._hit_radius_m,
-            air_cue=True,
             debug=self._hud_debug,
             debug_lines=debug_lines,
+            reliability=self._reliability_state if state != "SEARCH" else "",
+            quality=self._reliability_quality,
+            align_tol_px=self._align_tolerance_px if lead_pixel is not None else None,
+            target_kmh=(
+                float(out.debug.get("target_speed", 0.0)) * 3.6
+                if out is not None and self._last_bbox is not None
+                else None
+            ),
+            trail=[(x, y) for _, x, y in self._trail],
+            engagement=self._engagement,
+            engagement_age_s=(now - self._kill_time) if self._kill_time is not None else None,
         )
 
         if self._fire_control is not None:
@@ -1352,6 +1597,10 @@ class SmashFcsNode(Node):
                 if px is not None
             ]
 
+        summary = String()
+        summary.data = json.dumps({"range_m": rng, "kills": self._kills})
+        self._hud_summary_pub.publish(summary)
+
         canvas = self._hud.render(frame_bgr, f)
 
         canvas = np.ascontiguousarray(canvas, dtype=np.uint8)
@@ -1369,14 +1618,29 @@ class SmashFcsNode(Node):
 def main() -> None:
     rclpy.init()
     node = SmashFcsNode()
+    executor = rclpy.executors.MultiThreadedExecutor(num_threads=2)
+    executor.add_node(node)
     try:
-        rclpy.spin(node)
+        executor.spin()
     except KeyboardInterrupt:
         pass
     finally:
         node.get_logger().info(
             f"종료. 수신 프레임 {node._frames_seen}, 조준해 산출 프레임 {node._frames_solved}"
         )
+        node.get_logger().info(
+            "비동기 YOLO: 제출 {}, 적용 {}, stale 폐기 {}, 오류 {}".format(
+                node._tracker._async_submitted,
+                node._tracker._async_applied,
+                node._tracker._async_stale,
+                node._tracker._async_failed,
+            )
+        )
+        node.get_logger().info(
+            f"영상시각 TF: exact {node._tf_exact_count}, latest fallback {node._tf_fallback_count}"
+        )
+        node._tracker.close()
+        executor.shutdown()
         node.destroy_node()
         rclpy.shutdown()
 

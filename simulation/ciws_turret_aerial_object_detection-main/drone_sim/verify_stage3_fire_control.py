@@ -15,8 +15,8 @@ stage1_fcs_integration_report.md 와 같은 방법론이다: ROS 2 / Gazebo 없�
            물리를 풀어 같은 답에 도달하는지 교차검증).
         3. Hit/Miss 판정 경계(반경 정확히 == 명중, 살짝 초과 == 실패)가
            부동소수 오차 없이 올바르게 동작하는가.
-        4. auto/manual 격발 모드의 트리거 엣지 검출과 쿨다운(연사속도) 로직이
-           합성 시간열에서 의도한 발수만큼만 격발하는가.
+        4. 자동 격발의 쿨다운(연사속도) 로직이 합성 시간열에서 의도한 발수만큼만
+           격발하는가.
         5. ground truth 최신성(timeout) 로직이 오래된 실측값을 올바르게
            무효화하는가.
 
@@ -113,7 +113,6 @@ def test_ballistic_analytic_match():
     fc = FireController(
         projectile_config=config.projectile,
         muzzle_velocity_mps=config.projectile.muzzle_velocity,
-        fire_mode="auto",
         fire_rate_rpm=600.0,
         target_radius_m=0.5,
         ground_truth_timeout_s=0.5,
@@ -137,7 +136,6 @@ def test_ballistic_analytic_match():
         predicted_impact_point_world=launch,
         target_radius_m=0.5,
         muzzle_velocity_mps=config.projectile.muzzle_velocity,
-        trigger_mode="auto",
     )
 
     max_err = 0.0
@@ -206,7 +204,6 @@ def test_cross_check_against_aiming_manager():
     fc = FireController(
         projectile_config=config.projectile,
         muzzle_velocity_mps=config.projectile.muzzle_velocity,
-        fire_mode="auto",
         fire_rate_rpm=600.0,
         target_radius_m=0.5,
         ground_truth_timeout_s=0.5,
@@ -225,7 +222,6 @@ def test_cross_check_against_aiming_manager():
     shot = fc.maybe_fire(
         now=fire_time,
         aim_ready=True,
-        trigger_pressed=False,
         aim_solution=aim_solution,
         launch_point_world=launch_point.to_array(),
         direction_world=direction_world,
@@ -275,7 +271,6 @@ def test_hit_miss_boundary():
     fc = FireController(
         projectile_config=config.projectile,
         muzzle_velocity_mps=config.projectile.muzzle_velocity,
-        fire_mode="auto",
         fire_rate_rpm=600.0,
         target_radius_m=1.0,
         ground_truth_timeout_s=1.0,
@@ -285,10 +280,10 @@ def test_hit_miss_boundary():
     launch = np.zeros(3)
     az, el = 0.0, 0.0
     shot_at = fc.projectile_position_at(
-        FiredShot(2, 0.0, launch, az, el, 0.5, launch, 1.0, 920.0, "auto"), 0.5
+        FiredShot(2, 0.0, launch, az, el, 0.5, launch, 1.0, 920.0), 0.5
     )
 
-    shot_hit = FiredShot(3, 0.0, launch, az, el, 0.5, launch, 1.0, 920.0, "auto")
+    shot_hit = FiredShot(3, 0.0, launch, az, el, 0.5, launch, 1.0, 920.0)
     fc._pending.append(shot_hit)  # noqa: SLF001 — 테스트 전용 내부 접근
     # 판정은 최근접 거리(탄도에 수직인 성분)로 한다(fire_control.closest_approach).
     # az=el=0 탄은 +X 로 날아가므로, 진행방향(X)으로 옮기면 이탈로 치지 않는다.
@@ -297,17 +292,17 @@ def test_hit_miss_boundary():
     results = fc.update(now=0.5 + 1e-9, ground_truth_position_world=exactly_on_boundary, ground_truth_timestamp=0.5)
     check("반경과 정확히 같은 이탈 거리는 HIT (<=)", results[0].verdict == "HIT", f"{results[0].miss_distance_m}")
 
-    shot_miss = FiredShot(4, 0.0, launch, az, el, 0.5, launch, 1.0, 920.0, "auto")
+    shot_miss = FiredShot(4, 0.0, launch, az, el, 0.5, launch, 1.0, 920.0)
     fc._pending.append(shot_miss)  # noqa: SLF001
     just_beyond = shot_at + np.array([0.0, 1.0 + 1e-6, 0.0])
     results = fc.update(now=0.5 + 1e-9, ground_truth_position_world=just_beyond, ground_truth_timestamp=0.5)
     check("반경을 살짝 초과한 이탈 거리는 MISS", results[0].verdict == "MISS", f"{results[0].miss_distance_m}")
 
 
-# ── 4. 격발 모드(auto/manual)와 쿨다운 ───────────────────────────────────
+# ── 4. 자동 격발 쿨다운 ──────────────────────────────────────────────────
 
 
-def test_fire_modes_and_cooldown():
+def test_fire_cooldown():
     config = default_config()
 
     class DummySolution:
@@ -318,11 +313,10 @@ def test_fire_modes_and_cooldown():
 
     direction = np.array([1.0, 0.0, 0.0])
 
-    # auto 모드: READY 가 계속 참이면 fire_rate_rpm 쿨다운 간격으로만 격발한다.
+    # READY 가 계속 참이면 fire_rate_rpm 쿨다운 간격으로만 격발한다.
     fc_auto = FireController(
         projectile_config=config.projectile,
         muzzle_velocity_mps=920.0,
-        fire_mode="auto",
         fire_rate_rpm=600.0,  # 쿨다운 0.1 s
         target_radius_m=0.5,
         ground_truth_timeout_s=0.5,
@@ -330,48 +324,29 @@ def test_fire_modes_and_cooldown():
     fired_times = []
     for i in range(50):  # 0.0 ~ 0.98s, dt=0.02s
         t = i * 0.02
-        shot = fc_auto.maybe_fire(t, True, False, DummySolution(), np.zeros(3), direction)
+        shot = fc_auto.maybe_fire(t, True, DummySolution(), np.zeros(3), direction)
         if shot is not None:
             fired_times.append(t)
     intervals_ok = all((b - a) >= 0.1 - 1e-9 for a, b in zip(fired_times, fired_times[1:]))
     check(
-        "auto 모드 쿨다운 간격 준수",
+        "쿨다운 간격 준수",
         len(fired_times) >= 8 and intervals_ok,
         f"fired {len(fired_times)}회, intervals_ok={intervals_ok}",
     )
 
-    # manual 모드: 트리거를 누르고 있어도 상승 엣지에서만 한 발.
-    fc_manual = FireController(
+    # aim_ready 가 거짓이면 격발하지 않는다(조준해 없이 사격 금지).
+    fc_not_ready = FireController(
         projectile_config=config.projectile,
         muzzle_velocity_mps=920.0,
-        fire_mode="manual",
-        fire_rate_rpm=6000.0,  # 쿨다운 0.01s, 사실상 무제한
-        target_radius_m=0.5,
-        ground_truth_timeout_s=0.5,
-    )
-    trigger_sequence = [False, True, True, True, False, True, False, True, True]
-    manual_fires = 0
-    for i, pressed in enumerate(trigger_sequence):
-        shot = fc_manual.maybe_fire(i * 0.02, True, pressed, DummySolution(), np.zeros(3), direction)
-        if shot is not None:
-            manual_fires += 1
-    # 상승 엣지는 인덱스 1(False->True), 5(False->True), 7(False->True) 총 3회.
-    check("manual 모드는 트리거 상승 엣지에서만 격발", manual_fires == 3, f"manual_fires={manual_fires}")
-
-    # aim_ready 가 거짓이면 트리거를 눌러도 격발하지 않는다(조준해 없이 사격 금지).
-    fc_manual2 = FireController(
-        projectile_config=config.projectile,
-        muzzle_velocity_mps=920.0,
-        fire_mode="manual",
         fire_rate_rpm=6000.0,
         target_radius_m=0.5,
         ground_truth_timeout_s=0.5,
     )
-    shot = fc_manual2.maybe_fire(0.0, False, True, DummySolution(), np.zeros(3), direction)
-    check("aim_ready=False 이면 트리거를 눌러도 격발하지 않음", shot is None)
+    shot = fc_not_ready.maybe_fire(0.0, False, DummySolution(), np.zeros(3), direction)
+    check("aim_ready=False 이면 격발하지 않음", shot is None)
 
-    # aim_solution 이 없으면(조준각 없음) 어떤 모드든 격발하지 않는다.
-    shot = fc_auto.maybe_fire(100.0, True, False, None, np.zeros(3), None)
+    # aim_solution 이 없으면(조준각 없음) 격발하지 않는다.
+    shot = fc_auto.maybe_fire(100.0, True, None, np.zeros(3), None)
     check("aim_solution 이 없으면 격발하지 않음", shot is None)
 
 
@@ -383,7 +358,6 @@ def test_ground_truth_staleness():
     fc = FireController(
         projectile_config=config.projectile,
         muzzle_velocity_mps=920.0,
-        fire_mode="auto",
         fire_rate_rpm=600.0,
         target_radius_m=0.5,
         ground_truth_timeout_s=0.2,
@@ -391,27 +365,100 @@ def test_ground_truth_staleness():
     from fire_control import FiredShot
 
     launch = np.zeros(3)
-    shot = FiredShot(5, 0.0, launch, 0.0, 0.0, 0.5, launch, 0.5, 920.0, "auto")
+    shot = FiredShot(5, 0.0, launch, 0.0, 0.0, 0.5, launch, 0.5, 920.0)
     fc._pending.append(shot)  # noqa: SLF001
 
     impact_point = fc.projectile_position_at(shot, 0.5)
 
-    # ground truth 시각이 판정 시각보다 0.3초 전(허용 timeout 0.2초 초과)이면 무효.
+    # 탄착 시각(0.5 s)보다 새로운 실측이 없으면 timeout(0.2 s) 동안은 판정을 미룬다.
     results = fc.update(now=0.5, ground_truth_position_world=impact_point, ground_truth_timestamp=0.2)
+    check("탄착 이후 실측이 아직 없으면 판정을 미룸", results == [], f"results={results}")
+
+    # timeout 이 지나도 새 실측이 없고, 가진 실측(0.2 s)은 탄착 시각에서 0.3 s 떨어져 있으면 무효.
+    results = fc.update(now=0.75, ground_truth_position_world=impact_point, ground_truth_timestamp=0.2)
     check(
         "오래된(timeout 초과) ground truth는 UNVERIFIED 처리",
         len(results) == 1 and results[0].verdict == "UNVERIFIED" and not results[0].ground_truth_available,
-        f"verdict={results[0].verdict}",
+        f"verdict={results[0].verdict if results else None}",
     )
 
-    shot2 = FiredShot(6, 1.0, launch, 0.0, 0.0, 0.5, launch, 0.5, 920.0, "auto")
+    shot2 = FiredShot(6, 1.0, launch, 0.0, 0.0, 0.5, launch, 0.5, 920.0)
     fc._pending.append(shot2)  # noqa: SLF001
     impact_point2 = fc.projectile_position_at(shot2, 0.5)
     results2 = fc.update(now=1.5, ground_truth_position_world=impact_point2, ground_truth_timestamp=1.45)
+    results2 += fc.update(now=1.52, ground_truth_position_world=impact_point2, ground_truth_timestamp=1.52)
     check(
-        "timeout 이내의 최신 ground truth는 정상 판정에 반영",
+        "탄착 시각을 감싸는 최신 ground truth는 정상 판정에 반영",
         len(results2) == 1 and results2[0].ground_truth_available and results2[0].verdict == "HIT",
         f"verdict={results2[0].verdict if results2 else None}",
+    )
+
+
+# ── 6. 이동 표적: 탄착 시각의 실측 위치로 판정 ───────────────────────────
+
+
+def test_moving_target_judged_at_impact_time():
+    """판정이 늦게 돌아도(타이머 주기·실측 수신 지연) 탄착 시각의 표적 위치로 판정해야 한다.
+
+    표적이 탄도에 수직(+Y)으로 16.7 m/s(60 km/h) 로 움직이고, 탄은 탄착 순간 표적 중심을
+    정확히 지난다. 판정 호출이 탄착 30 ms 뒤에 일어나도 HIT 이어야 한다(예전 방식은
+    판정 순간 위치와 비교해 0.5 m 빗나간 MISS 로 셌다).
+    """
+
+    config = default_config()
+    fc = FireController(
+        projectile_config=config.projectile,
+        muzzle_velocity_mps=920.0,
+        fire_rate_rpm=600.0,
+        target_radius_m=0.2,
+        ground_truth_timeout_s=0.5,
+    )
+    from fire_control import FiredShot
+
+    launch = np.zeros(3)
+    tof = 0.04
+    shot = FiredShot(7, 1.0, launch, 0.0, 0.0, tof, launch, 0.2, 920.0)
+    fc._pending.append(shot)  # noqa: SLF001
+    impact_time = 1.0 + tof
+    p_impact = fc.projectile_position_at(shot, tof)
+    speed = 16.7
+
+    def target_at(t):
+        return p_impact + np.array([0.0, speed * (t - impact_time), 0.0])
+
+    results = []
+    t = 0.99
+    while t < impact_time + 0.031:  # 실측 100 Hz, 판정 호출도 같은 주기로 늦게 돈다
+        results += fc.update(now=t, ground_truth_position_world=target_at(t), ground_truth_timestamp=t)
+        t = round(t + 0.01, 6)
+    check(
+        "이동 표적은 탄착 시각으로 보간한 실측 위치로 판정",
+        len(results) == 1 and results[0].verdict == "HIT" and results[0].miss_distance_m < 1e-6,
+        f"verdict={results[0].verdict if results else None}, miss={results[0].miss_distance_m if results else None}",
+    )
+    gt = results[0].ground_truth_point_world if results else None
+    check(
+        "판정 결과의 실측 위치는 탄착 시각의 위치",
+        gt is not None and float(np.linalg.norm(gt - target_at(impact_time))) < 1e-9,
+    )
+
+    # 노드 시계가 실측 스탬프보다 뒤처진 경우(FCS 부하): 탄착 시각을 넘긴 실측이 이미 있으면 바로 판정.
+    fc2 = FireController(
+        projectile_config=config.projectile,
+        muzzle_velocity_mps=920.0,
+        fire_rate_rpm=600.0,
+        target_radius_m=0.2,
+        ground_truth_timeout_s=0.5,
+    )
+    shot3 = FiredShot(8, 1.0, launch, 0.0, 0.0, tof, launch, 0.2, 920.0)
+    fc2._pending.append(shot3)  # noqa: SLF001
+    fc2.record_ground_truth(target_at(1.03), 1.03)
+    fc2.record_ground_truth(target_at(1.05), 1.05)
+    res = fc2.update(now=1.041, ground_truth_position_world=target_at(1.10), ground_truth_timestamp=1.10)
+    check(
+        "노드 시계가 뒤처져도 탄착 시각 보간으로 즉시 판정",
+        len(res) == 1 and res[0].verdict == "HIT" and res[0].ground_truth_age_s == 0.0,
+        f"verdict={res[0].verdict if res else None}",
     )
 
 
@@ -419,8 +466,9 @@ def main() -> int:
     test_ballistic_analytic_match()
     test_cross_check_against_aiming_manager()
     test_hit_miss_boundary()
-    test_fire_modes_and_cooldown()
+    test_fire_cooldown()
     test_ground_truth_staleness()
+    test_moving_target_judged_at_impact_time()
 
     print()
     if FAILURES:

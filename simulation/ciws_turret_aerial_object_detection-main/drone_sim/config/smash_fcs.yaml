@@ -36,6 +36,22 @@ smash_fcs:
     model_path: ""
     device: "cpu"          # GPU 사용 시 "0"
     conf_thres: 0.25
+    # 모델 초기화/첫 추론 비용은 별도 worker에서 미리 지불한다. 이 동안 영상
+    # 콜백은 막히지 않으며, warm-up 완료 뒤 최신 프레임으로 첫 포착을 시작한다.
+    detector_warmup: true
+    # 늦은 검출 결과가 현재 추적 위치를 오염시키지 않게 버린다. CUDA 운용값은
+    # 1 s다. CPU 프로파일에서는 1.2~4.5 s가 걸려 이 기준을 만족하지 못했으므로,
+    # CPU는 기능 검증용일 뿐 이동 표적 운용 경로로 사용하지 않는다.
+    detector_result_max_age_s: 1.0
+    detector_periodic_interval_frames: 10
+    detector_async_compensation_max_px: 6.0
+    # 추적기 특징점 추출 문턱. 0 = 추적기 내장 기본값(qualityLevel 0.01, blockSize 7).
+    # 35 m 소형 표적(44x17 px)은 내장 기본값에서 특징점이 7~9개라 최소 기준(6)에 걸려 low_features 복구가
+    # 반복되고 bbox 가 15 px 씩 튀었다(2026-10-03 재생). 0.0005 / 3 이면 13개로 복구가 사라진다.
+    # 사용자 조건(straight 3 km/h, 화각 0.2) 실측 A/B: 수평 오차 표준편차 15.3 -> 3.7~4.7 px, 95% 33.7 -> 7~9 px,
+    # 최대 83 -> 11~13 px. 느린 cross 1 km/h 에서는 변화 없음. 0 으로 두면 이전 동작이다.
+    detector_feature_quality_level: 0.0005
+    detector_feature_block_size: 3
 
     # ── 토픽 ──────────────────────────────────────────────────────────
     image_topic: "/turret_camera/image_raw"
@@ -43,7 +59,6 @@ smash_fcs:
     # gpu_lidar 는 <topic> 으로 LaserScan(가운데 행)을, <topic>/points 로
     # PointCloudPacked(전체 격자)를 낸다. 원뿔 전체가 필요하므로 후자를 쓴다.
     laser_topic: "/turret_camera/boresight_range/points"
-    command_topic: "/turret_controller/commands"
     annotated_topic: "/turret_camera/image_annotated"
     state_topic: "/smash_fcs/state"
 
@@ -128,8 +143,10 @@ smash_fcs:
     bbox_pixel_sigma: 2.0
     range_min_m: 3.0
     range_max_m: 800.0
-    # 1.0 = 스무딩 없음. 같은 출처(laser/bbox)가 연속될 때만 적용된다.
-    range_smoothing_alpha: 1.0
+    # 단안 bbox 폭은 자세/검출 경계의 1~2 px 변화도 수 m/s의 가짜 방사속도로
+    # 증폭한다. 같은 출처가 연속되는 동안 약 5프레임 EMA로 거리 성분을 안정화한다.
+    # 출처 변경과 무효 측정에서는 HybridRangeEstimator가 이력을 초기화한다.
+    range_smoothing_alpha: 0.2
     laser_noise_sigma_m: 0.02
     laser_staleness_timeout_s: 0.2
     # 레이저 값과 바운딩박스 추정값의 교차검증 게이트 폭(바운딩박스 sigma 배수).
@@ -144,35 +161,6 @@ smash_fcs:
     # 얼어붙는다. 로드맵 4단계의 15~20 m/s FPV 를 여유 있게 덮도록 60 m/s 로 둔다.
     max_range_rate_mps: 60.0
 
-    # ── 포탑 구동 ─────────────────────────────────────────────────────
-    command_rate_hz: 30.0
-    # URDF 의 joint limit velocity 와 일치시켜야 한다 (pan 3.0, tilt 2.5).
-    pan_max_rate_rad_s: 3.0
-    tilt_max_rate_rad_s: 2.5
-    # URDF turret_tilt_joint limit: 0 ~ 85도
-    tilt_min_rad: 0.0
-    tilt_max_rad: 1.4835298641951802
-    search_pan_rad: 0.0
-    # 기동 시 지향 자세. 대공 경계 자세 프리셋(뷰어 T 키)과 같은 0.38 rad(21.8도).
-    # 기본 표적은 (10, 0, 4.2) 로 약 22도 위에 있고 카메라 세로 시야는 +-9도 정도라,
-    # 0.0(수평)으로 시작하면 표적이 화면에 들어오지 않아 조작 전까지 아무것도 탐지하지 못한다.
-    search_tilt_rad: 0.38
-    # 지향 목표각 속도 피드포워드 [초]. 0.0 = 비활성(기본값).
-    #
-    # 조준해는 프레임 k 의 영상으로 계산되지만 명령은 그 뒤에 적용되므로, 명령이
-    # 항상 표적 시선각속도 x 지연시간 만큼 뒤처진다. 오프라인 검증에서 이 지연은
-    # 표적 속도와 무관하게 0.0327초로 측정되었고 프레임 주기(1/30 = 0.0333초)와
-    # 사실상 같다. 즉 순수한 한 프레임 지연이다.
-    #   2 m/s  -> 지향오차 0.099도
-    #   5 m/s  -> 지향오차 0.169도
-    #   15 m/s -> 지향오차 0.510도  (4단계 READY 임계 0.5도 초과)
-    #
-    # 이 값을 0.0333 으로 두면 목표각을 한 프레임 외삽해 지연을 상쇄한다. 다만
-    # 목표각을 수치 미분하는 방식이라 실제 추적 잡음을 증폭할 수 있다. 1단계
-    # 표적(정지/저속)은 보정 없이도 여유가 크므로 기본값은 비활성으로 두었다.
-    # 3~4단계에서 실제 추적 잡음으로 재평가한 뒤 켤 것.
-    command_feedforward_s: 0.0
-
     # ── 표적 이탈 판정 ────────────────────────────────────────────────
     # 바운딩박스가 화면 가장자리에 border_frames_before_reset 프레임 연속으로
     # 닿으면 표적이 화면을 벗어난 것으로 보고 SEARCH 로 즉시 초기화한다.
@@ -184,17 +172,14 @@ smash_fcs:
     publish_annotated: true
 
     # ── 3단계: 가상 탄환 격발 및 Hit/Kill 판정 ──────────────────────────
-    # 기본값 false. 1/2단계 검증 결과(stage1_fcs_integration_report.md)에는
-    # 아무 영향이 없다. 설계 근거와 한계는 smash_fcs/fire_control.py 모듈
+    # 시뮬레이터는 자동 격발이 기본이다: READY 인 동안 fire_rate_rpm 쿨다운으로
+    # 격발한다. false 면 탐지·조준만 하고 격발·판정을 하지 않는다(런처 4번).
+    # aim_solution 이 있어야(즉 최소 AIM 상태) 격발한다 — 조준각 자체가 없는 상태에서
+    # 가상 탄환을 만들 수는 없다. 설계 근거와 한계는 smash_fcs/fire_control.py 모듈
     # docstring 및 smash_fcs_node.py 상단 "3단계 범위와 경계" 절 참고.
-    enable_fire_control: false
-    # "auto": READY 인 동안 fire_rate_rpm 쿨다운으로 자동 격발(완전자동 근사).
-    # "manual": trigger_topic(/smash_fcs/trigger, std_msgs/Bool) 상승 엣지에서만
-    # 격발(반자동 방아쇠 근사). 둘 다 aim_solution 이 있어야(즉 최소 AIM 상태)
-    # 격발한다 — 조준각 자체가 없는 상태에서 가상 탄환을 만들 수는 없다.
-    fire_mode: "manual"
-    # 5.56mm 소총 완전자동 사이클릭 발사속도의 근사(분당 발수). auto 모드에서만
-    # 쿨다운 간격(60/fire_rate_rpm 초)으로 쓰인다.
+    enable_fire_control: true
+    # 5.56mm 소총 완전자동 사이클릭 발사속도의 근사(분당 발수). 쿨다운 간격
+    # (60/fire_rate_rpm 초)으로 쓰인다.
     fire_rate_rpm: 700.0
     # 명중 판정 반경. 0 이하이면 target_characteristic_size_m / 2 로 자동 유도한다.
     #
@@ -214,7 +199,6 @@ smash_fcs:
     #
     # ★ 이 값은 보고되는 명중률을 직접 좌우한다. 바꾸면 과거 수치와 비교할 수 없다.
     target_hit_radius_m: 0.1975
-    trigger_topic: "/smash_fcs/trigger"
     fire_event_topic: "/smash_fcs/fire_event"
     hit_result_topic: "/smash_fcs/hit_result"
     engagement_stats_topic: "/smash_fcs/engagement_stats"
@@ -222,6 +206,47 @@ smash_fcs:
     # 돈다 — 표적을 놓친 동안에도 이미 비행 중인 탄환의 판정 시각은 실시간으로
     # 도래하기 때문이다.
     fire_control_rate_hz: 60.0
+    target_motion_status_topic: "/target_mover/status"
+    # launch가 이동 표적 시나리오일 때 true로 덮어쓴다. WAIT/WAIT LOCK 중 자동으로
+    # 격발해 표적이 출발하기 전에 시험을 끝내는 것을 막는다.
+    auto_fire_requires_target_move: false
+    # 지연 보정 (2026-09-21). 영상은 촬영 → FCS 처리 → 격발까지 수십 ms 묵는다
+    # (35 m 측정: 모의 시각 중앙값 36~50 ms). 이동 표적은 그동안 움직이므로 격발 순간
+    # 조준해를 그 시각 기준으로 다시 풀고, 그 순간의 총구 방향(TF 최신값)으로 정렬을
+    # 다시 판정한 뒤 쏜다. HUD 레티클은 촬영 시각 기준 그대로다: 같은 영상 속 총구도
+    # 촬영 시각의 것이라, 포탑을 돌려 따라가는 중이면 상대 정렬이 격발까지 유지되기
+    # 때문이다(레티클만 앞당기면 과보정된다).
+    # false 면 예전처럼 마지막 영상의 판정으로 쏜다(보정 전후 비교용). 정지 표적에는 영향이 없다.
+    latency_compensation: true
+    # 영상/추적 위치 지연 0.17 s. 0.28 s(후행 0.093 m ≈ 0.11 s 추가)는 2026-10-02 실격발 반복에서
+    # 조준오차 중앙값 27~32 px -> 55~69 px, READY 4~5.5% -> 2~3%로 악화시켜 되돌렸다
+    # (180초 창 기준 0.17 s: 전체 69.8%·전환부 64.2%, 0.28 s: 65.6%·53.8%).
+    motion_measurement_lag_s: 0.17
+    # MOVE 중 장기 OLS와 최근 6프레임 속도가 크게 다르거나 궤적 잔차가 크면
+    # 방향 전환/측정 잡음 구간으로 보고 READY와 격발을 fail-closed 한다.
+    motion_ready_max_velocity_disagreement_mps: 0.75
+    motion_ready_max_fit_rmse_m: 0.20
+    motion_ready_min_history_count: 6
+    # 장기 OLS와 최근 6프레임의 횡속도가 모두 이 값(m/s)보다 크면서 부호가 반대이면 방향 전환에 걸친
+    # 해로 보고 차단한다. 음수면 검사 끔(기본). 2026-10-02 실격발 시험에서 속도 불일치 게이트가 이미 부호 반대 해를
+    # 걸러(검사 OFF 31발 중 0발) 효과가 확인되지 않아 끈다.
+    motion_ready_lateral_sign_deadband_mps: -1.0
+    # 추정 횡속도가 직전 2 s 의 75퍼센타일 × 이 비율 아래로 급락하면 방향 전환에 걸친 해로 보고 READY 를
+    # 차단한다. 전환 후 0.3~0.6 s 에 속도 추정이 0 근처로 수렴해 조준점이 0.5~0.7 m 뒤처지는 구간(17발
+    # 0명중)을 겨냥한다. <=0 이면 끔.
+    # 2026-10-03: 알고리즘 변경 원복 요청에 따라 비활성화.
+    motion_ready_speed_collapse_ratio: 0.0
+    motion_ready_speed_collapse_window_s: 2.0
+    # 표적 운동 추정기의 기동 감지 (2026-09-22). 등속 추정기는 최근 20개 샘플(약 1.2 s)에 직선을
+    # 맞추므로 표적이 방향을 바꾸면 약 0.5 s 동안 리드가 이전 방향으로 간다. 켜면 새 측정이 예측과
+    # 시선에 수직으로 maneuver_gate_mrad 넘게 두 번 연속 어긋날 때 오래된 기록을 버린다.
+    # 기록 재생 비교(benchmarks/sim_measurement/estimator_replay.py)에서 리드가 명중 반경 안에 드는
+    # 비율 43 % -> 78 %. 이번 왕복 기동 영상에서 방향 전환 뒤 리드 지연이 확인되어 기본으로 켠다.
+    maneuver_reset: true
+    maneuver_gate_mrad: 10.0
+    # 격발 순간 마지막 영상 나이의 이동평균(진단용, 격발 이벤트에 실린다).
+    fire_latency_initial_s: 0.04
+    fire_latency_ema_alpha: 0.05
     # HUD 상 KILL/MISS 이펙트를 얼마나 오래 표시할지(초).
     impact_effect_hold_s: 0.35
 
@@ -243,3 +268,43 @@ smash_fcs:
     # 코드로 강제되지 않는다.
     turret_world_translation_m: [0.0, 0.0, 0.05]
     turret_world_yaw_rad: 0.0
+
+# Gazebo 포탑 구동 전용 노드. SMASH 알고리즘과 별도 프로세스에서 실행되므로
+# YOLO 추론 시간이 길어져도 관절 명령 발행 주기가 막히지 않는다.
+turret_command:
+  ros__parameters:
+    use_sim_time: true
+    # 선회 명령(증분 rad, pan=888 이면 탐색 자세 복귀, 999 이면 수평). 뷰어 R 키와 측정 도구가 쓴다.
+    slew_topic: "/smash_fcs/slew_cmd"
+    aim_track_topic: "/smash_fcs/aim_track"
+    command_topic: "/turret_controller/commands"
+    command_rate_hz: 60.0
+    pan_max_rate_rad_s: 3.0
+    tilt_max_rate_rad_s: 2.5
+    tilt_min_rad: 0.0
+    tilt_max_rad: 1.4835298641951802
+    search_pan_rad: 0.0
+    search_tilt_rad: 0.38
+    pan_dither_rad: 0.0005
+    # 시뮬레이터의 Pan/Tilt는 실제 제품 기능이 아니라 사수가 총을 움직이는 동작의
+    # 대체물이다. FCS가 발행하는 신뢰 가능한(STABLE) 리드 방향으로 폐루프 추종한다.
+    # 격발은 FCS 의 READY 게이트가 결정한다.
+    # 3 km/h, 35 m, 0.2 rad 왕복 시험에서 진행 방향별 정상상태 오차가 약 +/-14 px,
+    # 즉 모의 시각 약 0.19 s 지연으로 측정됐다. aim_track의 모의 시각 차분으로
+    # 리드 방향 각속도를 구해 이 시간만큼 목표각을 앞당긴다.
+    aim_feedforward_s: 0.19
+    # 탐지 잡음이나 재포착 점프를 미분한 값이 큰 선회 명령이 되지 않도록 제한한다.
+    aim_feedforward_max_rate_rad_s: 0.5
+    # 틸트 리드 시간. 0.0 = 틸트 피드포워드 끔(기본). 수평으로 움직이는 표적은 실제 수직 각속도가 0 이고
+    # 측정값은 잡음이라, 팬과 같은 0.19 s 외삽을 걸면 포가 위아래로 떨었다(2026-10-03 라이브 기록 재생:
+    # 틸트 속도 rms 32.7 -> 17.8 px/s, 정렬 오차 중앙값 3.0 -> 2.1 px). 수직으로 기동하는 표적이면 올린다.
+    aim_tilt_feedforward_s: 0.0
+    # 목표는 검출기 갱신 프레임(약 0.33 s 간격)에서만 바뀐다. 그 사이를 마지막 측정 각속도로 이어
+    # 움직이는 최대 시간[s]. 0 이면 끄고 예전처럼 갱신 사이에 포가 멈춘다. 갱신 사이 멈춤은 포가 한 번에
+    # 15 px 정도(방향 전환 땐 40 px) 튀었다 서는 계단 동작을 만들었다. 재생 비교: 팬 정렬 오차 중앙값
+    # 5.3 -> 2.8 px, p90 12.1 -> 8.8 px, 0.1 s 당 명령 변화 p90 16.3 -> 8.1 px.
+    aim_extrapolate_s: 1.0
+    # 연속 이동에 쓰는 각속도의 이전 값 가중치(EMA, 0 = 원시값). 방향 전환 직후에는 이전 방향으로 조금 더 간다.
+    aim_rate_smoothing: 0.5
+    # 선회 명령(R 키·프리셋·측정 도구) 직후에는 그 명령을 우선하고, 이후 리드점 추종으로 복귀한다.
+    slew_override_s: 0.75
