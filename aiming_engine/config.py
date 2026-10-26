@@ -54,6 +54,17 @@ class TargetStateConfig:
     # 동일한 무보정 OLS 동작. 1.0 미만이면 프레임 간 지수이동평균(EMA)으로 속도 추정치를
     # 완만하게 만든다 (known_issues.md 1.5절의 이중 미분 노이즈 완화 목적, target_state.py 참고).
     velocity_smoothing_alpha: float = 1.0
+    # ConstantVelocityEstimator only. 기동(방향 전환) 감지 시 기록 비우기. 기본 꺼짐 = 기존 동작.
+    # 새 측정이 직전 추정의 예측과 시선에 수직으로 gate 넘게 maneuver_hits 번 연속 어긋나면 최근
+    # maneuver_keep 개 샘플만 남긴다. gate = max(maneuver_gate_min_m, maneuver_gate_mrad * 거리).
+    # 근거: 2026-09-22 기록 재생(benchmarks/sim_measurement/estimator_replay.py)에서 1.2 s 마다 방향을
+    # 바꾸는 35 m 표적의 리드가 명중 반경 안에 드는 비율이 43 % -> 78 %(10 mrad), 등속·정지 흔들림은 그대로.
+    # 문턱 5 / 7 / 10 mrad 중 10 이 가장 좋고 리셋도 가장 적었다(35 m 에서 0.35 m).
+    maneuver_reset: bool = False
+    maneuver_gate_mrad: float = 10.0
+    maneuver_gate_min_m: float = 0.1
+    maneuver_hits: int = 2
+    maneuver_keep: int = 3
 
 
 @dataclass(frozen=True)
@@ -135,6 +146,11 @@ def load_config(path: str | Path | None = None) -> AimAssistConfig:
             process_noise_std=float(raw["target_state"].get("process_noise_std", 1.0)),
             measurement_noise_std=float(raw["target_state"].get("measurement_noise_std", 0.1)),
             velocity_smoothing_alpha=float(raw["target_state"].get("velocity_smoothing_alpha", 1.0)),
+            maneuver_reset=bool(raw["target_state"].get("maneuver_reset", False)),
+            maneuver_gate_mrad=float(raw["target_state"].get("maneuver_gate_mrad", 10.0)),
+            maneuver_gate_min_m=float(raw["target_state"].get("maneuver_gate_min_m", 0.1)),
+            maneuver_hits=int(raw["target_state"].get("maneuver_hits", 2)),
+            maneuver_keep=int(raw["target_state"].get("maneuver_keep", 3)),
         ),
         hit_probability=HitProbabilityConfig(
             weights={k: float(v) for k, v in raw["hit_probability"]["weights"].items()},

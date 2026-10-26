@@ -5,12 +5,14 @@
 
 import numpy as np
 import pytest
+from concurrent.futures import ThreadPoolExecutor
 
 from bridge import optical_flow_tracker as oft
 from bridge.optical_flow_tracker import (
     ACQUIRE_IMGSZ_CYCLE,
     MAX_MODEL_TARGET_PX,
     OpticalFlowTracker,
+    bbox_inside_search_center_gate,
     imgsz_for_target,
     yolo_detect,
 )
@@ -47,6 +49,18 @@ def _tracker(model, acquire_imgsz=960, multi_scale=True):
     t._acquire_imgsz = acquire_imgsz
     t._multi_scale = bool(multi_scale) and acquire_imgsz is not None
     t._acquire_cycle_index = 0
+    t._executor = ThreadPoolExecutor(max_workers=1)
+    t._future = None
+    t._request = None
+    t._generation = 0
+    t._closed = False
+    t._async_result_max_age_s = 1.0
+    t._async_submitted = 0
+    t._async_applied = 0
+    t._async_stale = 0
+    t._async_failed = 0
+    t._search_hits = 0
+    t._recovery_misses = 0
     t.reset()
     return t
 
@@ -84,9 +98,13 @@ def test_acquisition_cycles_input_sizes():
     m = FakeModel()
     t = _tracker(m)
     frame = np.zeros((640, 640, 3), np.uint8)
-    for _ in range(6):
-        assert t.update(frame) is None
+    assert t.update(frame) is None
+    for _ in range(5):
+        t._future.result()
+        t.update(frame)  # consume the failed result and submit the next size
+    t._future.result()
     assert [c[1] for c in m.calls] == list(ACQUIRE_IMGSZ_CYCLE) * 2
+    t.close()
 
 
 def test_cycle_survives_reset_every_frame():
@@ -94,28 +112,46 @@ def test_cycle_survives_reset_every_frame():
     m = FakeModel()
     t = _tracker(m)
     frame = np.zeros((640, 640, 3), np.uint8)
-    for _ in range(6):
-        t.update(frame)
+    t.update(frame)
+    for _ in range(5):
+        t._future.result()
         t.reset()
+        t.update(frame)
+    t._future.result()
     assert [c[1] for c in m.calls] == list(ACQUIRE_IMGSZ_CYCLE) * 2
+    t.close()
 
 
 def test_multi_scale_off_keeps_single_input_size():
     m = FakeModel()
     t = _tracker(m, multi_scale=False)
     frame = np.zeros((640, 640, 3), np.uint8)
-    for _ in range(3):
+    t.update(frame)
+    for _ in range(2):
+        t._future.result()
         t.update(frame)
+    t._future.result()
     assert [c[1] for c in m.calls] == [960, 960, 960]
+    t.close()
 
 
 def test_cycle_respects_smaller_acquire_imgsz():
     m = FakeModel()
     t = _tracker(m, acquire_imgsz=640)
     frame = np.zeros((640, 640, 3), np.uint8)
-    for _ in range(4):
+    t.update(frame)
+    for _ in range(3):
+        t._future.result()
         t.update(frame)
+    t._future.result()
     assert [c[1] for c in m.calls] == [640, 320, 640, 320]
+    t.close()
+
+
+def test_first_acquisition_rejects_edge_false_positive_but_keeps_center_target():
+    shape = (640, 640, 3)
+    assert bbox_inside_search_center_gate((298, 300, 44, 20), shape)
+    assert not bbox_inside_search_center_gate((450, 555, 45, 35), shape)
 
 
 # ── 추적 중 재탐지(ROI) ────────────────────────────────────────────────

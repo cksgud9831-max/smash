@@ -44,7 +44,11 @@ target_state:
   # the "double differentiation" noise flagged in known_issues.md section 1.5. Sweep this
   # (e.g. 0.9 / 0.7 / 0.5 / 0.3) against the roadmap stage 2 constant velocity validation
   # script before changing the default.
+  # 35 m / 3 km/h 실격발에서 무스무딩 OLS가 LK 위치 잡음을 미분해
+  # 실제 ±0.833 m/s에 대해 -12.0~+5.95 m/s까지 튀었다. maneuver_reset은
+  # 반전 때 EMA 이력을 폐기하므로 0.3으로 잡음만 줄이고 방향 전환은 재시드한다.
   velocity_smoothing_alpha: 1.0
+  maneuver_hits: 2
 
 hit_probability:
   weights:

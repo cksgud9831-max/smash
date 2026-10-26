@@ -133,3 +133,48 @@ def test_rejected_measurement_uses_prediction_without_contaminating_motion_state
     assert recovered.aim_solution.lead_point_world.to_array() == pytest.approx(
         expected.aim_solution.lead_point_world.to_array()
     )
+
+
+def test_fire_time_leads_moving_target_to_fire_time():
+    # 접근 표적(20 m/s)을 50 ms 늦게 쏜다면, 조준점은 발사 시각 + 비행시간의 표적 위치여야 한다.
+    manager = AimingManager(config=make_config())
+    for i in range(10):
+        manager.update(make_frame(i))
+    frame = make_frame(10)
+    delay = 0.05
+    out_now = manager.update(frame)
+    fire_time = frame.timestamp + delay
+    sol_fire = manager.solve_at(fire_time, frame.camera_extrinsics)
+
+    assert sol_fire is not None and sol_fire.solver_converged
+    expected = manager._target_state.predict(fire_time + sol_fire.time_of_flight).position.to_array()
+    assert np.allclose(sol_fire.lead_point_world.to_array(), expected, atol=1e-6)
+    # 표적이 다가오므로 늦게 쏠수록 조준점이 가깝다. 만나는 거리 u*r/(u+v) 가 r 에 비례하고
+    # r 은 지연 동안 v*delay 줄어드므로 조준점은 v*delay*u/(u+v) 만큼 당겨진다(u 탄속 300, v 20).
+    gap = np.linalg.norm(out_now.aim_solution.lead_point_world.to_array()) - np.linalg.norm(expected)
+    assert gap == pytest.approx(20.0 * delay * 300.0 / 320.0, rel=1e-3)
+
+
+def test_update_fire_time_matches_solve_at_and_default_is_capture_time():
+    manager_a = AimingManager(config=make_config())
+    manager_b = AimingManager(config=make_config())
+    for i in range(10):
+        manager_a.update(make_frame(i))
+        manager_b.update(make_frame(i))
+    frame = make_frame(10)
+    out_a = manager_a.update(frame, fire_time=frame.timestamp + 0.04)
+    manager_b.update(frame)
+    sol_b = manager_b.solve_at(frame.timestamp + 0.04, frame.camera_extrinsics)
+    assert np.allclose(out_a.aim_solution.lead_point_world.to_array(), sol_b.lead_point_world.to_array(), atol=1e-6)
+
+    manager_c = AimingManager(config=make_config())
+    manager_d = AimingManager(config=make_config())
+    for i in range(11):
+        out_c = manager_c.update(make_frame(i))
+        out_d = manager_d.update(make_frame(i), fire_time=make_frame(i).timestamp)
+    assert out_c.aim_solution.azimuth == out_d.aim_solution.azimuth
+    assert out_c.aim_solution.elevation == out_d.aim_solution.elevation
+
+
+def test_solve_at_before_any_measurement_returns_none():
+    assert AimingManager(config=make_config()).solve_at(1.0, np.eye(4)) is None

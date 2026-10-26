@@ -18,7 +18,7 @@ from .types import TargetVector, Vector3
 
 class MotionEstimator(ABC):
     @abstractmethod
-    def update(self, position: Vector3, t: float) -> None: ...
+    def update(self, position: Vector3, t: float, observer: np.ndarray | None = None) -> None: ...
 
     @abstractmethod
     def predict(self, t_future: float) -> TargetVector: ...
@@ -53,21 +53,138 @@ class ConstantVelocityEstimator(MotionEstimator):
     바꾸지 않는 한 기존 검증 수치에 회귀가 없다.
     """
 
-    def __init__(self, history_length: int, min_dt: float, velocity_smoothing_alpha: float = 1.0):
+    def __init__(
+        self,
+        history_length: int,
+        min_dt: float,
+        velocity_smoothing_alpha: float = 1.0,
+        maneuver_reset: bool = False,
+        maneuver_gate_mrad: float = 10.0,
+        maneuver_gate_min_m: float = 0.1,
+        maneuver_hits: int = 2,
+        maneuver_keep: int = 3,
+    ):
         self._history_length = history_length
         self._min_dt = min_dt
         self._velocity_smoothing_alpha = velocity_smoothing_alpha
+        self._maneuver_reset = maneuver_reset
+        self._maneuver_gate_rad = maneuver_gate_mrad * 1e-3
+        self._maneuver_gate_min_m = maneuver_gate_min_m
+        self._maneuver_hits = max(1, int(maneuver_hits))
+        self._maneuver_keep = max(2, int(maneuver_keep))
+        self._maneuver_streak = 0
+        self._reversal_streak = 0
+        self.maneuver_resets = 0  # 진단용 누적 횟수
         self._times: deque[float] = deque(maxlen=history_length)
         self._positions: deque[np.ndarray] = deque(maxlen=history_length)
         self._smoothed_velocity: np.ndarray | None = None
         self._smoothed_at_t: float | None = None
         self._fitted_last_position: np.ndarray | None = None
+        self._fit_rmse_m: float | None = None
+        self._recent_velocity: np.ndarray | None = None
+        self._velocity_disagreement_mps: float | None = None
+        self._long_velocity: np.ndarray | None = None
+        self._lateral_axis: np.ndarray | None = None
 
-    def update(self, position: Vector3, t: float) -> None:
+    def update(self, position: Vector3, t: float, observer: np.ndarray | None = None) -> None:
         if self._times and (t - self._times[-1]) < self._min_dt:
             return  # duplicate/out-of-order timestamp, ignore to avoid degenerate fits
+        if self._maneuver_reset:
+            self._check_maneuver(position.to_array(), t, observer)
         self._times.append(t)
         self._positions.append(position.to_array())
+        self._lateral_axis = self._horizontal_transverse_axis(
+            position.to_array(), observer
+        )
+
+    @staticmethod
+    def _horizontal_transverse_axis(
+        position: np.ndarray, observer: np.ndarray | None
+    ) -> np.ndarray | None:
+        """시선에 수직인 수평 단위벡터(좌우 방향). 시선이 수직에 가깝거나 관측점이 없으면 None."""
+        if observer is None:
+            return None
+        los = np.asarray(position, dtype=np.float64) - np.asarray(observer, dtype=np.float64)
+        axis = np.cross(np.array([0.0, 0.0, 1.0]), los)
+        norm = float(np.linalg.norm(axis))
+        return None if norm < 1e-6 else axis / norm
+
+    def _check_maneuver(self, z: np.ndarray, t: float, observer: np.ndarray | None) -> None:
+        """표적이 방향을 바꿨으면 오래된 기록을 버린다.
+
+        OLS 는 기록 구간 전체에 직선을 맞추므로, 방향 전환이 구간을 빠져나갈 때까지(기록 20개면 약
+        1.2 s) 속도가 틀린다. 2026-09-22 시뮬 측정: 전환 뒤 0.4 s 동안 추정이 약 130 ms 늦고 리드가
+        명중 반경 안에 든 적이 없었다. 새 측정이 예측과 시선에 수직 방향으로 문턱 넘게 연속으로
+        어긋나면 전환으로 보고 최근 몇 개만 남긴다. 시선 방향 성분은 거리 추정 잡음이 커서 보지 않는다.
+        문턱은 각도(거리에 비례)라 먼 표적의 측정 잡음에 헛되이 걸리지 않는다.
+        """
+        if len(self._times) < 3:
+            return
+        prediction = self.predict(t)
+        predicted = prediction.position.to_array()
+        los = z - (np.zeros(3) if observer is None else np.asarray(observer, dtype=np.float64))
+        rng = float(np.linalg.norm(los))
+        if rng < 1e-6:
+            return
+        u = los / rng
+        d = z - predicted
+        perp = float(np.linalg.norm(d - (d @ u) * u))
+        gate = max(self._maneuver_gate_min_m, self._maneuver_gate_rad * rng)
+
+        # A low-speed reversal can take several frames to exceed the positional
+        # innovation gate above (10 mrad is 0.35 m at 35 m). Detect the more
+        # specific event directly: the latest measured transverse displacement
+        # points against the fitted transverse velocity. Consecutive samples and
+        # a minimum physical step reject ordinary bbox jitter.
+        last_t = self._times[-1]
+        sample_dt = t - last_t
+        measured_step = z - self._positions[-1]
+        measured_perp = measured_step - (measured_step @ u) * u
+        predicted_velocity = prediction.velocity.to_array()
+        predicted_perp = predicted_velocity - (predicted_velocity @ u) * u
+        measured_norm = float(np.linalg.norm(measured_perp))
+        predicted_norm = float(np.linalg.norm(predicted_perp))
+        reversal_step_min = 0.5 * self._maneuver_gate_min_m
+        opposing = float(measured_perp @ predicted_perp) < -0.25 * measured_norm * predicted_norm
+        reversal = (
+            sample_dt > self._min_dt
+            and measured_norm >= reversal_step_min
+            and predicted_norm * sample_dt >= reversal_step_min
+            and opposing
+        )
+        self._reversal_streak = self._reversal_streak + 1 if reversal else 0
+        if self._reversal_streak >= self._maneuver_hits:
+            # update() appends the current point immediately afterwards. Keeping
+            # only the last pre-reversal point gives the new direction a clean
+            # two-point velocity seed.
+            self._times = deque(list(self._times)[-1:], maxlen=self._history_length)
+            self._positions = deque(list(self._positions)[-1:], maxlen=self._history_length)
+            self._smoothed_velocity = None
+            self._smoothed_at_t = None
+            self._fitted_last_position = None
+            self._fit_rmse_m = None
+            self._recent_velocity = None
+            self._long_velocity = None
+            self._velocity_disagreement_mps = None
+            self._maneuver_streak = 0
+            self._reversal_streak = 0
+            self.maneuver_resets += 1
+            return
+
+        self._maneuver_streak = self._maneuver_streak + 1 if perp > gate else 0
+        if self._maneuver_streak >= self._maneuver_hits:
+            keep = self._maneuver_keep
+            self._times = deque(list(self._times)[-keep:], maxlen=self._history_length)
+            self._positions = deque(list(self._positions)[-keep:], maxlen=self._history_length)
+            self._smoothed_velocity = None  # 옛 속도로 EMA 하지 않는다
+            self._smoothed_at_t = None
+            self._fit_rmse_m = None
+            self._recent_velocity = None
+            self._long_velocity = None
+            self._velocity_disagreement_mps = None
+            self._maneuver_streak = 0
+            self._reversal_streak = 0
+            self.maneuver_resets += 1
 
     def predict(self, t_future: float) -> TargetVector:
         if not self._times:
@@ -95,6 +212,27 @@ class ConstantVelocityEstimator(MotionEstimator):
                 coeffs, *_ = np.linalg.lstsq(A, ps, rcond=None)
                 raw_velocity = coeffs[0]
                 position_fitted_last = coeffs[1]
+                residuals = ps - A @ coeffs
+                self._fit_rmse_m = float(np.sqrt(np.mean(np.sum(residuals * residuals, axis=1))))
+
+                # A short fit is diagnostic evidence for a direction change.
+                # It is deliberately not used for control until simulation
+                # proves that it separates real reversals from bbox jitter.
+                recent_count = min(6, len(ts))
+                if recent_count >= 3:
+                    recent_t = ts[-recent_count:]
+                    recent_p = ps[-recent_count:]
+                    recent_a = np.column_stack([recent_t, np.ones(recent_count)])
+                    recent_coeffs, *_ = np.linalg.lstsq(recent_a, recent_p, rcond=None)
+                    self._recent_velocity = recent_coeffs[0]
+                    self._long_velocity = raw_velocity
+                    self._velocity_disagreement_mps = float(
+                        np.linalg.norm(self._recent_velocity - raw_velocity)
+                    )
+                else:
+                    self._recent_velocity = None
+                    self._long_velocity = None
+                    self._velocity_disagreement_mps = None
 
                 alpha = self._velocity_smoothing_alpha
                 if self._smoothed_velocity is None or alpha >= 1.0:
@@ -116,6 +254,24 @@ class ConstantVelocityEstimator(MotionEstimator):
             acceleration=Vector3(0.0, 0.0, 0.0),
             timestamp=t_future,
         )
+
+    def _lateral_speed(self, velocity: np.ndarray | None) -> float | None:
+        if velocity is None or self._lateral_axis is None:
+            return None
+        return float(velocity @ self._lateral_axis)
+
+    def diagnostics(self) -> dict[str, float | int | None]:
+        return {
+            "lateral_velocity_long_mps": self._lateral_speed(self._long_velocity),
+            "lateral_velocity_recent_mps": self._lateral_speed(self._recent_velocity),
+            "fit_rmse_m": self._fit_rmse_m,
+            "history_count": len(self._times),
+            "maneuver_resets": self.maneuver_resets,
+            "recent_velocity_world_mps": (
+                None if self._recent_velocity is None else self._recent_velocity.tolist()
+            ),
+            "velocity_disagreement_mps": self._velocity_disagreement_mps,
+        }
 
 
 class ConstantAccelerationKalmanEstimator(MotionEstimator):
@@ -152,7 +308,7 @@ class ConstantAccelerationKalmanEstimator(MotionEstimator):
         G[6:9, :] = np.eye(3)
         return G @ G.T * q
 
-    def update(self, position: Vector3, t: float) -> None:
+    def update(self, position: Vector3, t: float, observer: np.ndarray | None = None) -> None:
         z = position.to_array()
         if self._last_t is None or self._x is None or self._P is None:
             self._x = np.zeros(9)
@@ -199,7 +355,14 @@ class ConstantAccelerationKalmanEstimator(MotionEstimator):
 def build_estimator(config: TargetStateConfig) -> MotionEstimator:
     if config.estimator == "constant_velocity":
         return ConstantVelocityEstimator(
-            config.history_length, config.min_dt, config.velocity_smoothing_alpha
+            config.history_length,
+            config.min_dt,
+            config.velocity_smoothing_alpha,
+            maneuver_reset=config.maneuver_reset,
+            maneuver_gate_mrad=config.maneuver_gate_mrad,
+            maneuver_gate_min_m=config.maneuver_gate_min_m,
+            maneuver_hits=config.maneuver_hits,
+            maneuver_keep=config.maneuver_keep,
         )
     if config.estimator == "constant_acceleration":
         return ConstantAccelerationKalmanEstimator(
@@ -216,9 +379,14 @@ class TargetState:
     def __init__(self, config: TargetStateConfig, estimator: MotionEstimator | None = None):
         self._estimator = estimator if estimator is not None else build_estimator(config)
 
-    def update(self, position_world: Vector3, timestamp: float) -> TargetVector:
-        self._estimator.update(position_world, timestamp)
+    def update(self, position_world: Vector3, timestamp: float, observer: np.ndarray | None = None) -> TargetVector:
+        """observer: 관측자(발사점) 위치. 기동 감지의 시선 방향에 쓴다. 없으면 월드 원점."""
+        self._estimator.update(position_world, timestamp, observer)
         return self._estimator.predict(timestamp)
 
     def predict(self, t_future: float) -> TargetVector:
         return self._estimator.predict(t_future)
+
+    def diagnostics(self) -> dict:
+        diagnostic_fn = getattr(self._estimator, "diagnostics", None)
+        return {} if diagnostic_fn is None else dict(diagnostic_fn())
