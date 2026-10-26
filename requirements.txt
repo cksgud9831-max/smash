@@ -2,6 +2,7 @@ numpy>=1.24
 pyyaml>=6.0
 scipy>=1.10
 opencv-python>=4.8
+pillow>=10.0  # local recording player and viewer captions
 onnxruntime>=1.16
 pyserial>=3.5   # bridge.range_sensor.Tf02ProRangeSensor (Benewake TF02-Pro over UART)
 

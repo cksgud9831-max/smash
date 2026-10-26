@@ -1,62 +1,90 @@
 #!/usr/bin/env python3
 """win_scope_viewer.py — Windows 네이티브 SMASH 스코프 뷰어
-WSL2의 가상화 GUI(WSLg) 버그를 100% 우회하여,
-Windows 데스크탑에서 직접 OpenCV 창을 띄우고 격발 및 수동 조준을 수행합니다.
-GetAsyncKeyState + cv2.waitKeyEx 이중 키 감지로 방향키/WASD 조작 보장.
+
+WSL2 의 smash_scope_viewer 가 내보내는 MJPEG 스트림(HUD 영상)을 Windows 창에 띄우고
+녹화한다. 격발은 FCS 가 READY 에서 자동으로 하므로 조준·격발 입력은 없다.
+키 입력은 GetAsyncKeyState(창이 맨 앞일 때만)와 cv2.waitKeyEx 로 함께 받는다.
+
+  Space / 마우스 왼쪽 클릭   수동 격발 모드(SMASH_FIRE_TRIGGER=manual)에서 READY 일 때 한 번에 한 발
+  R            탐색 자세 복귀(표적을 놓쳐 포가 엉뚱한 곳을 볼 때)
+  패널 버튼     표적 생성: 방식(직선·왕복·8자·접근)·속도를 고르고 "표적 즉시 생성"(키 N). 격추 뒤 대기 없이,
+               살아 있으면 교체한다. 영상 위 클릭만 방아쇠이고 패널 클릭은 방아쇠가 아니다.
+  0~4, +/-, M  이동 표적 기동 방식 / 속도 / 출발·정지
+  H            HUD 상세 수치     C  사격 통계 초기화
+  F            전체화면 켬/끔(종횡비 유지)
+  F1           조작 안내·표적 상태 표시 켬/끔(기본 끔: 관객용 화면)
+  V            녹화 시작/종료(recordings 폴더)
+  Q / ESC      종료
 """
 
+import json
 import os
-import sys
-import time
 import threading
-import urllib.request
+import time
+import traceback
 import urllib.parse
+import urllib.request
 import ctypes
-import numpy as np
+import sys
+from datetime import datetime
+
 import cv2
+import numpy as np
+
+from scope_caption import CaptionRenderer, caption_for, letterbox
+from scope_stream import PlayoutBuffer, iter_latest_jpegs
+from scope_monitor import StreamHealth, compose_view
+from scope_panel import PanelRenderer, StatusHistory
+from scope_controls import SpawnControls, control_layout, hit_test, window_to_view
 
 
-STREAM_URL = "http://localhost:9999/stream"
-BASE_URL = "http://localhost:9999"
+# WSL 서버는 IPv4 로 listen 한다. Windows 의 localhost 는 ::1 을 먼저
+# 시도해 요청마다 IPv6 연결 timeout 뒤 IPv4 로 돌아갈 수 있다. 직접 연결한다.
+BASE_URL = "http://127.0.0.1:9999"
+STREAM_URL = BASE_URL + "/stream"
 WINDOW_NAME = "SMASH Smart Scope FCS (Windows Native)"
 
 user32 = ctypes.windll.user32
 
-# 가상 키코드
-VK_LEFT = 0x25
-VK_UP = 0x26
-VK_RIGHT = 0x27
-VK_DOWN = 0x28
-VK_SPACE = 0x20
-VK_W = 0x57
-VK_A = 0x41
-VK_S = 0x53
-VK_D = 0x44
-VK_R = 0x52
-VK_T = 0x54
+# 가상 키코드. 문자로 받으면 한글 입력 상태에서 키가 달라지므로 가상 키코드를 쓴다.
 VK_Q = 0x51
 VK_ESCAPE = 0x1B
-VK_SHIFT = 0x10
+VK_R = 0x52
 VK_H = 0x48
 VK_C = 0x43
 VK_V = 0x56
+VK_M = 0x4D
+VK_F1 = 0x70
+VK_SPACE = 0x20
+VK_F = 0x46
+VK_N = 0x4E
+# 이동 표적 기동 방식: 숫자 0~4 (윗줄·숫자패드 모두)
+MOTION_KEYS = {  # 방식 -> (윗줄 키, 숫자패드 키, 문자)
+    "none": (0x30, 0x60, "0"),
+    "straight": (0x31, 0x61, "1"),
+    "cross": (0x32, 0x62, "2"),
+    "maneuver": (0x33, 0x63, "3"),
+    "approach": (0x34, 0x64, "4"),
+}
+MOTION_LABELS = {"none": "HOVER", "straight": "STRAIGHT", "cross": "BACK&FORTH",
+                 "maneuver": "FIGURE-8", "approach": "APPROACH"}
+VK_OEM_PLUS, VK_ADD = 0xBB, 0x6B
+VK_OEM_MINUS, VK_SUBTRACT = 0xBD, 0x6D
 
-# 녹화: 화면에 들어온 HUD 영상을 그대로(D_pad 버튼·안내문 제외) MP4 로 저장한다.
-# 영상 도착 간격이 고르지 않으므로 벽시계 기준 고정 FPS 로 마지막 프레임을 채워
-# 넣는다 — 재생 속도가 실제 시간과 같아진다.
+# turret_command 의 탐색 자세 복귀 프리셋 값(pan 증분 자리에 888 을 보낸다)
+SEARCH_POSE_PRESET = 888.0
+
+# 녹화: 화면에 들어온 HUD 영상을 그대로 MP4 로 저장한다. 영상 도착 간격이 고르지 않으므로
+# 벽시계 기준 고정 FPS 로 마지막 프레임을 채워 넣는다 — 재생 속도가 실제 시간과 같아진다.
 REC_FPS = 20.0
 REC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "recordings")
 
-# 조준 스텝. 카메라 화각 0.4 rad / 640 px 이므로 1 mrad 가 약 1.6 px 이다.
-# READY 정렬 허용오차는 표적 거리에서 유도된다(명중 반경의 각크기, smash_fcs_node
-# _align_tolerance_for_range): 10.8 m 약 29 px, 20 m 약 16 px, 35 m 약 9 px.
-# 이전 정밀 스텝 0.010 rad(약 16 px)은 허용오차가 35 px 고정이던 시절 값이라, 20 m 이상에서는
-# 한 번 누를 때마다 허용오차를 통째로 건너뛰어 키로는 READY 에 들어가기 어려웠다
-# (2026-09-18 실측). 35 m 허용오차의 약 3분의 2인 0.004 rad(약 6 px)로 줄인다.
-# 크게 돌릴 때는 Shift(표적 탐색용 큰 이동)를 쓴다.
-STEP_FINE_RAD = 0.004   # 약 0.23도, 약 6 px
-STEP_COARSE_RAD = 0.070  # 약 4.0도 (Shift: 표적 탐색용 큰 이동)
-
+# 화면 끊김 완화: 도착 간격이 고르지 않은 프레임을 이만큼 쌓았다가 일정한 박자로 보여 준다.
+# 프레임 수 단위(약 1프레임 = 45~60 ms 지연). 0 이면 도착 즉시 표시(지연 최소, 끊김 그대로).
+try:
+    JITTER_FRAMES = max(0, int(os.environ.get("SMASH_VIEW_BUFFER", "2")))
+except ValueError:
+    JITTER_FRAMES = 2
 
 _viewer_hwnd = {"h": 0}
 
@@ -65,8 +93,7 @@ def viewer_focused():
     """뷰어 창이 맨 앞일 때만 참.
 
     GetAsyncKeyState 는 어느 창에 입력하든 키 상태를 돌려준다. 이 검사가 없으면 다른
-    창에서 타이핑한 W/A/S/D·Space 가 그대로 조준·격발로 들어간다(2026-09-18 실측:
-    뷰어를 띄워 둔 채 다른 창을 쓰는 동안 포탑이 돌고 한 발이 나갔다).
+    창에서 타이핑한 키가 그대로 뷰어 명령(표적 기동 변경 등)으로 들어간다.
     """
     if not _viewer_hwnd["h"]:
         _viewer_hwnd["h"] = user32.FindWindowW(None, WINDOW_NAME)
@@ -80,35 +107,32 @@ def is_key_down(vk):
 def send_async(endpoint):
     def _req():
         try:
-            urllib.request.urlopen(BASE_URL + endpoint, timeout=0.5)
+            with urllib.request.urlopen(BASE_URL + endpoint, timeout=0.5) as response:
+                response.read()
         except Exception:
             pass
     threading.Thread(target=_req, daemon=True).start()
 
 
-def fire():
-    print("[BANG!] 사수 격발 명령 전송")
-    send_async("/fire")
-
-
-def slew(pan, tilt):
-    # pan 은 ROS 관례(Z 축 기준 반시계 = 왼쪽이 +)다. 왼쪽 키는 +, 오른쪽 키는 - 를 보낸다.
-    # 이전에는 반대로 보내 왼쪽 키가 포탑을 오른쪽으로 돌렸다(2026-09-18 실측: 화면 왼쪽
-    # 표적을 향해 A 를 누르자 표적이 화면 밖으로 밀려났다).
-    send_async(f"/slew?pan={pan}&tilt={tilt}")
-
-
 def ui_command(name):
-    send_async(f"/cmd?name={name}")
+    # "speed:+5" 의 + 가 URL 에서 공백으로 바뀌지 않도록 인코딩한다
+    send_async("/cmd?name=" + urllib.parse.quote(name, safe=""))
+
+
+def search_pose():
+    send_async(f"/slew?pan={SEARCH_POSE_PRESET}&tilt=0.0")
 
 
 class Recorder:
+    """HUD 영상을 MP4 로 남긴다."""
+
     def __init__(self):
         self.writer = None
         self.path = None
         self.size = None
         self.started = 0.0
         self.next_t = 0.0
+        self.notice = ""
 
     @property
     def active(self):
@@ -116,15 +140,18 @@ class Recorder:
 
     def start(self, frame):
         os.makedirs(REC_DIR, exist_ok=True)
-        self.path = os.path.join(REC_DIR, time.strftime("smash_%Y%m%d_%H%M%S.mp4"))
+        self.path = os.path.join(REC_DIR, datetime.now().strftime("smash_%Y%m%d_%H%M%S_%f.mp4"))
         h, w = frame.shape[:2]
         self.size = (w, h)
         self.writer = cv2.VideoWriter(self.path, cv2.VideoWriter_fourcc(*"mp4v"), REC_FPS, self.size)
         if not self.writer.isOpened():
             print("[REC] 녹화 파일을 열지 못했습니다: " + self.path)
+            self.writer.release()
             self.writer = None
+            self.notice = "Cannot open recording file"
             return
-        self.started = self.next_t = time.time()
+        self.started = self.next_t = time.monotonic()
+        self.notice = ""
         print("[REC] 녹화 시작: " + self.path)
 
     def feed(self, frame, now):
@@ -139,251 +166,309 @@ class Recorder:
     def stop(self):
         if self.writer is not None:
             self.writer.release()
-            print(f"[REC] 녹화 종료 ({time.time() - self.started:.0f}초): {self.path}")
+            print(f"[REC] 녹화 종료 ({time.monotonic() - self.started:.0f}초): {self.path}")
+            self.notice = "Saved to recordings folder"
         self.writer = None
 
 
-def is_inside(pt, rect):
-    x, y = pt
-    rx, ry, rw, rh = rect
-    return (rx <= x <= rx + rw) and (ry <= y <= ry + rh)
+def put_text(frame, text, org, color):
+    cv2.putText(frame, text, org, cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 0), 3, cv2.LINE_AA)
+    cv2.putText(frame, text, org, cv2.FONT_HERSHEY_SIMPLEX, 0.42, color, 1, cv2.LINE_AA)
 
 
 def main():
+    # Hidden launches redirect stdout to a file; Windows otherwise uses cp949,
+    # which cannot encode punctuation in the startup message.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     print("============================================================")
     print("  SMASH Windows 네이티브 스코프 뷰어 시작")
     print("  연결 대상: " + STREAM_URL)
-    print("  조작: 마우스 좌클릭 / 스페이스바 (격발)")
-    print("        방향키(↑,↓,←,→) / WASD / 화면 D_pad 버튼 (수동 조준)")
-    print("        T (대공 경계 앙각 프리셋: 드론 즉시 포착) / R (수평 리셋)")
-    print("        V (녹화 시작/종료, recordings 폴더) / H (HUD 상세 수치) / C (사격 통계 초기화)")
-    print("        Q 또는 ESC (종료)")
+    print("  격발은 READY 에서 자동입니다. 조준 입력은 없습니다.")
+    print("  Space 또는 마우스 왼쪽 클릭 (수동 격발 모드에서 READY 일 때 한 번에 한 발)")
+    print("  R (탐색 자세 복귀: 표적을 놓쳤을 때)")
+    print("  0~4 / +,- / M (이동 표적 기동 방식 / 속도 / 출발·정지)")
+    print("  패널 버튼 또는 N (표적 즉시 생성: 방식·속도를 고르고 누름. 격추 뒤 기다리지 않고 새 표적)")
+    print("  H (HUD 상세 수치) / C (사격 통계 초기화) / V (녹화 시작·종료, recordings 폴더)")
+    print("  F (전체화면) / F1 (조작 안내 표시 켬/끔. 기본은 끔 — 관객용 화면)")
+    print("  Q 또는 ESC (종료)")
+    print(f"  화면 지터 버퍼: {JITTER_FRAMES} 프레임 (환경변수 SMASH_VIEW_BUFFER, 0=끔)")
     print("============================================================")
 
+    # Windows 기본 타이머 해상도는 약 15.6 ms 라 프레임 표시 시각이 그 단위로 튄다. 1 ms 로 올린다.
+    try:
+        ctypes.windll.winmm.timeBeginPeriod(1)
+    except Exception:
+        pass
+
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(WINDOW_NAME, 720, 720)
+    cv2.resizeWindow(WINDOW_NAME, 1040, 740)
     cv2.moveWindow(WINDOW_NAME, 100, 100)
+    # 마우스 왼쪽 클릭: 영상 위면 방아쇠, 패널 위면 표적 생성 버튼. 콜백은 GUI 스레드에서 불리므로
+    # 좌표만 쌓고 메인 루프가 처리한다(명령 전송·상태 갱신은 메인 루프에서).
+    clicks = []
+
+    def on_mouse(event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONDOWN:
+            clicks.append((x, y))
+
+    cv2.setMouseCallback(WINDOW_NAME, on_mouse)
     try:
         cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_TOPMOST, 1)
         cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_TOPMOST, 0)
     except Exception:
         pass
 
-    btn_up = (0, 0, 0, 0)
-    btn_down = (0, 0, 0, 0)
-    btn_left = (0, 0, 0, 0)
-    btn_right = (0, 0, 0, 0)
-    btn_reset = (0, 0, 0, 0)
-    btn_air = (0, 0, 0, 0)
-
-    step_rad = STEP_FINE_RAD  # 매 루프에서 Shift 여부로 갱신한다
-    last_key_time = 0.0
-
-    def on_mouse(event, x, y, flags, param):
-        nonlocal btn_up, btn_down, btn_left, btn_right, btn_reset, btn_air
-        if event == cv2.EVENT_LBUTTONDOWN:
-            pt = (x, y)
-            if is_inside(pt, btn_up):
-                print("[BUTTON] 상방(TILT UP) 조준")
-                slew(0.0, step_rad)
-            elif is_inside(pt, btn_down):
-                print("[BUTTON] 하방(TILT DOWN) 조준")
-                slew(0.0, -step_rad)
-            elif is_inside(pt, btn_left):
-                print("[BUTTON] 좌측(PAN LEFT) 조준")
-                slew(step_rad, 0.0)
-            elif is_inside(pt, btn_right):
-                print("[BUTTON] 우측(PAN RIGHT) 조준")
-                slew(-step_rad, 0.0)
-            elif is_inside(pt, btn_reset):
-                print("[BUTTON] 조준 수평 리셋")
-                slew(999.0, 0.0)
-            elif is_inside(pt, btn_air):
-                print("[BUTTON] 대공 경계 프리셋 (TILT +18.3deg)")
-                slew(888.0, 0.0)
-            else:
-                fire()
-
-    cv2.setMouseCallback(WINDOW_NAME, on_mouse)
-
     # ── 영상 수신 (별도 스레드) ────────────────────────────────────────
-    # 이전 구현은 메인 루프에서 4096바이트씩 읽으면서 매 반복 cv2.waitKeyEx(1)
-    # 을 호출했다. waitKey 한 번이 최소 1~5 ms 를 쓰므로 읽기 속도가 초당 1 MB
-    # 안팎으로 묶이는데, 서버는 그보다 빠르게 프레임을 밀어낸다. 소비가 생산을
-    # 못 따라가면 TCP 버퍼에 프레임이 계속 쌓여 화면 지연이 무한정 늘어난다
-    # (사용자가 겪은 "버퍼링" 증상). 수신을 전용 스레드로 분리하고, 버퍼에 밀린
-    # 프레임은 버린 뒤 항상 최신 한 장만 남긴다.
-    latest = {"jpeg": None}
+    # 메인 루프에서 읽으면 waitKey 한 번이 최소 1~5 ms 를 써 읽기 속도가 묶이고, 서버가 더 빠르게
+    # 밀어내면 TCP 버퍼에 프레임이 쌓여 화면 지연이 무한정 늘어난다. 수신을 전용 스레드로 분리한다.
+    # 받은 프레임은 PlayoutBuffer 에 넣어 일정한 박자로 꺼내 보여 준다(밀리면 오래된 것부터 버림).
+    playout = PlayoutBuffer(target_depth=JITTER_FRAMES)
+    playout_lock = threading.Lock()
+    health = StreamHealth()
+    stop_event = threading.Event()
 
     def stream_reader():
-        while True:
+        while not stop_event.is_set():
             try:
                 req = urllib.request.Request(STREAM_URL)
                 with urllib.request.urlopen(req, timeout=2.0) as stream:
                     print("[OK] WSL2 스코프 영상 스트림에 성공적으로 연결되었습니다.")
-                    buf = b""
-                    while True:
-                        chunk = stream.read(65536)
-                        if not chunk:
-                            break
-                        buf += chunk
-                        # 버퍼에 여러 장이 밀려 있으면 마지막(최신) 한 장만 취한다.
-                        end = buf.rfind(b"\xff\xd9")
-                        if end != -1:
-                            start = buf.rfind(b"\xff\xd8", 0, end)
-                            if start != -1:
-                                latest["jpeg"] = buf[start : end + 2]
-                            buf = buf[end + 2 :]
-                        if len(buf) > 4_000_000:  # 경계 손상 시 폭주 방지
-                            buf = b""
+                    for jpeg in iter_latest_jpegs(stream):
+                        if stop_event.is_set():
+                            return
+                        # time.monotonic 은 Windows 에서 해상도가 15.6 ms 라 박자 계산에 쓰지 못한다
+                        with playout_lock:
+                            playout.push(jpeg, time.perf_counter())
+                        health.received(time.monotonic())
+            except Exception as exc:
+                health.error = type(exc).__name__
+                print("[STREAM] " + str(exc))
+            health.retries += 1
+            stop_event.wait(0.5)
+
+    stream_thread = threading.Thread(target=stream_reader, daemon=True)
+    stream_thread.start()
+
+    # 이동 표적 상태(방식·속도). 화면 아래에 표시한다. target_mover 가 없으면 비어 있다.
+    target_status = {"text": ""}
+    fcs_status = {}  # /status 전체. 한글 자막이 FCS 상태·이벤트를 읽는다
+    status_seq = {"n": 0}  # 새로 받을 때마다 증가. 메인 루프가 이력(StatusHistory)에 한 번씩만 넣는다
+
+    def status_reader():
+        while not stop_event.is_set():
+            try:
+                with urllib.request.urlopen(BASE_URL + "/status", timeout=1.0) as r:
+                    st = json.loads(r.read().decode("utf-8") or "{}")
+                fcs_status.clear()
+                fcs_status.update(st)
+                status_seq["n"] += 1
+                if st.get("motion"):
+                    target_status["text"] = (f"TARGET: {MOTION_LABELS.get(st['motion'], st['motion'])} "
+                                             f"{st.get('kmh', 0)} km/h  [{st.get('state', '')}]")
+                else:
+                    target_status["text"] = ""
             except Exception:
-                pass
-            latest["jpeg"] = None
-            time.sleep(0.5)
+                target_status["text"] = ""
+                fcs_status.clear()
+                status_seq["n"] += 1
+            stop_event.wait(0.25)
 
-    threading.Thread(target=stream_reader, daemon=True).start()
+    status_thread = threading.Thread(target=status_reader, daemon=True)
+    status_thread.start()
 
-    shown_jpeg = None
+    display_frame = None
+    last_draw = 0.0
+    last_error = None
     recorder = Recorder()
     clean_frame = None
-    prev_toggle = {VK_H: False, VK_C: False, VK_V: False}
+    captions = CaptionRenderer()
+    history = StatusHistory()
+    panel = PanelRenderer()
+    seen_seq = -1
+    if not captions.available:
+        print("[WARN] 한글 글꼴(malgun.ttf)을 찾지 못해 자막을 표시하지 않습니다.")
+    show_help = False
+    fullscreen = False
+    controls = SpawnControls()
+    # 마지막으로 보여 준 합성 화면의 크기와 창 크기. 클릭 좌표를 합성 화면 좌표로 되돌리는 데 쓴다.
+    geom = {"view_w": 0, "view_h": 0, "win_w": 0, "win_h": 0, "video_w": 640, "video_h": 640}
+    prev_toggle = {VK_N: False, VK_SPACE: False, VK_H: False, VK_C: False, VK_V: False, VK_M: False, VK_R: False, VK_F1: False, VK_F: False,
+                   "plus": False, "minus": False}
+    prev_toggle.update({m: False for m in MOTION_KEYS})
 
-    def toggled(vk, key, chars):
-        """누르는 순간 한 번만 참. GetAsyncKeyState 는 누르고 있는 동안 계속 참이다."""
-        down = is_key_down(vk) or key in chars
-        edge = down and not prev_toggle[vk]
-        prev_toggle[vk] = down
+    def toggled(vk, key, chars, name=None):
+        """누르는 순간 한 번만 참. GetAsyncKeyState 는 누르고 있는 동안 계속 참이다.
+        vk 는 가상 키코드 하나 또는 여러 개(윗줄·숫자패드), name 은 상태 저장용 이름."""
+        vks = vk if isinstance(vk, tuple) else (vk,)
+        slot = name if name is not None else vk
+        down = any(is_key_down(v) for v in vks) or key in chars
+        edge = down and not prev_toggle[slot]
+        prev_toggle[slot] = down
         return edge
 
     while True:
-        jpg = latest["jpeg"]
-
-        if jpg is None:
-            loading = np.zeros((720, 720, 3), dtype=np.uint8)
-            cv2.putText(loading, "SMASH Smart Scope FCS", (140, 320), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 120), 2)
-            cv2.putText(loading, "Connecting to WSL2 SMASH FCS (http://localhost:9999)...", (60, 380), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (180, 180, 180), 1)
-            cv2.imshow(WINDOW_NAME, loading)
-
         try:
-            # 같은 프레임을 다시 디코딩하지 않는다. 새 프레임일 때만 그린다.
-            if jpg is not None and jpg is not shown_jpeg:
-                shown_jpeg = jpg
+            if cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1:
+                break
+            # 재생 박자가 된 프레임이 있을 때만 디코딩해 그린다.
+            with playout_lock:
+                tick = time.perf_counter()
+                jpg = playout.pop(tick)
+                wait_s = playout.wait_s(tick)
+            new_frame = jpg is not None
+            if new_frame:
                 frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
                 if frame is not None:
+                    h = frame.shape[0]
+                    w = frame.shape[1]
+                    # 자막은 관객용 정보라 녹화에도 남긴다. 조작 안내·REC 표시는 녹화에서 뺀다.
+                    captions.draw(frame, caption_for(dict(fcs_status)))
                     clean_frame = frame.copy()
-                    h, w = frame.shape[:2]
-                    bw, bh = 38, 28
-                    cx = w - 85
-                    cy = h - 110
-                    btn_air = (cx, cy - (bh + 4) * 2, bw, bh)
-                    btn_up = (cx, cy - bh - 4, bw, bh)
-                    btn_down = (cx, cy + bh + 4, bw, bh)
-                    btn_left = (cx - bw - 4, cy, bw, bh)
-                    btn_right = (cx + bw + 4, cy, bw, bh)
-                    btn_reset = (cx, cy, bw, bh)
-
-                    # D_pad 반투명 버튼 박스 및 텍스트 렌더링
-                    for b_rect, b_txt, b_col in [
-                        (btn_air, "AIR", (0, 255, 255)),
-                        (btn_up, "UP", (0, 255, 136)),
-                        (btn_down, "DN", (0, 255, 136)),
-                        (btn_left, "LT", (0, 255, 136)),
-                        (btn_right, "RT", (0, 255, 136)),
-                        (btn_reset, "RST", (180, 180, 180)),
-                    ]:
-                        bx, by, bw_i, bh_i = b_rect
-                        cv2.rectangle(frame, (bx, by), (bx + bw_i, by + bh_i), (25, 30, 45), -1)
-                        cv2.rectangle(frame, (bx, by), (bx + bw_i, by + bh_i), b_col, 1)
-                        tw, th = cv2.getTextSize(b_txt, cv2.FONT_HERSHEY_SIMPLEX, 0.38, 1)[0]
-                        tx = bx + (bw_i - tw) // 2
-                        ty = by + (bh_i + th) // 2
-                        cv2.putText(frame, b_txt, (tx, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.38, b_col, 1, cv2.LINE_AA)
-
-                    # 하단 조작 가이드 안내문
-                    guide_txt = "AIM: WASD (SHIFT=FAST) | AIR: T | FIRE: SPACE | REC: V | INFO: H"
-                    cv2.putText(frame, guide_txt, (10, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 0), 3, cv2.LINE_AA)
-                    cv2.putText(frame, guide_txt, (10, h - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 255, 200), 1, cv2.LINE_AA)
+                    if show_help:
+                        lines = ["SPACE/CLICK: FIRE   R: SEARCH POSE   H: DEBUG   C: RESET   V: REC   F1: HIDE"]
+                        tgt_txt = target_status["text"]
+                        if tgt_txt:
+                            lines.append(tgt_txt)
+                            lines.append("0 HOVER 1 STRAIGHT 2 BACK&FORTH 3 FIGURE-8 4 APPROACH  +/- SPEED  M START")
+                        y0 = h // 2 - 10
+                        roi = frame[y0 - 16:y0 + 18 * len(lines) - 6, 0:min(w, 470)]
+                        cv2.convertScaleAbs(roi, dst=roi, alpha=0.4)
+                        for i, line in enumerate(lines):
+                            put_text(frame, line, (10, y0 + 18 * i), (0, 255, 200) if i != 1 else (0, 200, 255))
 
                     if recorder.active:
-                        el = int(time.time() - recorder.started)
+                        el = int(time.monotonic() - recorder.started)
                         # 상단 가운데: 좌상단 상태 표시줄과 우상단 거리·과녁 패널을 피한다
                         if el % 2 == 0:
                             cv2.circle(frame, (w // 2 - 52, 26), 7, (0, 0, 255), -1, cv2.LINE_AA)
                         cv2.putText(frame, f"REC {el // 60:02d}:{el % 60:02d}", (w // 2 - 40, 32),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 255), 2, cv2.LINE_AA)
 
-                    cv2.imshow(WINDOW_NAME, frame)
+                    # 창 크기가 바뀌었거나 전체화면이면 종횡비를 유지해 맞춘다
+                    display_frame = frame
+                else:
+                    health.error = "Invalid JPEG frame"
 
-            key_ex = cv2.waitKeyEx(1)
+            # 새 프레임이 없으면 다시 합성하지 않는다(상태 표시·REC 깜빡임용으로 0.1 초마다만 갱신).
+            if new_frame or time.monotonic() - last_draw >= 0.1:
+                last_draw = time.monotonic()
+                if status_seq["n"] != seen_seq:
+                    seen_seq = status_seq["n"]
+                    history.update(dict(fcs_status), last_draw)
+                _, _, win_w, win_h = cv2.getWindowImageRect(WINDOW_NAME)
+                controls.sync(fcs_status)
+                media_view = compose_view(
+                    display_frame, health, last_draw, recorder.active,
+                    max(0.0, last_draw - recorder.started) if recorder.active else 0.0,
+                    recorder.path, recorder.notice,
+                    audience=(panel, history, dict(fcs_status), controls), show_help=show_help,
+                )
+                geom.update(view_w=media_view.shape[1], view_h=media_view.shape[0], win_w=win_w, win_h=win_h)
+                if display_frame is not None:
+                    geom.update(video_h=display_frame.shape[0], video_w=display_frame.shape[1])
+                cv2.imshow(WINDOW_NAME, letterbox(media_view, win_w, win_h))
+            key_ex = cv2.waitKeyEx(max(1, int(wait_s * 1000)))
             key = key_ex & 0xFF
-            now = time.time()
-            recorder.feed(clean_frame, now)
+            now = time.monotonic()
+            if health.snapshot(time.monotonic())[0] == "LIVE":
+                recorder.feed(clean_frame, now)
+            elif recorder.active:
+                recorder.stop()
+                recorder.notice = "Stopped: video interrupted"
+                print("[REC] 영상 수신 중단으로 녹화를 종료했습니다.")
 
             if toggled(VK_V, key, (ord("v"), ord("V"))) and clean_frame is not None:
                 if recorder.active:
                     recorder.stop()
-                else:
+                elif health.snapshot(time.monotonic())[0] == "LIVE":
                     recorder.start(clean_frame)
+            if toggled(VK_F, key, (ord("f"), ord("F"))):
+                fullscreen = not fullscreen
+                cv2.setWindowProperty(
+                    WINDOW_NAME, cv2.WND_PROP_FULLSCREEN,
+                    cv2.WINDOW_FULLSCREEN if fullscreen else cv2.WINDOW_NORMAL,
+                )
+            # 방아쇠: 누른 한 번(클릭 또는 스페이스 눌림 순간)에 명령 한 번. 수동 모드가 아니면 FCS 가 무시한다.
+            fired = False
+            while clicks:
+                cx, cy = clicks.pop(0)
+                pos = window_to_view(cx, cy, geom["win_w"], geom["win_h"], geom["view_w"], geom["view_h"])
+                if pos is None:
+                    continue  # 검은 여백
+                vx, vy = pos
+                if vx < geom["video_w"] and vy < geom["video_h"]:
+                    fired = True
+                elif vx >= geom["video_w"]:
+                    layout = control_layout(geom["view_h"], show_help)
+                    button = hit_test(layout, vx - geom["video_w"], vy)
+                    if button is not None:
+                        spawn_cmd = controls.press(button)
+                        if spawn_cmd is not None:
+                            controls.flash_until = time.monotonic() + 0.4
+                            print("[UI] 표적 생성: " + spawn_cmd)
+                            ui_command(spawn_cmd)
+            if toggled(VK_SPACE, key, (32,)):
+                fired = True
+            if fired:
+                print("[KEY] 방아쇠")
+                ui_command("fire")
+            if toggled(VK_N, key, (ord("n"), ord("N"))):
+                controls.flash_until = time.monotonic() + 0.4
+                print("[KEY] 표적 생성: " + controls.command())
+                ui_command(controls.command())
+            if toggled(VK_F1, -1, ()):
+                show_help = not show_help
             if toggled(VK_H, key, (ord("h"), ord("H"))):
                 ui_command("toggle_debug")
             if toggled(VK_C, key, (ord("c"), ord("C"))):
                 print("[KEY] 사격 통계 초기화")
                 ui_command("reset_stats")
+            if toggled(VK_R, key, (ord("r"), ord("R"))):
+                print("[KEY] 탐색 자세 복귀")
+                search_pose()
+            if toggled(VK_M, key, (ord("m"), ord("M"))):
+                print("[KEY] 표적 기동 시작/정지")
+                ui_command("toggle_motion")
+            for motion, (vk_top, vk_pad, ch) in MOTION_KEYS.items():
+                if toggled((vk_top, vk_pad), key, (ord(ch),), name=motion):
+                    print(f"[KEY] 표적 기동 방식: {MOTION_LABELS[motion]}")
+                    ui_command(f"motion:{motion}")
+            if toggled((VK_OEM_PLUS, VK_ADD), key, (ord("+"), ord("=")), name="plus"):
+                print("[KEY] 표적 속도 +5 km/h")
+                ui_command("speed:+5")
+            if toggled((VK_OEM_MINUS, VK_SUBTRACT), key, (ord("-"),), name="minus"):
+                print("[KEY] 표적 속도 -5 km/h")
+                ui_command("speed:-5")
 
-            # Shift 를 누르고 있으면 큰 스텝(표적 탐색), 아니면 정밀 스텝(정렬).
-            step_rad = STEP_COARSE_RAD if is_key_down(VK_SHIFT) else STEP_FINE_RAD
-
-            # 키보드 방향키 / WASD / T(대공) / R(리셋) / 스페이스바 판별
-            is_up = is_key_down(VK_UP) or is_key_down(VK_W) or (key in (ord("w"), ord("W"))) or (key_ex in (2490368, 0x260000, 38))
-            is_down = is_key_down(VK_DOWN) or is_key_down(VK_S) or (key in (ord("s"), ord("S"))) or (key_ex in (2621440, 0x280000, 40))
-            is_left = is_key_down(VK_LEFT) or is_key_down(VK_A) or (key in (ord("a"), ord("A"))) or (key_ex in (2424832, 0x250000, 37))
-            is_right = is_key_down(VK_RIGHT) or is_key_down(VK_D) or (key in (ord("d"), ord("D"))) or (key_ex in (2555904, 0x270000, 39))
-            is_air = is_key_down(VK_T) or (key in (ord("t"), ord("T")))
-            is_reset = is_key_down(VK_R) or (key in (ord("r"), ord("R")))
-            is_fire = is_key_down(VK_SPACE) or (key == 32)
-            # 안내문대로 Q 도 종료로 받는다(이전에는 ESC 만 받아 Q 를 눌러도 창이 남았다)
-            # 다른 키와 마찬가지로 GetAsyncKeyState 로도 받는다. waitKeyEx 로만 받으면 입력이
-            # OpenCV 창에 전달되지 않는 경우 ESC 가 먹지 않았다(2026-09-18 실측).
-            is_quit = (key in (27, ord("q"), ord("Q")) or is_key_down(VK_ESCAPE) or is_key_down(VK_Q)
-                       or cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1)
-
-            if now - last_key_time > 0.05:  # 50ms 쿨다운으로 신속하고 부드러운 연속 조작
-                if is_air:
-                    print("[KEY] 대공 경계 자세 프리셋 (TILT +18.3deg)")
-                    slew(888.0, 0.0)
-                    last_key_time = now + 0.15
-                elif is_up:
-                    print("[KEY] 상방(TILT UP) 조준")
-                    slew(0.0, step_rad)
-                    last_key_time = now
-                elif is_down:
-                    print("[KEY] 하방(TILT DOWN) 조준")
-                    slew(0.0, -step_rad)
-                    last_key_time = now
-                elif is_left:
-                    print("[KEY] 좌측(PAN LEFT) 조준")
-                    slew(step_rad, 0.0)
-                    last_key_time = now
-                elif is_right:
-                    print("[KEY] 우측(PAN RIGHT) 조준")
-                    slew(-step_rad, 0.0)
-                    last_key_time = now
-                elif is_reset:
-                    print("[KEY] 조준 수평 리셋")
-                    slew(999.0, 0.0)
-                    last_key_time = now
-                elif is_fire:
-                    fire()
-                    last_key_time = now + 0.2  # 단발 방아쇠 쿨다운
-
-            if is_quit:
+            # Q 도 ESC 와 같이 종료로 받는다. waitKeyEx 로만 받으면 입력이 OpenCV 창에
+            # 전달되지 않는 경우 ESC 가 먹지 않아 GetAsyncKeyState 로도 받는다.
+            if (key in (27, ord("q"), ord("Q")) or is_key_down(VK_ESCAPE) or is_key_down(VK_Q)
+                    or cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1):
                 break
 
-        except Exception as e:
-            stream = None
+        except Exception:
+            # 예외를 삼키면 화면이 멈춰도 원인을 알 수 없다. 같은 예외는 한 번만 출력한다.
+            err = traceback.format_exc()
+            if err != last_error:
+                last_error = err
+                print("[ERR] 뷰어 루프 예외:\n" + err)
+            try:
+                if cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1:
+                    break
+            except cv2.error:
+                break
             time.sleep(0.2)
 
+    stop_event.set()
+    try:
+        ctypes.windll.winmm.timeEndPeriod(1)
+    except Exception:
+        pass
     recorder.stop()
+    stream_thread.join(timeout=2.5)
+    status_thread.join(timeout=1.5)
     cv2.destroyAllWindows()
 
 
